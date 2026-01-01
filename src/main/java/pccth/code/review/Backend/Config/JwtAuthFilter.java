@@ -1,4 +1,4 @@
-package pccth.code.review.Backend.Security;
+package pccth.code.review.Backend.Config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
