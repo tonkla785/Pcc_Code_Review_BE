@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import pccth.code.review.Backend.DTO.ApiErrorResponseDTO;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,98 +19,140 @@ public class GlobalExceptionHandler {
 
     // Validation จาก @RequestBody
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleValidation(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiErrorResponseDTO> handleValidation(
+            MethodArgumentNotValidException e) {
+
         Map<String, String> errors = new HashMap<>();
         e.getBindingResult()
                 .getFieldErrors()
-                .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
+                .forEach(err ->
+                        errors.put(err.getField(), err.getDefaultMessage())
+                );
 
-        return ResponseEntity.badRequest().body(Map.of(
-                "responseStatus", 400,
-                "responseMessage", "Validation failed",
-                "errors", errors
-        ));
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Validation failed",
+                        errors
+                );
+
+        return ResponseEntity.badRequest().body(response);
     }
 
     // Validation จาก @PathVariable / @RequestParam
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<?> handleConstraint(ConstraintViolationException e) {
+    public ResponseEntity<ApiErrorResponseDTO> handleConstraint(
+            ConstraintViolationException e) {
+
         Map<String, String> errors = new HashMap<>();
         e.getConstraintViolations().forEach(v ->
                 errors.put(v.getPropertyPath().toString(), v.getMessage())
         );
 
-        return ResponseEntity.badRequest().body(Map.of(
-                "responseStatus", 400,
-                "responseMessage", "Validation failed",
-                "errors", errors
-        ));
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Validation failed",
+                        errors
+                );
+
+        return ResponseEntity.badRequest().body(response);
     }
 
-    // IllegalArgumentException → 400 Bad Request
+    // IllegalArgumentException 400
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArg(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(Map.of(
-                "responseStatus", 400,
-                "responseMessage", e.getMessage()
-        ));
+    public ResponseEntity<ApiErrorResponseDTO> handleIllegalArg(
+            IllegalArgumentException e) {
+
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        HttpStatus.BAD_REQUEST.value(),
+                        e.getMessage()
+                );
+
+        return ResponseEntity.badRequest().body(response);
     }
 
-    // RuntimeException อื่น ๆ เช่น refresh token / JWT expired → 401 Unauthorized
+    // RuntimeException (JWT / Refresh Token)
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
-        String msg = e.getMessage() != null ? e.getMessage() : "Internal error";
+    public ResponseEntity<ApiErrorResponseDTO> handleRuntimeException(
+            RuntimeException e) {
 
-        if (msg.contains("Refresh token missing") ||
-                msg.contains("Invalid refresh token") ||
-                msg.contains("JWT token expired")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
-                    "responseStatus", 401,
-                    "responseMessage", msg
-            ));
+        String message = e.getMessage() != null
+                ? e.getMessage()
+                : "Internal error";
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        if (message.contains("Refresh token missing")
+                || message.contains("Invalid refresh token")
+                || message.contains("JWT token expired")) {
+            status = HttpStatus.UNAUTHORIZED;
         }
 
-        // RuntimeException อื่น ๆ → 400
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                "responseStatus", 400,
-                "responseMessage", msg
-        ));
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        status.value(),
+                        message
+                );
+
+        return ResponseEntity.status(status).body(response);
     }
 
-    // ไม่เจอ resource → 404 Not Found
+    // Not Found 404
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<?> handleNotFound(NoSuchElementException e) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "responseStatus", 404,
-                "responseMessage", e.getMessage()
-        ));
+    public ResponseEntity<ApiErrorResponseDTO> handleNotFound(
+            NoSuchElementException e) {
+
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        HttpStatus.NOT_FOUND.value(),
+                        e.getMessage()
+                );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    // Data integrity เช่น duplicate key → 400
+    // Duplicate key / Data integrity
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<?> handleDataIntegrity(DataIntegrityViolationException e) {
-        return ResponseEntity.badRequest().body(Map.of(
-                "responseStatus", 400,
-                "responseMessage", "Email, username or phone already exists"
-        ));
+    public ResponseEntity<ApiErrorResponseDTO> handleDataIntegrity(
+            DataIntegrityViolationException e) {
+
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        HttpStatus.BAD_REQUEST.value(),
+                        "Email, username or phone already exists"
+                );
+
+        return ResponseEntity.badRequest().body(response);
     }
 
-    // ResponseStatusException → ใช้ status ตาม exception
+    // ResponseStatusException
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<?> handleResponseStatus(ResponseStatusException e) {
-        return ResponseEntity.status(e.getStatusCode()).body(Map.of(
-                "responseStatus", e.getStatusCode().value(),
-                "responseMessage", e.getReason()
-        ));
+    public ResponseEntity<ApiErrorResponseDTO> handleResponseStatus(
+            ResponseStatusException e) {
+
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        e.getStatusCode().value(),
+                        e.getReason()
+                );
+
+        return ResponseEntity.status(e.getStatusCode()).body(response);
     }
 
-    // Fallback สำหรับ exception อื่น ๆ → 500 Internal Server Error
+    // Fallback 500 exception อื่นๆ
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGeneral(Exception e) {
-        e.printStackTrace(); // สำหรับ debug
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
-                "responseStatus", 500,
-                "responseMessage", e.getMessage()
-        ));
+    public ResponseEntity<ApiErrorResponseDTO> handleGeneral(Exception e) {
+        e.printStackTrace(); //เอาไว้ debug
+        ApiErrorResponseDTO response =
+                new ApiErrorResponseDTO(
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        "Internal server error"
+                );
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
     }
 }
