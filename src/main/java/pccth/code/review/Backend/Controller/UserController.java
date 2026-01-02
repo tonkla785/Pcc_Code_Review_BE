@@ -1,6 +1,7 @@
 package pccth.code.review.Backend.Controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.LoginRequestDTO;
@@ -24,19 +25,19 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterRequestDTO request) {
+    public ResponseEntity<RegisterResponseDTO> register(@Valid @RequestBody RegisterRequestDTO request) {
         RegisterResponseDTO response = userService.register(request);
         return ResponseEntity.status(201).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody LoginRequestDTO request,
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO request,
                                                   HttpServletResponse response) {
         LoginResponseDTO loginResponse = userService.login(request, response);
         return ResponseEntity.ok(loginResponse);
     }
 
-    //เส้นนี้ใช้ postman test นะจ๊ะ
+    //postman test
     @PostMapping("/refresh")
     public ResponseEntity<AccessTokenResponseDTO> refreshAccessToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) {
         AccessTokenResponseDTO newAccessToken = authService.refreshAccessToken(refreshToken);
