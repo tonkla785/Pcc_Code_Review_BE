@@ -1,6 +1,7 @@
 package pccth.code.review.Backend.Entity;
 
 import jakarta.persistence.*;
+import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,7 +23,7 @@ public class ProjectEntity {
     private String repositoryUrl;
 
     @Column(name = "project_type")
-    private String projectType;
+    private ProjectTypeEnum projectType;
 
     @Column(name = "sonar_project_key")
     private String sonarProjectKey;
@@ -60,11 +61,11 @@ public class ProjectEntity {
         this.repositoryUrl = repositoryUrl;
     }
 
-    public String getProjectType() {
+    public ProjectTypeEnum getProjectType() {
         return projectType;
     }
 
-    public void setProjectType(String projectType) {
+    public void setProjectType(ProjectTypeEnum projectType) {
         this.projectType = projectType;
     }
 

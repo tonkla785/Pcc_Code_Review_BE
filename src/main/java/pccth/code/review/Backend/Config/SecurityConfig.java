@@ -14,9 +14,11 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final WebhookAuthFilter webhookAuthFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, WebhookAuthFilter webhookAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
+        this.webhookAuthFilter = webhookAuthFilter;
     }
 
     @Bean
@@ -32,7 +34,8 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
-                                "/user/refresh"
+                                "/user/refresh",
+                                "/webhooks/**"
                         )
                 )
                 .sessionManagement(sm ->
@@ -48,11 +51,12 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/user/login",
                                 "/user/register",
-                                "/user/refresh"
+                                "/user/refresh",
+                                "/webhooks/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class).addFilterBefore(webhookAuthFilter, JwtAuthFilter.class);
 
         return http.build();
     }

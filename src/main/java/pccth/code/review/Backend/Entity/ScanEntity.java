@@ -3,6 +3,7 @@ package pccth.code.review.Backend.Entity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
 import java.util.*;
 
@@ -19,7 +20,7 @@ public class ScanEntity {
     private ProjectEntity project;
 
     @Column(name = "status", length = 50)
-    private String status;
+    private ScanStatusEnum status;
 
     @Column(name = "started_at")
     private Date startedAt;
@@ -56,11 +57,11 @@ public class ScanEntity {
         this.project = project;
     }
 
-    public String getStatus() {
+    public ScanStatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ScanStatusEnum status) {
         this.status = status;
     }
 
