@@ -12,6 +12,7 @@ import pccth.code.review.Backend.Repository.ScanRepository;
 import java.util.Date;
 import java.util.UUID;
 
+//ทำไว้เทส การใช้ n8n เฉยๆ
 @Service
 public class WebhookScanService {
 
