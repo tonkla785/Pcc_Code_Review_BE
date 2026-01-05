@@ -20,6 +20,7 @@ public class ScanEntity {
     private ProjectEntity project;
 
     @Column(name = "status", length = 50)
+    @Enumerated(EnumType.STRING)
     private ScanStatusEnum status;
 
     @Column(name = "started_at")
