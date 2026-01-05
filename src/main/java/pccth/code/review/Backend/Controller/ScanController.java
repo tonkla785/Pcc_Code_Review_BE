@@ -8,6 +8,6 @@ public class ScanController {
 
     @GetMapping("/tao")
     public String get(){
-        return "Tao";
+        return "Bunlung";
     }
 }
