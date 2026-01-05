@@ -7,21 +7,23 @@ import java.util.List;
 @Service
 public class IssueService {
 
-
-    public String listIssues(){
+    public String listIssues() {
         return "List issues";
     }
-    public String getIssuesDetail(){
-        return "Get issue details";
-    }
-    public String assignDeveloper(){
-        return "Assign developer";
-    }
-    public String addComment(){
-        return "Add comment";
-    }
-    public String upDateStatus(){
-        return "Update status";
+
+    public String getIssueDetail(Long id) {
+        return "Get issue details: " + id;
     }
 
+    public String assignDeveloper(Long id) {
+        return "Assign developer to issue: " + id;
+    }
+
+    public String addComment(Long id) {
+        return "Add comment to issue: " + id;
+    }
+
+    public String updateStatus(Long id) {
+        return "Update status of issue: " + id;
+    }
 }
