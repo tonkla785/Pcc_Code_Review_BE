@@ -12,10 +12,10 @@ import java.util.UUID;
 @RequestMapping("/webhooks")
 public class WebhookController {
 
-    private final WebhookScanService scanService;
+    private final WebhookScanService webhookScanService;
 
-    public WebhookController(WebhookScanService scanService) {
-        this.scanService = scanService;
+    public WebhookController(WebhookScanService webhookScanService) {
+        this.webhookScanService = webhookScanService;
     }
 
     @PostMapping("/scan")
@@ -24,7 +24,7 @@ public class WebhookController {
             @RequestParam(defaultValue = "main") String branch
     ) {
         return ResponseEntity.ok(
-                scanService.triggerScan(projectId, branch)
+                webhookScanService.triggerScan(projectId, branch)
         );
     }
 
