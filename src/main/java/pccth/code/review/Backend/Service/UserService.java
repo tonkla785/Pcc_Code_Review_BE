@@ -84,7 +84,7 @@ public class UserService {
 
     private void validateDuplicateUser(RegisterRequestDTO request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already in use");
+            throw new RuntimeException("Email already in use หม่ำ");
         }
 
         if (userRepository.existsByUsername(request.getUsername())) {

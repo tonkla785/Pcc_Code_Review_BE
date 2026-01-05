@@ -32,7 +32,6 @@ public class AuthService {
         // สร้าง access token ใหม่
         AccessTokenResponseDTO response = new AccessTokenResponseDTO();
         response.setAccessToken(jwtService.generateAccessToken(username));
-
         return response;
     }
 }
