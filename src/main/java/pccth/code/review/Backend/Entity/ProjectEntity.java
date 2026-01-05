@@ -23,6 +23,7 @@ public class ProjectEntity {
     private String repositoryUrl;
 
     @Column(name = "project_type")
+    @Enumerated(EnumType.STRING)
     private ProjectTypeEnum projectType;
 
     @Column(name = "sonar_project_key")
