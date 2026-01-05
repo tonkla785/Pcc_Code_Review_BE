@@ -37,7 +37,7 @@ public class WebhookScanService {
         // สร้าง Scan ใหม่
         ScanEntity scan = new ScanEntity();
         scan.setProject(project);
-        scan.setStatus(ScanStatusEnum.pending);
+        scan.setStatus(ScanStatusEnum.PENDING);
         scan.setStartedAt(new Date());
 
         scanRepository.save(scan);
