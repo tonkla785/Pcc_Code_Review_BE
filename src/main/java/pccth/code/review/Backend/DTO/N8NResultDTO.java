@@ -1,13 +1,11 @@
 package pccth.code.review.Backend.DTO;
 
-import pccth.code.review.Backend.EnumType.ScanStatusEnum;
-
 import java.util.Map;
 import java.util.UUID;
 
 public class N8NResultDTO {
     private UUID scanId;
-    private ScanStatusEnum status; // SUCCESS | FAILED
+    private String status;
     private String qualityGate;
     private Map<String, Object> metrics;
     private String logFilePath;
@@ -20,11 +18,11 @@ public class N8NResultDTO {
         this.scanId = scanId;
     }
 
-    public ScanStatusEnum getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(ScanStatusEnum status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
