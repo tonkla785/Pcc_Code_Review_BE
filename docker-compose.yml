@@ -82,6 +82,16 @@ services:
 
       REDIS_HOST: redis
       REDIS_PORT: 6379
+
+      SONAR_HOST_URL: http://sonarqube:9000
+
+      N8N_ENCRYPTION_KEY: pccth_super_secret_key
+      GENERIC_TIMEZONE: Asia/Bangkok
+      EXECUTIONS_MODE: regular
+
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_ALLOW_EXECUTE_COMMAND: "true"
+      EXECUTIONS_PROCESS: main
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
