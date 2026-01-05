@@ -79,11 +79,14 @@ services:
       DB_POSTGRESDB_DATABASE: n8ndb
       DB_POSTGRESDB_USER: n8n
       DB_POSTGRESDB_PASSWORD: n8npass
+
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
       - n8n-db
-
+      - redis
 
 volumes:
   postgres_data:
