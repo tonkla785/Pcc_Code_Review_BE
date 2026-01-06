@@ -50,13 +50,16 @@ public class ProjectController {
 
     // แก้ไข repository เฉพาะตัว id
     @PutMapping("/update-repository/{id}")
-    public void updateRepository(@PathVariable UUID id, @Valid @RequestBody RepositoryDTO repository) {
-        projectService.updateRepository(id, repository);
+    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
+            @Valid @RequestBody RepositoryDTO repository) {
+        RepositoryResponseDTO response = projectService.updateRepository(id, repository);
+        return ResponseEntity.status(200).body(response);
     }
 
     // ลบ repository เฉพาะตัว id
     @DeleteMapping("/delete-repository/{id}")
-    public void deleteRepository(@PathVariable UUID id) {
-        projectService.deleteRepository(id);
+    public ResponseEntity<RepositoryResponseDTO> deleteRepository(@PathVariable UUID id) {
+        RepositoryResponseDTO response = projectService.deleteRepository(id);
+        return ResponseEntity.status(200).body(response);
     }
 }

@@ -58,7 +58,7 @@ public class ProjectService {
     }
 
     // แก้ไข repository
-    public void updateRepository(UUID id, RepositoryDTO repository) {
+    public RepositoryResponseDTO updateRepository(UUID id, RepositoryDTO repository) {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
 
@@ -70,17 +70,27 @@ public class ProjectService {
             entity.setUpdatedAt(new Date());
 
             projectRepository.save(entity);
+
+            RepositoryResponseDTO response = new RepositoryResponseDTO();
+            response.setMessage("Repository added successfully");
+            return response;
+
         } catch (Exception e) {
             throw new RuntimeException("Server Error", e);
         }
     }
 
     // ลบ repository
-    public void deleteRepository(UUID id) {
+    public RepositoryResponseDTO deleteRepository(UUID id) {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
         try {
             projectRepository.delete(entity);
+
+            RepositoryResponseDTO response = new RepositoryResponseDTO();
+            response.setMessage("Repository deleted successfully");
+            return response;
+
         } catch (Exception e) {
             throw new RuntimeException("Server Error", e);
         }
