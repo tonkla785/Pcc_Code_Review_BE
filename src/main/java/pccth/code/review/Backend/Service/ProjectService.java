@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import pccth.code.review.Backend.DTO.Request.RepositoryDTO;
-import pccth.code.review.Backend.DTO.Response.RegisterResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RepositoryResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
@@ -61,7 +60,6 @@ public class ProjectService {
     public RepositoryResponseDTO updateRepository(UUID id, RepositoryDTO repository) {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
-
         try {
             entity.setName(repository.getName());
             entity.setRepositoryUrl(repository.getUrl());
