@@ -3,6 +3,7 @@ package pccth.code.review.Backend.Controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,8 +31,9 @@ public class ProjectController {
 
     // เพิ่ม repository
     @PostMapping("/new-repository")
-    public void addRepository(@Valid @RequestBody RepositoryDTO repository) {
-        projectService.addRepository(repository);
+    public ResponseEntity<RepositoryResponseDTO> addRepository(@Valid @RequestBody RepositoryDTO repository) {
+        RepositoryResponseDTO response = projectService.addRepository(repository);
+        return ResponseEntity.status(201).body(response); // 201 สำหรับการสร้างใหม่
     }
 
     // ดึง repository ทั้งหมด
@@ -42,7 +44,7 @@ public class ProjectController {
 
     // ดึง repository เฉพาะตัว id
     @GetMapping("/search-repositories/{id}")
-    public RepositoryResponseDTO getRepository(@PathVariable UUID id) {
+    public ProjectEntity getRepository(@PathVariable UUID id) {
         return projectService.searchRepository(id);
     }
 

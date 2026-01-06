@@ -1,14 +1,13 @@
 package pccth.code.review.Backend.Service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import pccth.code.review.Backend.DTO.Request.RepositoryDTO;
+import pccth.code.review.Backend.DTO.Response.RegisterResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RepositoryResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
@@ -24,17 +23,24 @@ public class ProjectService {
     }
 
     // เพิ่ม repository
-    public void addRepository(RepositoryDTO repository) {
+    public RepositoryResponseDTO addRepository(RepositoryDTO repository) {
+        try {
+            ProjectEntity project = new ProjectEntity();
+            project.setId(UUID.randomUUID());
+            project.setName(repository.getName());
+            project.setRepositoryUrl(repository.getUrl());
+            project.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
+            project.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
+            project.setCreatedAt(new Date());
 
-        ProjectEntity project = new ProjectEntity();
-        project.setId(UUID.randomUUID());
-        project.setName(repository.getName());
-        project.setRepositoryUrl(repository.getUrl());
-        project.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
-        project.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
-        project.setCreatedAt(new Date());
+            projectRepository.save(project);
 
-        projectRepository.save(project);
+            RepositoryResponseDTO response = new RepositoryResponseDTO();
+            response.setMessage("Repository added successfully");
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
     }
 
     // ดึงข้อมูล repository ทั้งหมด
@@ -43,42 +49,42 @@ public class ProjectService {
     }
 
     // ดึงข้อมูล repository ตาม id
-    public RepositoryResponseDTO searchRepository(UUID id) {
+    public ProjectEntity searchRepository(UUID id) {
 
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Repository not found"));
 
-        RepositoryResponseDTO dto = new RepositoryResponseDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setRepositoryUrl(entity.getRepositoryUrl());
-        dto.setProjectType(entity.getProjectType().name());
-        dto.setSonarProjectKey(entity.getSonarProjectKey());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-
-        return dto;
+        return entity;
     }
 
     // แก้ไข repository
     public void updateRepository(UUID id, RepositoryDTO repository) {
         ProjectEntity entity = projectRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
+                .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
 
-        entity.setName(repository.getName());
-        entity.setRepositoryUrl(repository.getUrl());
-        entity.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
-        entity.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
-        entity.setUpdatedAt(new Date());
+        try {
+            entity.setName(repository.getName());
+            entity.setRepositoryUrl(repository.getUrl());
+            entity.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
+            entity.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
+            entity.setUpdatedAt(new Date());
 
-        projectRepository.save(entity);
+            projectRepository.save(entity);
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
     }
 
     // ลบ repository
     public void deleteRepository(UUID id) {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
-        projectRepository.delete(entity);
+        try {
+            projectRepository.delete(entity);
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
+
     }
 
 }
