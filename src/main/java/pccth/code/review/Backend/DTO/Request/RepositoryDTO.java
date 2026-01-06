@@ -9,8 +9,6 @@ public class RepositoryDTO {
     private String url;
     @NotBlank(message = "Type is required")
     private String type;
-    @NotBlank(message = "SonarKey is required")
-    private String sonarKey;
 
     public String getName() {
         return name;
@@ -34,14 +32,6 @@ public class RepositoryDTO {
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getSonarKey() {
-        return sonarKey;
-    }
-
-    public void setSonarKey(String sonarKey) {
-        this.sonarKey = sonarKey;
     }
 
 }
