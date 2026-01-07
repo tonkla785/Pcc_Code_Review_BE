@@ -1,12 +1,16 @@
 package pccth.code.review.Backend.DTO.Response;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
 import java.util.*;
 
 public class ScanResponseDTO {
+    @NotNull(message = "Email is required")
     private UUID id;
+    @NotNull(message = "Email is required")
     private UUID projectId;
     private ScanStatusEnum status;
     private Date startedAt;
