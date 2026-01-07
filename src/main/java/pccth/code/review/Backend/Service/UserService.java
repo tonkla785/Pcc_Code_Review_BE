@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.LoginRequestDTO;
 import pccth.code.review.Backend.DTO.Request.RegisterRequestDTO;
+import pccth.code.review.Backend.DTO.Request.ResetPassDTO;
 import pccth.code.review.Backend.DTO.Response.LoginResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RegisterResponseDTO;
 import pccth.code.review.Backend.Entity.UserEntity;
@@ -95,4 +96,23 @@ public class UserService {
             throw new RuntimeException("Phone number already in use");
         }
     }
+
+    public void resetPassword(String username, ResetPassDTO request) {
+
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!passwordEncoder.matches(
+                request.getCurrentPassword(),
+                user.getPasswordHash())) {
+            throw new RuntimeException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(
+                passwordEncoder.encode(request.getNewPassword())
+        );
+
+        userRepository.save(user);
+    }
+
 }
