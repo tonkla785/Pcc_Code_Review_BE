@@ -20,29 +20,26 @@ public class SecurityConfig {
                 this.webhookAuthFilter = webhookAuthFilter;
         }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm ->
-                        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html",
-                                "/user/login",
-                                "/user/register",
-                                "/user/refresh",
-                                "/webhooks/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
-                )
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+                http
+                                .csrf(csrf -> csrf.disable())
+                                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .authorizeHttpRequests(auth -> auth
+                                                .requestMatchers(
+                                                                "/",
+                                                                "/swagger-ui/**",
+                                                                "/v3/api-docs/**",
+                                                                "/swagger-ui.html",
+                                                                "/user/login",
+                                                                "/user/register",
+                                                                "/user/refresh",
+                                                                "/webhooks/**")
+                                                .permitAll()
+                                                .anyRequest().authenticated())
 
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(webhookAuthFilter, JwtAuthFilter.class);
+                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterBefore(webhookAuthFilter, JwtAuthFilter.class);
 
                 return http.build();
         }
