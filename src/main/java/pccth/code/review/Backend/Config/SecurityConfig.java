@@ -12,13 +12,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final WebhookAuthFilter webhookAuthFilter;
+        private final JwtAuthFilter jwtAuthFilter;
+        private final WebhookAuthFilter webhookAuthFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, WebhookAuthFilter webhookAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.webhookAuthFilter = webhookAuthFilter;
-    }
+        public SecurityConfig(JwtAuthFilter jwtAuthFilter, WebhookAuthFilter webhookAuthFilter) {
+                this.jwtAuthFilter = jwtAuthFilter;
+                this.webhookAuthFilter = webhookAuthFilter;
+        }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -44,6 +44,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(webhookAuthFilter, JwtAuthFilter.class);
 
-        return http.build();
-    }
+                return http.build();
+        }
 }

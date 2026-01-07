@@ -1,14 +1,21 @@
 package pccth.code.review.Backend.Service;
 
 import org.springframework.stereotype.Service;
+import pccth.code.review.Backend.Entity.IssueEntity;
+import pccth.code.review.Backend.Repository.IssueRepository;
 
 import java.util.List;
 
 @Service
 public class IssueService {
+    private final IssueRepository issueRepository;
 
-    public String listIssues() {
-        return "List issues";
+    public IssueService(IssueRepository issueRepository) {
+        this.issueRepository = issueRepository;
+    }
+
+    public List<IssueEntity> listIssues() {
+        return issueRepository.findAll();
     }
 
     public String getIssueDetail(Long id) {
