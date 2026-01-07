@@ -34,4 +34,12 @@ public class AuthService {
         response.setAccessToken(jwtService.generateAccessToken(username));
         return response;
     }
+
+    public void logout(String refreshToken) {
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            String username = jwtService.extractUsername(refreshToken);
+            refreshTokenService.deleteByUsername(username);
+        }
+    }
+
 }
