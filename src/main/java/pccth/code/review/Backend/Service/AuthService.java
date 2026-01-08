@@ -32,7 +32,14 @@ public class AuthService {
         // สร้าง access token ใหม่
         AccessTokenResponseDTO response = new AccessTokenResponseDTO();
         response.setAccessToken(jwtService.generateAccessToken(username));
-
         return response;
     }
+
+    public void logout(String refreshToken) {
+        if (refreshToken != null && !refreshToken.isEmpty()) {
+            String username = jwtService.extractUsername(refreshToken);
+            refreshTokenService.deleteByUsername(username);
+        }
+    }
+
 }
