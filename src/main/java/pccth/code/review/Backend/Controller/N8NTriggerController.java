@@ -15,7 +15,11 @@ public class N8NTriggerController {
     private final WebhookScanService webhookScanService;
     private final EmailService emailService;
 
+<<<<<<< HEAD
+    public N8NTriggerController(WebhookScanService webhookScanService) {
+=======
     public N8NTriggerController(WebhookScanService webhookScanService, EmailService emailService) {
+>>>>>>> main
         this.webhookScanService = webhookScanService;
         this.emailService = emailService;
     }
