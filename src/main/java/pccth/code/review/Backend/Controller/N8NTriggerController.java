@@ -11,11 +11,11 @@ import pccth.code.review.Backend.Service.WebhookScanService;
 import java.util.UUID;
 
 @RestController
-public class TestN8N {
+public class N8NTriggerController {
 
     private final WebhookScanService webhookScanService;
 
-    public TestN8N(WebhookScanService webhookScanService) {
+    public N8NTriggerController(WebhookScanService webhookScanService) {
         this.webhookScanService = webhookScanService;
     }
 
