@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 import pccth.code.review.Backend.Config.WebhookConfig;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
+import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
@@ -14,6 +15,7 @@ import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -86,4 +88,30 @@ public class WebhookScanService {
                 Void.class
         );
     }
+    public ScanResponseDTO updateScan(UUID scanId, ScanResponseDTO req) {
+
+        ScanEntity scan = scanRepository.findById(scanId)
+                .orElseThrow(() -> new NoSuchElementException("Scan not found"));
+
+        scan.setStatus(req.getStatus());
+        scan.setCompletedAt(req.getCompletedAt());
+        scan.setQualityGate(req.getQualityGate());
+        scan.setMetrics(req.getMetrics());
+        scan.setLogFilePath(req.getLogFilePath());
+
+        ScanEntity saved = scanRepository.save(scan);
+
+        ScanResponseDTO dto = new ScanResponseDTO();
+        dto.setId(saved.getId());
+//        dto.setProjectId(saved.getProject().getId());
+        dto.setStatus(saved.getStatus());
+        dto.setStartedAt(saved.getStartedAt());
+        dto.setCompletedAt(saved.getCompletedAt());
+        dto.setQualityGate(saved.getQualityGate());
+        dto.setMetrics(saved.getMetrics());
+        dto.setLogFilePath(saved.getLogFilePath());
+
+        return dto;
+    }
+
 }

@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.ScanRequestsDTO;
+import pccth.code.review.Backend.DTO.Response.IssueStatusCountDTO;
+import pccth.code.review.Backend.DTO.Response.IssuesReponseDTO;
 import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
 import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Service.ScanService;
@@ -36,9 +38,9 @@ public class ScanController {
         return ResponseEntity.ok(projectResponseDTO);
     }
     @GetMapping("/{projectId}/trends")
-    public ResponseEntity<List<ScanResponseDTO>> getProjectIssue(@PathVariable UUID projectId) {
-        List<ScanResponseDTO> scanResponseDTO = scanService.getScansIssue(projectId);
-        return ResponseEntity.ok(scanResponseDTO);
+    public ResponseEntity<List<IssueStatusCountDTO>> getProjectIssue(@PathVariable UUID projectId) {
+        List<IssueStatusCountDTO> issueStatusCountDTO  = scanService.getScansIssue(projectId);
+        return ResponseEntity.ok(issueStatusCountDTO);
     }
     @GetMapping("/scans/{scanId}")
     public ResponseEntity<ScanResponseDTO> getScanById(@PathVariable UUID scanId) {
@@ -61,6 +63,7 @@ public class ScanController {
 
         return ResponseEntity.ok(scanService.SaveScan(request));
     }
+
 
 
 

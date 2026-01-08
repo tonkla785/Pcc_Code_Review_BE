@@ -16,10 +16,11 @@ public class IssuesReponseDTO {
     private String severity;
     private String component;
     private String message;
-    private UUID assignedTo;
+    private UserResponseDTO assignedTo;
     private String status;
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
+
 
     public UUID getId() {
         return id;
@@ -77,13 +78,6 @@ public class IssuesReponseDTO {
         this.message = message;
     }
 
-    public UUID getAssignedTo() {
-        return assignedTo;
-    }
-
-    public void setAssignedTo(UUID assignedTo) {
-        this.assignedTo = assignedTo;
-    }
 
     public String getStatus() {
         return status;
@@ -107,5 +101,13 @@ public class IssuesReponseDTO {
 
     public void setCommentData(List<CommentResponseDTO> commentData) {
         this.commentData = commentData;
+    }
+
+    public UserResponseDTO getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(UserResponseDTO assignedTo) {
+        this.assignedTo = assignedTo;
     }
 }

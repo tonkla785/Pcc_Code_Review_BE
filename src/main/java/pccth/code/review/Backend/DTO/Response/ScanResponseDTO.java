@@ -8,9 +8,9 @@ import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 import java.util.*;
 
 public class ScanResponseDTO {
-    @NotNull(message = "Email is required")
+    @NotNull(message = "Id is required")
     private UUID id;
-    @NotNull(message = "Email is required")
+    private ProjectResponseDTO project;
     private UUID projectId;
     private ScanStatusEnum status;
     private Date startedAt;
@@ -26,6 +26,14 @@ public class ScanResponseDTO {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public ProjectResponseDTO getProject() {
+        return project;
+    }
+
+    public void setProject(ProjectResponseDTO project) {
+        this.project = project;
     }
 
     public UUID getProjectId() {
