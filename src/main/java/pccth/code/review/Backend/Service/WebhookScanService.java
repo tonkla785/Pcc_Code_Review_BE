@@ -10,6 +10,7 @@ import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
+import pccth.code.review.Backend.Integration.N8NWebhookClient;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
@@ -21,21 +22,18 @@ public class WebhookScanService {
 
     private final ProjectRepository projectRepository;
     private final ScanRepository scanRepository;
-    private final RedisQueueService redisQueueService;
-    private final WebhookConfig webhookConfig;
+    private final N8NWebhookClient n8NWebhookClient;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public WebhookScanService(
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
-            RedisQueueService redisQueueService,
-            WebhookConfig webhookConfig
+            N8NWebhookClient n8NWebhookClient
     ) {
         this.projectRepository = projectRepository;
         this.scanRepository = scanRepository;
-        this.redisQueueService = redisQueueService;
-        this.webhookConfig = webhookConfig;
+        this.n8NWebhookClient = n8NWebhookClient;
     }
 
     public N8NScanQueueResposneDTO triggerScan(UUID projectId, String branch) {
@@ -60,11 +58,8 @@ public class WebhookScanService {
         request.setSonarProjectKey(project.getSonarProjectKey());
         request.setBranch(branch);
 
-        // push เข้า Redis queue
-        redisQueueService.enqueueScan(request);
-
         // trigger n8n worker
-        triggerN8nWorker();
+        n8NWebhookClient.postToN8N(request);
 
         //response กลับ UI
         N8NScanQueueResposneDTO response = new N8NScanQueueResposneDTO();
@@ -72,18 +67,5 @@ public class WebhookScanService {
         response.setStatus(scan.getStatus());
 
         return response;
-    }
-
-    private void triggerN8nWorker() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("WEBHOOK-TOKEN", webhookConfig.getWebhookToken());
-
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-
-        restTemplate.postForEntity(
-                webhookConfig.getWorkerUrl(),
-                entity,
-                Void.class
-        );
     }
 }
