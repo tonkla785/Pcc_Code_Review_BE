@@ -8,7 +8,9 @@ import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 import java.util.*;
 
 public class ScanResponseDTO {
+    @NotNull(message = "Email is required")
     private UUID id;
+    @NotNull(message = "Email is required")
     private UUID projectId;
     private ScanStatusEnum status;
     private Date startedAt;
