@@ -11,6 +11,9 @@ public class WebhookController {
     public ResponseEntity<N8NResponseDTO> receiveScanResult(
             @RequestBody N8NResponseDTO result
     ) {
+
+        System.out.println(result); // Result from sonarqube
+        // Add Logic Here
         return ResponseEntity.ok(result);
     }
 }
