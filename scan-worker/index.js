@@ -1,5 +1,6 @@
 const express = require('express');
 const { exec } = require('child_process');
+const fs = require('fs');
 
 const app = express();
 app.use(express.json());
@@ -10,24 +11,53 @@ app.post('/scan', (req, res) => {
   console.log('=== Receive scan job ===');
   console.log(req.body);
 
-  // ตอบกลับ n8n ทันที (ไม่ต้องรอ scan เสร็จ)
-  res.json({
-    status: 'QUEUED',
-    scanId
-  });
+  // ตอบกลับทันที
+  res.json({ status: 'QUEUED', scanId });
 
-  // ทำงานต่อ background
-  const cmd = `
-    cd ${sourceDir} && \
-    chmod +x mvnw && \
-    ./mvnw -B -DskipTests compile && \
-    sonar-scanner \
-      -Dsonar.projectKey=${projectKey} \
-      -Dsonar.sources=src/main/java \
-      -Dsonar.java.binaries=target/classes \
-      -Dsonar.host.url=${process.env.SONAR_HOST_URL} \
-      -Dsonar.login=${process.env.SONAR_TOKEN}
-  `;
+  let cmd = '';
+
+  if (projectType === 'SPRING_BOOT') {
+    cmd = `
+      cd ${sourceDir} && \
+      chmod +x mvnw && \
+      ./mvnw -B -DskipTests compile && \
+      sonar-scanner \
+        -Dsonar.projectKey=${projectKey} \
+        -Dsonar.sources=src/main/java \
+        -Dsonar.java.binaries=target/classes \
+        -Dsonar.host.url=${process.env.SONAR_HOST_URL} \
+        -Dsonar.login=${process.env.SONAR_TOKEN}
+    `;
+  }
+
+  else if (projectType === 'ANGULAR') {
+    let tsconfig = 'tsconfig.json';
+        if (fs.existsSync(`${safeSourceDir}/tsconfig.app.json`)) {
+          tsconfig = 'tsconfig.app.json';
+        }
+    cmd = `
+      cd ${sourceDir} && \
+      sonar-scanner \
+        -Dsonar.projectKey=${projectKey} \
+        -Dsonar.sources=src \
+        -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts \
+        -Dsonar.typescript.tsconfigPath=tsconfig.json \
+        -Dsonar.host.url=${process.env.SONAR_HOST_URL} \
+        -Dsonar.login=${process.env.SONAR_TOKEN}
+    `;
+  }
+
+  else {
+    // fallback สำหรับ project อื่น
+    cmd = `
+      cd ${sourceDir} && \
+      sonar-scanner \
+        -Dsonar.projectKey=${projectKey} \
+        -Dsonar.sources=. \
+        -Dsonar.host.url=${process.env.SONAR_HOST_URL} \
+        -Dsonar.login=${process.env.SONAR_TOKEN}
+    `;
+  }
 
   exec(cmd, (error, stdout, stderr) => {
     if (error) {

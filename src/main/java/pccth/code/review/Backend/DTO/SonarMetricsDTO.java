@@ -104,4 +104,37 @@ public class SonarMetricsDTO {
     public void setDebtRatio(Double debtRatio) {
         this.debtRatio = debtRatio;
     }
+
+    //for test result from n8n
+    @Override
+    public String toString() {
+        return """
+        SonarMetricsDTO {
+          bugs                    = %d
+          vulnerabilities         = %d
+          securityHotspots        = %d
+          codeSmells              = %d
+          coverage                = %.2f
+          duplicatedLinesDensity  = %.2f
+          reliabilityRating       = %s
+          securityRating          = %s
+          maintainabilityRating   = %s
+          technicalDebtMinutes    = %d
+          debtRatio               = %.2f
+        }
+        """.formatted(
+                bugs,
+                vulnerabilities,
+                securityHotspots,
+                codeSmells,
+                coverage,
+                duplicatedLinesDensity,
+                reliabilityRating,
+                securityRating,
+                maintainabilityRating,
+                technicalDebtMinutes,
+                debtRatio
+        );
+    }
+
 }
