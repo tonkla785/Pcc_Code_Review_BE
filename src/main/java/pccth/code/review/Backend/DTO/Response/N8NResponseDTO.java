@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public class N8NResponseDTO {
     private UUID scanId;
+    private UUID projectId;
     private String status;
     private String qualityGate;
     private Long analysisDuration;
@@ -15,6 +16,23 @@ public class N8NResponseDTO {
     private SonarMetricsDTO metrics;
     private String errorMessage;
     private String logFilePath;
+    private String markDown;
+
+    public UUID getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getMarkDown() {
+        return markDown;
+    }
+
+    public void setMarkDown(String markDown) {
+        this.markDown = markDown;
+    }
 
     public UUID getScanId() {
         return scanId;
@@ -79,4 +97,35 @@ public class N8NResponseDTO {
     public void setLogFilePath(String logFilePath) {
         this.logFilePath = logFilePath;
     }
+
+    //for test result from n8n
+    @Override
+    public String toString() {
+        return """
+        N8NResponseDTO {
+          scanId           = %s
+          projectId        = %s
+          status           = %s
+          qualityGate      = %s
+          analysisDuration = %d ms
+          analyzedAt       = %s
+          metrics          = %s
+          errorMessage     = %s
+          logFilePath      = %s
+          markDown         = %s
+        }
+        """.formatted(
+                scanId,
+                projectId,
+                status,
+                qualityGate,
+                analysisDuration,
+                analyzedAt,
+                metrics,
+                errorMessage,
+                logFilePath,
+                markDown
+        );
+    }
+
 }

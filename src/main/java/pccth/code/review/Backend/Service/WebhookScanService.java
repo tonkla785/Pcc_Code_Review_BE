@@ -7,6 +7,7 @@ import org.springframework.web.client.RestTemplate;
 import pccth.code.review.Backend.Config.WebhookConfig;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
+import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
@@ -15,6 +16,7 @@ import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
