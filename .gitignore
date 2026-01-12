@@ -32,3 +32,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# env
+.env
+
+# docker
+docker-compose.yml
+docker-compose.*.yml
+
+# runtime
+scan-workspace/
+
