@@ -1,118 +1,118 @@
-version: "3.8"
+  version: "3.8"
 
-services:
-  db:
-    image: postgres:14
-    container_name: pccth-db
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: automatedb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  services:
+    db:
+      image: postgres:14
+      container_name: pccth-db
+      ports:
+        - "5432:5432"
+      environment:
+        POSTGRES_DB: automatedb
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+        - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
-  redis:
-    image: redis:7
-    container_name: pccth-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
+    redis:
+      image: redis:7
+      container_name: pccth-redis
+      ports:
+        - "6379:6379"
+      volumes:
+        - redis_data:/data
 
-  sonar-db:
-    image: postgres:14
-    container_name: pccth-sonar-db
-    ports:
-      - "5433:5432"
-    environment:
-      POSTGRES_DB: sonar10
-      POSTGRES_USER: sonar
-      POSTGRES_PASSWORD: km@2019sd1
-    volumes:
-      - sonar_postgres_data:/var/lib/postgresql/data
+    sonar-db:
+      image: postgres:14
+      container_name: pccth-sonar-db
+      ports:
+        - "5433:5432"
+      environment:
+        POSTGRES_DB: sonar10
+        POSTGRES_USER: sonar
+        POSTGRES_PASSWORD: km@2019sd1
+      volumes:
+        - sonar_postgres_data:/var/lib/postgresql/data
 
-  sonarqube:
-    image: sonarqube:9.9-community
-    container_name: pccth-sonarqube
-    ports:
-      - "9000:9000"
-    environment:
-      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar10
-      SONAR_JDBC_USERNAME: sonar
-      SONAR_JDBC_PASSWORD: km@2019sd1
-      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
-    volumes:
-      - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
-    depends_on:
-      - sonar-db
+    sonarqube:
+      image: sonarqube:9.9-community
+      container_name: pccth-sonarqube
+      ports:
+        - "9000:9000"
+      environment:
+        SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar10
+        SONAR_JDBC_USERNAME: sonar
+        SONAR_JDBC_PASSWORD: km@2019sd1
+        SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
+      volumes:
+        - sonarqube_data:/opt/sonarqube/data
+        - sonarqube_extensions:/opt/sonarqube/extensions
+      depends_on:
+        - sonar-db
 
-  n8n-db:
-    image: postgres:14
-    container_name: pccth-n8n-db
-    ports:
-      - "5434:5432"
-    environment:
-      POSTGRES_DB: n8ndb
-      POSTGRES_USER: n8n
-      POSTGRES_PASSWORD: n8npass
-    volumes:
-      - n8n_postgres_data:/var/lib/postgresql/data
+    n8n-db:
+      image: postgres:14
+      container_name: pccth-n8n-db
+      ports:
+        - "5434:5432"
+      environment:
+        POSTGRES_DB: n8ndb
+        POSTGRES_USER: n8n
+        POSTGRES_PASSWORD: n8npass
+      volumes:
+        - n8n_postgres_data:/var/lib/postgresql/data
 
-  n8n:
-    image: n8nio/n8n:2.2.4
-    container_name: pccth-n8n
-    ports:
-      - "5678:5678"
-    environment:
-      DB_TYPE: postgresdb
-      DB_POSTGRESDB_HOST: n8n-db
-      DB_POSTGRESDB_PORT: 5432
-      DB_POSTGRESDB_DATABASE: n8ndb
-      DB_POSTGRESDB_USER: n8n
-      DB_POSTGRESDB_PASSWORD: n8npass
-      N8N_ENCRYPTION_KEY: a249545daea503d85840f9b0b42cda10846520185ea29b2bdf4bea53b8942a46
+    n8n:
+      image: n8nio/n8n:1.45.0
+      container_name: pccth-n8n
+      ports:
+        - "5678:5678"
+      environment:
+        DB_TYPE: postgresdb
+        DB_POSTGRESDB_HOST: n8n-db
+        DB_POSTGRESDB_PORT: 5432
+        DB_POSTGRESDB_DATABASE: n8ndb
+        DB_POSTGRESDB_USER: n8n
+        DB_POSTGRESDB_PASSWORD: n8npass
+        N8N_ENCRYPTION_KEY: a249545daea503d85840f9b0b42cda10846520185ea29b2bdf4bea53b8942a46
 
-      # webhook
-      N8N_HOST: localhost
-      N8N_PORT: 5678
-      N8N_PROTOCOL: http
-      WEBHOOK_URL: http://localhost:5678/
+        # webhook
+        N8N_HOST: localhost
+        N8N_PORT: 5678
+        N8N_PROTOCOL: http
+        WEBHOOK_URL: http://localhost:5678/
 
-      # sonar
-      SONAR_HOST_URL: ${SONAR_HOST_URL}
-      SONAR_TOKEN: ${SONAR_TOKEN}
+        # sonar
+        SONAR_HOST_URL: ${SONAR_HOST_URL}
+        SONAR_TOKEN: ${SONAR_TOKEN}
 
-      # สำคัญ
-      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+        # สำคัญ
+        N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
 
-    volumes:
-      - n8n_data:/home/node/.n8n
-      - ./scan-workspace:/scan-workspace
-      - /var/run/docker.sock:/var/run/docker.sock
+      volumes:
+        - n8n_data:/home/node/.n8n
+        - ./scan-workspace:/scan-workspace
+        - /var/run/docker.sock:/var/run/docker.sock
 
-    depends_on:
-      - n8n-db
-      - sonarqube
+      depends_on:
+        - n8n-db
+        - sonarqube
 
-  scan-worker:
-    build: ./scan-worker
-    ports:
-      - "8090:8090"
-    volumes:
-      - ./scan-workspace:/scan-workspace
-    environment:
-      SONAR_HOST_URL: http://sonarqube:9000
-      SONAR_TOKEN: ${SONAR_TOKEN}
+    scan-worker:
+      build: ./scan-worker
+      ports:
+        - "8090:8090"
+      volumes:
+        - ./scan-workspace:/scan-workspace
+      environment:
+        SONAR_HOST_URL: http://sonarqube:9000
+        SONAR_TOKEN: ${SONAR_TOKEN}
 
-volumes:
-  postgres_data:
-  redis_data:
-  sonar_postgres_data:
-  n8n_postgres_data:
-  sonarqube_data:
-  sonarqube_extensions:
-  n8n_data:
+  volumes:
+    postgres_data:
+    redis_data:
+    sonar_postgres_data:
+    n8n_postgres_data:
+    sonarqube_data:
+    sonarqube_extensions:
+    n8n_data:
