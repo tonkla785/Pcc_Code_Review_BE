@@ -82,16 +82,20 @@ public class ProjectService {
     }
 
     // แก้ไข repository
-    public RepositoryResponseDTO updateRepository(UUID id) {
+    public RepositoryResponseDTO updateRepository(UUID id, RepositoryDTO repository) {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
         try {
+            entity.setName(repository.getName());
+            entity.setRepositoryUrl(repository.getUrl());
+            entity.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
+            entity.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
             entity.setUpdatedAt(new Date());
 
             projectRepository.save(entity);
 
             RepositoryResponseDTO response = new RepositoryResponseDTO();
-            response.setMessage("Repository updated successfully");
+            response.setMessage("Repository added successfully");
             return response;
 
         } catch (Exception e) {
