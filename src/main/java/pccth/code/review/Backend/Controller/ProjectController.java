@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import pccth.code.review.Backend.DTO.Request.RepositoryDTO;
+import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RepositoryResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Service.ProjectService;
@@ -38,21 +39,20 @@ public class ProjectController {
 
     // ดึง repository ทั้งหมด
     @GetMapping("/all-repository")
-    public List<ProjectEntity> listProjects() {
+    public List<ProjectResponseDTO> listProjects() {
         return projectService.listProjects();
     }
 
     // ดึง repository เฉพาะตัว id
     @GetMapping("/search-repositories/{id}")
-    public ProjectEntity getRepository(@PathVariable UUID id) {
+    public ProjectResponseDTO getRepository(@PathVariable UUID id) {
         return projectService.searchRepository(id);
     }
 
     // แก้ไข repository เฉพาะตัว id
     @PutMapping("/update-repository/{id}")
-    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
-            @Valid @RequestBody RepositoryDTO repository) {
-        RepositoryResponseDTO response = projectService.updateRepository(id, repository);
+    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id) {
+        RepositoryResponseDTO response = projectService.updateRepository(id);
         return ResponseEntity.status(200).body(response);
     }
 
