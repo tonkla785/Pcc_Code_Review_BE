@@ -15,7 +15,6 @@ public class ScanRequestsDTO {
     private String qualityGate;
     private Map<String, Object> metrics;
     private String logFilePath;
-    private List<IssuesReponseDTO> issueData = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -81,11 +80,4 @@ public class ScanRequestsDTO {
         this.logFilePath = logFilePath;
     }
 
-    public List<IssuesReponseDTO> getIssueData() {
-        return issueData;
-    }
-
-    public void setIssueData(List<IssuesReponseDTO> issueData) {
-        this.issueData = issueData;
-    }
 }

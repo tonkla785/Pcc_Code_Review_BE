@@ -5,10 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import pccth.code.review.Backend.DTO.Request.ScanRequestsDTO;
-import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
-import pccth.code.review.Backend.DTO.Response.IssuesReponseDTO;
-import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
-import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
+import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Repository.ProjectRepository;
@@ -266,7 +263,38 @@ public class ScanService {
         return dto;
         }catch(Exception e){
             throw new RuntimeException(e);
+
         }
+    }
+    public ScanResponseDTO updateScan(N8NResponseDTO req) {
+
+        ScanEntity scan = scanRepository.findById(req.getScanId())
+                .orElseThrow(() -> new RuntimeException("Scan not found"));
+
+
+        if (req.getProjectId() != null) {
+            ProjectEntity project = projectRepository.findById(req.getProjectId())
+                    .orElseThrow(() -> new RuntimeException("Project not found"));
+            scan.setProject(project);
+        }
+
+//        scan.setStatus(req.getStatus());
+        scan.setQualityGate(req.getQualityGate());
+        scan.setLogFilePath(req.getLogFilePath());
+
+        ScanEntity updated = scanRepository.save(scan);
+
+        ScanResponseDTO dto = new ScanResponseDTO();
+        dto.setId(updated.getId());
+        dto.setProjectId(updated.getProject().getId());
+        dto.setStatus(updated.getStatus());
+        dto.setStartedAt(updated.getStartedAt());
+        dto.setCompletedAt(updated.getCompletedAt());
+        dto.setQualityGate(updated.getQualityGate());
+        dto.setMetrics(updated.getMetrics());
+        dto.setLogFilePath(updated.getLogFilePath());
+
+        return dto;
     }
 
 
