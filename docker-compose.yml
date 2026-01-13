@@ -50,6 +50,16 @@ services:
     depends_on:
       - sonar-db
 
+  sonar-scanner:
+    image: sonarsource/sonar-scanner-cli
+    container_name: pccth-sonar-scanner
+    volumes:
+      - ./scan-workspace:/workspace
+    environment:
+      SONAR_HOST_URL: ${SONAR_HOST_URL}
+      SONAR_TOKEN: ${SONAR_TOKEN}
+    entrypoint: [ "sleep", "infinity" ]
+
   n8n-db:
     image: postgres:14
     container_name: pccth-n8n-db
@@ -77,6 +87,7 @@ services:
       DB_POSTGRESDB_PASSWORD: n8npass
       N8N_ENCRYPTION_KEY: a249545daea503d85840f9b0b42cda10846520185ea29b2bdf4bea53b8942a46
 
+      WEBHOOK_TOKEN: ${WEBHOOK_TOKEN}
 
       # ===== QUEUE MODE =====
       EXECUTIONS_MODE: queue
@@ -86,7 +97,7 @@ services:
       # ===== CORE =====
       N8N_RUNNERS_ENABLED: "true"
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
-      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
 
       # ===== WEBHOOK (แนะนำให้ตั้ง) =====
       N8N_HOST: localhost
@@ -101,9 +112,7 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
       - ./scan-workspace:/scan-workspace
-      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - redis
       - n8n-db
       - sonarqube
 
