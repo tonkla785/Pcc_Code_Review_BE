@@ -16,6 +16,7 @@ public class IssuesReponseDTO {
     private String severity;
     private String component;
     private String message;
+    private UUID assignedTo;
     private String status;
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
@@ -76,6 +77,13 @@ public class IssuesReponseDTO {
         this.message = message;
     }
 
+    public UUID getAssignedTo() {
+        return assignedTo;
+    }
+
+    public void setAssignedTo(UUID assignedTo) {
+        this.assignedTo = assignedTo;
+    }
 
     public String getStatus() {
         return status;
