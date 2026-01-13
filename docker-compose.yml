@@ -1,6 +1,21 @@
 version: "3.8"
 
 services:
+  backend:
+    build: .
+    container_name: pccth-backend
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./scan-workspace:/scan-workspace
+    env_file:
+      - .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - db
+      - redis
+
   db:
     image: postgres:14
     container_name: pccth-db
@@ -50,16 +65,6 @@ services:
     depends_on:
       - sonar-db
 
-  sonar-scanner:
-    image: sonarsource/sonar-scanner-cli
-    container_name: pccth-sonar-scanner
-    volumes:
-      - ./scan-workspace:/workspace
-    environment:
-      SONAR_HOST_URL: ${SONAR_HOST_URL}
-      SONAR_TOKEN: ${SONAR_TOKEN}
-    entrypoint: [ "sleep", "infinity" ]
-
   n8n-db:
     image: postgres:14
     container_name: pccth-n8n-db
@@ -87,13 +92,6 @@ services:
       DB_POSTGRESDB_PASSWORD: n8npass
       N8N_ENCRYPTION_KEY: a249545daea503d85840f9b0b42cda10846520185ea29b2bdf4bea53b8942a46
 
-      WEBHOOK_TOKEN: ${WEBHOOK_TOKEN}
-
-      # ===== QUEUE MODE =====
-      EXECUTIONS_MODE: queue
-      QUEUE_BULL_REDIS_HOST: redis
-      QUEUE_BULL_REDIS_PORT: 6379
-
       # ===== CORE =====
       N8N_RUNNERS_ENABLED: "true"
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
@@ -104,10 +102,6 @@ services:
       N8N_PORT: 5678
       N8N_PROTOCOL: http
       WEBHOOK_URL: http://localhost:5678/
-
-      # ===== SONAR =====
-      SONAR_HOST_URL: ${SONAR_HOST_URL}
-      SONAR_TOKEN: ${SONAR_TOKEN}
 
     volumes:
       - n8n_data:/home/node/.n8n
