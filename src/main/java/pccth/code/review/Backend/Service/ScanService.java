@@ -38,9 +38,19 @@ public class ScanService {
             List<ScanEntity> scans = scanRepository.findByProjectId(projectId);
             List<ScanResponseDTO> responseDTOs = new ArrayList<>();
             for (ScanEntity e : scans) {
+                ProjectEntity project = e.getProject();
+                ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
+                projectResponseDTO.setId(project.getId());
+                projectResponseDTO.setName(project.getName());
+                projectResponseDTO.setRepositoryUrl(project.getRepositoryUrl());
+                projectResponseDTO.setProjectType(project.getProjectType());
+                projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
+                projectResponseDTO.setCreatedAt(project.getCreatedAt());
+                projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
+
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
                 scanResponseDTO.setId(e.getId());
-                scanResponseDTO.setProjectId(e.getProject().getId());
+                scanResponseDTO.setProject(projectResponseDTO);
                 scanResponseDTO.setStatus(e.getStatus());
                 scanResponseDTO.setStartedAt(e.getStartedAt());
                 scanResponseDTO.setCompletedAt(e.getCompletedAt());
@@ -59,9 +69,9 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
+
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
-            scanResponseDTO.setProjectId(scans.getProject().getId());
             scanResponseDTO.setStatus(scans.getStatus());
             scanResponseDTO.setStartedAt(scans.getStartedAt());
             scanResponseDTO.setCompletedAt(scans.getCompletedAt());
@@ -104,9 +114,18 @@ public class ScanService {
             List<ScanEntity> scans = scanRepository.findAll();
             List<ScanResponseDTO> responseDTOs = new ArrayList<>();
             for (ScanEntity e : scans) {
+                ProjectEntity project = e.getProject();
+                ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
+                projectResponseDTO.setId(project.getId());
+                projectResponseDTO.setName(project.getName());
+                projectResponseDTO.setRepositoryUrl(project.getRepositoryUrl());
+                projectResponseDTO.setProjectType(project.getProjectType());
+                projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
+                projectResponseDTO.setCreatedAt(project.getCreatedAt());
+                projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
                 scanResponseDTO.setId(e.getId());
-                scanResponseDTO.setProjectId(e.getProject().getId());
+                scanResponseDTO.setProject(projectResponseDTO);
                 scanResponseDTO.setStatus(e.getStatus());
                 scanResponseDTO.setStartedAt(e.getStartedAt());
                 scanResponseDTO.setCompletedAt(e.getCompletedAt());
@@ -175,7 +194,7 @@ public class ScanService {
                         ScanResponseDTO scanResponseDTOdto = new ScanResponseDTO();
                         scanResponseDTOdto.setId(s.getId());
                         scanResponseDTOdto.setStatus(s.getStatus());
-                        scanResponseDTOdto.setProjectId(s.getProject().getId());
+//                        scanResponseDTOdto.setProjectId(s.getProject().getId());
                         scanResponseDTOdto.setStatus(s.getStatus());
                         scanResponseDTOdto.setStartedAt(s.getStartedAt());
                         scanResponseDTOdto.setCompletedAt(s.getCompletedAt());
@@ -202,7 +221,7 @@ public class ScanService {
         for (ScanEntity e : scans) {
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(e.getId());
-            dto.setProjectId(e.getProject().getId());
+//            dto.setProjectId(e.getProject().getId());
             dto.setStatus(e.getStatus());
             dto.setStartedAt(e.getStartedAt());
             dto.setCompletedAt(e.getCompletedAt());
@@ -259,7 +278,7 @@ public class ScanService {
 
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(saved.getId());
-            dto.setProjectId(saved.getProject().getId());
+//            dto.setProjectId(saved.getProject().getId());
             dto.setStatus(saved.getStatus());
             dto.setStartedAt(saved.getStartedAt());
             dto.setCompletedAt(saved.getCompletedAt());
@@ -289,7 +308,7 @@ public class ScanService {
         });
         scan.setMetrics(metricsMap);
 
-        // scan.setStatus(req.getStatus());
+        scan.setStatus(req.getStatus());
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
         scan.setCompletedAt(req.getAnalyzedAt());
@@ -297,7 +316,7 @@ public class ScanService {
 
         ScanResponseDTO dto = new ScanResponseDTO();
         dto.setId(updated.getId());
-        dto.setProjectId(updated.getProject().getId());
+//        dto.setProjectId(updated.getProject().getId());
         dto.setStatus(updated.getStatus());
         dto.setStartedAt(updated.getStartedAt());
         dto.setCompletedAt(updated.getCompletedAt());
