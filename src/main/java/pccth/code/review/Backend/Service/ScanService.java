@@ -38,6 +38,7 @@ public class ScanService {
             List<ScanEntity> scans = scanRepository.findByProjectId(projectId);
             List<ScanResponseDTO> responseDTOs = new ArrayList<>();
             for (ScanEntity e : scans) {
+<<<<<<< HEAD
                 ProjectEntity project = e.getProject();
                 ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
                 projectResponseDTO.setId(project.getId());
@@ -51,6 +52,11 @@ public class ScanService {
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
                 scanResponseDTO.setId(e.getId());
                 scanResponseDTO.setProject(projectResponseDTO);
+=======
+                ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
+                scanResponseDTO.setId(e.getId());
+                scanResponseDTO.setProjectId(e.getProject().getId());
+>>>>>>> main
                 scanResponseDTO.setStatus(e.getStatus());
                 scanResponseDTO.setStartedAt(e.getStartedAt());
                 scanResponseDTO.setCompletedAt(e.getCompletedAt());
@@ -69,9 +75,15 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
+<<<<<<< HEAD
 
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
+=======
+            ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
+            scanResponseDTO.setId(scans.getId());
+            scanResponseDTO.setProjectId(scans.getProject().getId());
+>>>>>>> main
             scanResponseDTO.setStatus(scans.getStatus());
             scanResponseDTO.setStartedAt(scans.getStartedAt());
             scanResponseDTO.setCompletedAt(scans.getCompletedAt());
@@ -114,6 +126,7 @@ public class ScanService {
             List<ScanEntity> scans = scanRepository.findAll();
             List<ScanResponseDTO> responseDTOs = new ArrayList<>();
             for (ScanEntity e : scans) {
+<<<<<<< HEAD
                 ProjectEntity project = e.getProject();
                 ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
                 projectResponseDTO.setId(project.getId());
@@ -126,6 +139,11 @@ public class ScanService {
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
                 scanResponseDTO.setId(e.getId());
                 scanResponseDTO.setProject(projectResponseDTO);
+=======
+                ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
+                scanResponseDTO.setId(e.getId());
+                scanResponseDTO.setProjectId(e.getProject().getId());
+>>>>>>> main
                 scanResponseDTO.setStatus(e.getStatus());
                 scanResponseDTO.setStartedAt(e.getStartedAt());
                 scanResponseDTO.setCompletedAt(e.getCompletedAt());
@@ -194,7 +212,11 @@ public class ScanService {
                         ScanResponseDTO scanResponseDTOdto = new ScanResponseDTO();
                         scanResponseDTOdto.setId(s.getId());
                         scanResponseDTOdto.setStatus(s.getStatus());
+<<<<<<< HEAD
 //                        scanResponseDTOdto.setProjectId(s.getProject().getId());
+=======
+                        scanResponseDTOdto.setProjectId(s.getProject().getId());
+>>>>>>> main
                         scanResponseDTOdto.setStatus(s.getStatus());
                         scanResponseDTOdto.setStartedAt(s.getStartedAt());
                         scanResponseDTOdto.setCompletedAt(s.getCompletedAt());
@@ -221,7 +243,11 @@ public class ScanService {
         for (ScanEntity e : scans) {
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(e.getId());
+<<<<<<< HEAD
 //            dto.setProjectId(e.getProject().getId());
+=======
+            dto.setProjectId(e.getProject().getId());
+>>>>>>> main
             dto.setStatus(e.getStatus());
             dto.setStartedAt(e.getStartedAt());
             dto.setCompletedAt(e.getCompletedAt());
@@ -278,7 +304,11 @@ public class ScanService {
 
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(saved.getId());
+<<<<<<< HEAD
 //            dto.setProjectId(saved.getProject().getId());
+=======
+            dto.setProjectId(saved.getProject().getId());
+>>>>>>> main
             dto.setStatus(saved.getStatus());
             dto.setStartedAt(saved.getStartedAt());
             dto.setCompletedAt(saved.getCompletedAt());
@@ -308,7 +338,11 @@ public class ScanService {
         });
         scan.setMetrics(metricsMap);
 
+<<<<<<< HEAD
          scan.setStatus(req.getStatus());
+=======
+        // scan.setStatus(req.getStatus());
+>>>>>>> main
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
         scan.setCompletedAt(req.getAnalyzedAt());
@@ -316,7 +350,11 @@ public class ScanService {
 
         ScanResponseDTO dto = new ScanResponseDTO();
         dto.setId(updated.getId());
+<<<<<<< HEAD
 //        dto.setProjectId(updated.getProject().getId());
+=======
+        dto.setProjectId(updated.getProject().getId());
+>>>>>>> main
         dto.setStatus(updated.getStatus());
         dto.setStartedAt(updated.getStartedAt());
         dto.setCompletedAt(updated.getCompletedAt());

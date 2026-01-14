@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import pccth.code.review.Backend.DTO.Request.RepositoryDTO;
 import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RepositoryResponseDTO;
+import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 import pccth.code.review.Backend.Repository.ProjectRepository;
@@ -58,6 +59,21 @@ public class ProjectService {
             dto.setSonarProjectKey(p.getSonarProjectKey());
             dto.setCreatedAt(p.getCreatedAt());
             dto.setUpdatedAt(p.getUpdatedAt());
+<<<<<<< HEAD
+=======
+            dto.setScanData(p.getScanData().stream().map(scan -> {
+                ScanResponseDTO scanDto = new ScanResponseDTO();
+                scanDto.setId(scan.getId());
+                scanDto.setProjectId(p.getId());
+                scanDto.setStatus(scan.getStatus());
+                scanDto.setStartedAt(scan.getStartedAt());
+                scanDto.setCompletedAt(scan.getCompletedAt());
+                scanDto.setQualityGate(scan.getQualityGate());
+                scanDto.setMetrics(scan.getMetrics());
+                scanDto.setLogFilePath(scan.getLogFilePath());
+                return scanDto;
+            }).toList());
+>>>>>>> main
             dtoList.add(dto);
         }
 
@@ -86,10 +102,23 @@ public class ProjectService {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
         try {
-            entity.setName(repository.getName());
-            entity.setRepositoryUrl(repository.getUrl());
-            entity.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
-            entity.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
+            entity.setUpdatedAt(new Date());
+            projectRepository.save(entity);
+
+            RepositoryResponseDTO response = new RepositoryResponseDTO();
+            response.setMessage("Repository updated successfully");
+            return response;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
+    }
+
+    // แก้ไข repository จากการ scan
+    public RepositoryResponseDTO updateScanAt(UUID id) {
+        ProjectEntity entity = projectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
+        try {
             entity.setUpdatedAt(new Date());
             projectRepository.save(entity);
 

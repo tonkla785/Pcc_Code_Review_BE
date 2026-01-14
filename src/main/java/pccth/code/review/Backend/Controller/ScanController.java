@@ -58,6 +58,7 @@ public class ScanController {
     @PostMapping("/scans")
     public ResponseEntity<ScanResponseDTO> createScan(@Valid
                                                       @RequestBody ScanRequestsDTO request) {
+<<<<<<< HEAD
         return ResponseEntity.ok(scanService.SaveScan(request));
     }
 //    @PutMapping("/scans/{id}")
@@ -70,6 +71,11 @@ public class ScanController {
 //        return ResponseEntity.ok(response);
 //    }
 
+=======
+
+        return ResponseEntity.ok(scanService.SaveScan(request));
+    }
+>>>>>>> main
 
 
 
