@@ -38,14 +38,15 @@ public class ScanService {
             List<ScanEntity> scans = scanRepository.findByProjectId(projectId);
             List<ScanResponseDTO> responseDTOs = new ArrayList<>();
             for (ScanEntity e : scans) {
+                ProjectEntity project = e.getProject();
                 ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
-                projectResponseDTO.setId(e.getProject().getId());
-                projectResponseDTO.setName(e.getProject().getName());
-                projectResponseDTO.setRepositoryUrl(e.getProject().getRepositoryUrl());
-                projectResponseDTO.setProjectType(e.getProject().getProjectType());
-                projectResponseDTO.setSonarProjectKey(e.getProject().getSonarProjectKey());
-                projectResponseDTO.setCreatedAt(e.getProject().getCreatedAt());
-                projectResponseDTO.setUpdatedAt(e.getProject().getUpdatedAt());
+                projectResponseDTO.setId(project.getId());
+                projectResponseDTO.setName(project.getName());
+                projectResponseDTO.setRepositoryUrl(project.getRepositoryUrl());
+                projectResponseDTO.setProjectType(project.getProjectType());
+                projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
+                projectResponseDTO.setCreatedAt(project.getCreatedAt());
+                projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
 
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
                 scanResponseDTO.setId(e.getId());
@@ -68,17 +69,9 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
-            ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
-            projectResponseDTO.setId(scans.getProject().getId());
-            projectResponseDTO.setName(scans.getProject().getName());
-            projectResponseDTO.setRepositoryUrl(scans.getProject().getRepositoryUrl());
-            projectResponseDTO.setProjectType(scans.getProject().getProjectType());
-            projectResponseDTO.setSonarProjectKey(scans.getProject().getSonarProjectKey());
-            projectResponseDTO.setCreatedAt(scans.getProject().getCreatedAt());
-            projectResponseDTO.setUpdatedAt(scans.getProject().getUpdatedAt());
+
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
-            scanResponseDTO.setProject(projectResponseDTO);
             scanResponseDTO.setStatus(scans.getStatus());
             scanResponseDTO.setStartedAt(scans.getStartedAt());
             scanResponseDTO.setCompletedAt(scans.getCompletedAt());
@@ -236,7 +229,7 @@ public class ScanService {
             projectResponseDTO.setUpdatedAt(e.getProject().getUpdatedAt());
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(e.getId());
-            dto.setProject(projectResponseDTO);
+//            dto.setProjectId(e.getProject().getId());
             dto.setStatus(e.getStatus());
             dto.setStartedAt(e.getStartedAt());
             dto.setCompletedAt(e.getCompletedAt());
