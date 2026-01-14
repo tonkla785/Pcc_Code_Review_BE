@@ -91,50 +91,21 @@ services:
       DB_POSTGRESDB_PASSWORD: n8npass
       N8N_ENCRYPTION_KEY: a249545daea503d85840f9b0b42cda10846520185ea29b2bdf4bea53b8942a46
 
-<<<<<<< HEAD
-      # webhook
-=======
       N8N_RUNNERS_ENABLED: "true"
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
       N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
 
->>>>>>> main
       N8N_HOST: localhost
       N8N_PORT: 5678
       N8N_PROTOCOL: http
       WEBHOOK_URL: http://localhost:5678/
 
-<<<<<<< HEAD
-      # sonar
-      SONAR_HOST_URL: ${SONAR_HOST_URL}
-      SONAR_TOKEN: ${SONAR_TOKEN}
-
-      # สำคัญ
-      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
-
     volumes:
       - n8n_data:/home/node/.n8n
       - ./scan-workspace:/scan-workspace
-      - /var/run/docker.sock:/var/run/docker.sock
-
-=======
-    volumes:
-      - n8n_data:/home/node/.n8n
-      - ./scan-workspace:/scan-workspace
->>>>>>> main
     depends_on:
       - n8n-db
       - sonarqube
-
-  scan-worker:
-    build: ./scan-worker
-    ports:
-      - "8090:8090"
-    volumes:
-      - ./scan-workspace:/scan-workspace
-    environment:
-      SONAR_HOST_URL: http://sonarqube:9000
-      SONAR_TOKEN: ${SONAR_TOKEN}
 
 volumes:
   postgres_data:
