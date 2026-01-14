@@ -69,10 +69,7 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
-<<<<<<< HEAD
-=======
 
->>>>>>> main
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
             scanResponseDTO.setStatus(scans.getStatus());
@@ -289,11 +286,7 @@ public class ScanService {
 
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(saved.getId());
-<<<<<<< HEAD
-            dto.setProjectId(saved.getProject().getId());
-=======
 //            dto.setProjectId(saved.getProject().getId());
->>>>>>> main
             dto.setStatus(saved.getStatus());
             dto.setStartedAt(saved.getStartedAt());
             dto.setCompletedAt(saved.getCompletedAt());
@@ -308,43 +301,6 @@ public class ScanService {
     }
 
     public ScanResponseDTO updateScan(N8NResponseDTO req) {
-<<<<<<< HEAD
-
-        ScanEntity scan = scanRepository.findById(req.getScanId())
-                .orElseThrow(() -> new RuntimeException("Scan not found"));
-
-        if (req.getProjectId() != null) {
-            ProjectEntity project = projectRepository.findById(req.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("Project not found"));
-            scan.setProject(project);
-        }
-        ObjectMapper mapper = new ObjectMapper();
-
-        Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
-        });
-        scan.setMetrics(metricsMap);
-
-        // scan.setStatus(req.getStatus());
-        scan.setQualityGate(req.getQualityGate());
-        scan.setLogFilePath(req.getLogFilePath());
-        scan.setCompletedAt(req.getAnalyzedAt());
-        ScanEntity updated = scanRepository.save(scan);
-
-        ScanResponseDTO dto = new ScanResponseDTO();
-        dto.setId(updated.getId());
-        dto.setProjectId(updated.getProject().getId());
-        dto.setStatus(updated.getStatus());
-        dto.setStartedAt(updated.getStartedAt());
-        dto.setCompletedAt(updated.getCompletedAt());
-        dto.setQualityGate(updated.getQualityGate());
-        dto.setMetrics(updated.getMetrics());
-        dto.setLogFilePath(updated.getLogFilePath());
-
-        return dto;
-    }
-
-}
-=======
 
         ScanEntity scan = scanRepository.findById(req.getScanId())
                 .orElseThrow(() -> new RuntimeException("Scan not found"));
@@ -380,4 +336,3 @@ public class ScanService {
     }
 
 }
->>>>>>> main
