@@ -9,7 +9,6 @@ import pccth.code.review.Backend.Service.ScanService;
 
 @RestController
 @RequestMapping("/webhooks")
-
 public class WebhookController {
     private final ProjectService projectService;
     private final ScanService scanService;
