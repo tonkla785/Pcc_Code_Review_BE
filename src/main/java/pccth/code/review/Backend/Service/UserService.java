@@ -74,7 +74,6 @@ public class UserService {
         // สร้าง Response DTO
         LoginResponseDTO loginResponse = new LoginResponseDTO();
         loginResponse.setAccessToken(accessToken);
-        loginResponse.setAccessToken(refreshToken);
         loginResponse.setId(user.getId().toString());
         loginResponse.setUsername(user.getUsername());
         loginResponse.setEmail(user.getEmail());
