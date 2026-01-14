@@ -9,7 +9,7 @@ import java.util.*;
 
 public class ScanResponseDTO {
     private UUID id;
-    private UUID projectId;
+    private ProjectResponseDTO project;
     private ScanStatusEnum status;
     private Date startedAt;
     private Date completedAt;
@@ -26,12 +26,12 @@ public class ScanResponseDTO {
         this.id = id;
     }
 
-    public UUID getProjectId() {
-        return projectId;
+    public ProjectResponseDTO getProject() {
+        return project;
     }
 
-    public void setProjectId(UUID projectId) {
-        this.projectId = projectId;
+    public void setProject(ProjectResponseDTO project) {
+        this.project = project;
     }
 
     public ScanStatusEnum getStatus() {

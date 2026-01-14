@@ -1,6 +1,7 @@
 package pccth.code.review.Backend.DTO.Response;
 
 import pccth.code.review.Backend.DTO.SonarMetricsDTO;
+import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
 import java.util.Date;
 import java.time.Instant;
@@ -10,7 +11,7 @@ import java.util.UUID;
 public class N8NResponseDTO {
     private UUID scanId;
     private UUID projectId;
-    private String status;
+    private ScanStatusEnum status;
     private String qualityGate;
     private Long analysisDuration;
     private Date analyzedAt;
@@ -43,11 +44,11 @@ public class N8NResponseDTO {
         this.scanId = scanId;
     }
 
-    public String getStatus() {
+    public ScanStatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ScanStatusEnum status) {
         this.status = status;
     }
 
