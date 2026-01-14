@@ -53,8 +53,6 @@ public class ProjectController {
     @PutMapping("/update-repository/{id}")
     public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
                                                                   @Valid @RequestBody RepositoryDTO repository) {
-    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
-                                                                  @Valid @RequestBody RepositoryDTO repository) {
         RepositoryResponseDTO response = projectService.updateRepository(id, repository);
         return ResponseEntity.status(200).body(response);
     }
