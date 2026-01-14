@@ -286,11 +286,7 @@ public class ScanService {
 
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(saved.getId());
-<<<<<<< HEAD
-            dto.setProjectId(saved.getProject().getId());
-=======
 //            dto.setProjectId(saved.getProject().getId());
->>>>>>> main
             dto.setStatus(saved.getStatus());
             dto.setStartedAt(saved.getStartedAt());
             dto.setCompletedAt(saved.getCompletedAt());
@@ -303,9 +299,6 @@ public class ScanService {
             throw new RuntimeException(e);
         }
     }
-<<<<<<< HEAD
-}
-=======
 
     public ScanResponseDTO updateScan(N8NResponseDTO req) {
 
@@ -343,4 +336,3 @@ public class ScanService {
     }
 
 }
->>>>>>> main
