@@ -62,11 +62,7 @@ public class ProjectService {
             dto.setScanData(p.getScanData().stream().map(scan -> {
                 ScanResponseDTO scanDto = new ScanResponseDTO();
                 scanDto.setId(scan.getId());
-
-                scanDto.setProjectId(p.getId());
-
 //                scanDto.setProjectId(p.getId());
-
                 scanDto.setStatus(scan.getStatus());
                 scanDto.setStartedAt(scan.getStartedAt());
                 scanDto.setCompletedAt(scan.getCompletedAt());
