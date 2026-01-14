@@ -32,3 +32,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# env
+.env
+
+# runtime
+scan-workspace/
+

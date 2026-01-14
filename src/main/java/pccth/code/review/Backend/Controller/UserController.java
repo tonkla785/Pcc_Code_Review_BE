@@ -60,5 +60,4 @@ public class UserController {
         response.addHeader("Cookie", CookieUtil.clearRefreshTokenCookie().toString());
         return ResponseEntity.ok("Logged out successfully");
     }
-
 }
