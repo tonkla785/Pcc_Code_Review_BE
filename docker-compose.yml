@@ -155,7 +155,6 @@ services:
     ports:
       - "5678:5678"
     environment:
-      # ===== DATABASE =====
       DB_TYPE: postgresdb
       DB_POSTGRESDB_HOST: n8n-db
       DB_POSTGRESDB_PORT: 5432
@@ -164,12 +163,10 @@ services:
       DB_POSTGRESDB_PASSWORD: n8npass
       N8N_ENCRYPTION_KEY: a249545daea503d85840f9b0b42cda10846520185ea29b2bdf4bea53b8942a46
 
-      # ===== CORE =====
       N8N_RUNNERS_ENABLED: "true"
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
       N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
 
-      # ===== WEBHOOK (แนะนำให้ตั้ง) =====
       N8N_HOST: localhost
       N8N_PORT: 5678
       N8N_PROTOCOL: http
@@ -189,5 +186,9 @@ volumes:
   n8n_postgres_data:
   sonarqube_data:
   sonarqube_extensions:
+<<<<<<< HEAD
+  n8n_data:
+>>>>>>> main
+=======
   n8n_data:
 >>>>>>> main

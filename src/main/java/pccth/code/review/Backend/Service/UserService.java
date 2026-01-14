@@ -79,7 +79,6 @@ public class UserService {
         loginResponse.setEmail(user.getEmail());
         loginResponse.setPhone(user.getPhone());
         loginResponse.setRole(user.getRole());
-
         return loginResponse;
     }
 
