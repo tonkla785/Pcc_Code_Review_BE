@@ -219,6 +219,14 @@ public class ScanService {
         List<ScanResponseDTO> responseDTOs = new ArrayList<>();
 
         for (ScanEntity e : scans) {
+            ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
+            projectResponseDTO.setId(e.getProject().getId());
+            projectResponseDTO.setName(e.getProject().getName());
+            projectResponseDTO.setRepositoryUrl(e.getProject().getRepositoryUrl());
+            projectResponseDTO.setProjectType(e.getProject().getProjectType());
+            projectResponseDTO.setSonarProjectKey(e.getProject().getSonarProjectKey());
+            projectResponseDTO.setCreatedAt(e.getProject().getCreatedAt());
+            projectResponseDTO.setUpdatedAt(e.getProject().getUpdatedAt());
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(e.getId());
 //            dto.setProjectId(e.getProject().getId());

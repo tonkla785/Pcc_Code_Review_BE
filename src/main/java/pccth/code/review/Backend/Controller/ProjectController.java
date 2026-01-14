@@ -49,15 +49,12 @@ public class ProjectController {
         return projectService.searchRepository(id);
     }
 
-    // แก้ไข repository เฉพาะตัว id 
+    // แก้ไข repository เฉพาะตัว id
     @PutMapping("/update-repository/{id}")
-<<<<<<< HEAD
     public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
                                                                   @Valid @RequestBody RepositoryDTO repository) {
-=======
-    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id
-        , @Valid @RequestBody RepositoryDTO repository ) {
->>>>>>> main
+    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
+                                                                  @Valid @RequestBody RepositoryDTO repository) {
         RepositoryResponseDTO response = projectService.updateRepository(id, repository);
         return ResponseEntity.status(200).body(response);
     }
