@@ -44,7 +44,7 @@ public class ScanService {
                 responseDTOs.add(scanResponseDTO);
             }
             return responseDTOs;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -89,7 +89,7 @@ public class ScanService {
                     }).toList()
             );
             return scanResponseDTO;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -138,17 +138,18 @@ public class ScanService {
                 responseDTOs.add(scanResponseDTO);
             }
             return responseDTOs;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
+
     public ScanResponseDTO getScansLog(UUID scanId) {
         try {
             ScanEntity scans = scanRepository.findById(scanId).orElseThrow(() -> new RuntimeException("Scan not found"));
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setLogFilePath(scans.getLogFilePath());
             return scanResponseDTO;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -183,7 +184,7 @@ public class ScanService {
 
             projectResponseDTO.setScanData(scans);
             return projectResponseDTO;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -238,37 +239,34 @@ public class ScanService {
     }
 
     public ScanResponseDTO SaveScan(ScanRequestsDTO req) {
-        try{
-        ProjectEntity project = projectRepository.findById(req.getProjectId())
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+        try {
+            ProjectEntity project = projectRepository.findById(req.getProjectId())
+                    .orElseThrow(() -> new RuntimeException("Project not found"));
 
-        ScanEntity scan = new ScanEntity();
-        scan.setProject(project);
-        scan.setStatus(req.getStatus());
-        scan.setStartedAt(req.getStartedAt());
-        scan.setCompletedAt(req.getCompletedAt());
-        scan.setQualityGate(req.getQualityGate());
-        scan.setMetrics(req.getMetrics());
-        scan.setLogFilePath(req.getLogFilePath());
+            ScanEntity scan = new ScanEntity();
+            scan.setProject(project);
+            scan.setStatus(req.getStatus());
+            scan.setStartedAt(req.getStartedAt());
+            scan.setCompletedAt(req.getCompletedAt());
+            scan.setQualityGate(req.getQualityGate());
+            scan.setMetrics(req.getMetrics());
+            scan.setLogFilePath(req.getLogFilePath());
 
-        ScanEntity saved = scanRepository.save(scan);
+            ScanEntity saved = scanRepository.save(scan);
 
-        ScanResponseDTO dto = new ScanResponseDTO();
-        dto.setId(saved.getId());
-        dto.setProjectId(saved.getProject().getId());
-        dto.setStatus(saved.getStatus());
-        dto.setStartedAt(saved.getStartedAt());
-        dto.setCompletedAt(saved.getCompletedAt());
-        dto.setQualityGate(saved.getQualityGate());
-        dto.setMetrics(saved.getMetrics());
-        dto.setLogFilePath(saved.getLogFilePath());
+            ScanResponseDTO dto = new ScanResponseDTO();
+            dto.setId(saved.getId());
+            dto.setProjectId(saved.getProject().getId());
+            dto.setStatus(saved.getStatus());
+            dto.setStartedAt(saved.getStartedAt());
+            dto.setCompletedAt(saved.getCompletedAt());
+            dto.setQualityGate(saved.getQualityGate());
+            dto.setMetrics(saved.getMetrics());
+            dto.setLogFilePath(saved.getLogFilePath());
 
-        return dto;
-        }catch(Exception e){
+            return dto;
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-
-
 }
-
