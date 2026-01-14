@@ -51,9 +51,8 @@ public class ProjectController {
 
     // แก้ไข repository เฉพาะตัว id
     @PutMapping("/update-repository/{id}")
-    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id,
-            @Valid @RequestBody RepositoryDTO repository) {
-        RepositoryResponseDTO response = projectService.updateRepository(id, repository);
+    public ResponseEntity<RepositoryResponseDTO> updateRepository(@PathVariable UUID id) {
+        RepositoryResponseDTO response = projectService.updateRepository(id);
         return ResponseEntity.status(200).body(response);
     }
 

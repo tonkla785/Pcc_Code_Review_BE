@@ -1,11 +1,9 @@
 FROM eclipse-temurin:21-jdk-jammy
 
 RUN apt-get update && apt-get install -y \
-    bash \
+    git \
     curl \
     unzip \
-    nodejs \
-    npm \
  && rm -rf /var/lib/apt/lists/*
 
 # install sonar-scanner
@@ -16,9 +14,7 @@ RUN curl -fL -o sonar.zip \
  && rm sonar.zip
 
 WORKDIR /app
-COPY package.json .
-RUN npm install
-COPY index.js .
+COPY target/*.jar app.jar
 
-EXPOSE 8090
-CMD ["npm", "start"]
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]
