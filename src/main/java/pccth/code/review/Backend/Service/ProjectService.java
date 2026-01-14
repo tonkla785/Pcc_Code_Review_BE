@@ -59,8 +59,6 @@ public class ProjectService {
             dto.setSonarProjectKey(p.getSonarProjectKey());
             dto.setCreatedAt(p.getCreatedAt());
             dto.setUpdatedAt(p.getUpdatedAt());
-<<<<<<< HEAD
-=======
             dto.setScanData(p.getScanData().stream().map(scan -> {
                 ScanResponseDTO scanDto = new ScanResponseDTO();
                 scanDto.setId(scan.getId());
@@ -73,7 +71,6 @@ public class ProjectService {
                 scanDto.setLogFilePath(scan.getLogFilePath());
                 return scanDto;
             }).toList());
->>>>>>> main
             dtoList.add(dto);
         }
 
@@ -99,23 +96,6 @@ public class ProjectService {
 
     // แก้ไข repository จาก user
     public RepositoryResponseDTO updateRepository(UUID id, RepositoryDTO repository) {
-        ProjectEntity entity = projectRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
-        try {
-            entity.setUpdatedAt(new Date());
-            projectRepository.save(entity);
-
-            RepositoryResponseDTO response = new RepositoryResponseDTO();
-            response.setMessage("Repository updated successfully");
-            return response;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Server Error", e);
-        }
-    }
-
-    // แก้ไข repository จากการ scan
-    public RepositoryResponseDTO updateScanAt(UUID id) {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
         try {

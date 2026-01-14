@@ -58,24 +58,9 @@ public class ScanController {
     @PostMapping("/scans")
     public ResponseEntity<ScanResponseDTO> createScan(@Valid
                                                       @RequestBody ScanRequestsDTO request) {
-<<<<<<< HEAD
-        return ResponseEntity.ok(scanService.SaveScan(request));
-    }
-//    @PutMapping("/scans/{id}")
-//    public ResponseEntity<ScanResponseDTO> updateScan(
-//            @PathVariable UUID id,
-//            @RequestBody ScanRequestsDTO req) {
-//
-//        req.setId(id);
-//        ScanResponseDTO response = scanService.updateScan(req);
-//        return ResponseEntity.ok(response);
-//    }
-
-=======
 
         return ResponseEntity.ok(scanService.SaveScan(request));
     }
->>>>>>> main
 
 
 
