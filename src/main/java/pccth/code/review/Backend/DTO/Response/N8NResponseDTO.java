@@ -1,7 +1,9 @@
 package pccth.code.review.Backend.DTO.Response;
 
 import pccth.code.review.Backend.DTO.SonarMetricsDTO;
+import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
+import java.util.Date;
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
@@ -9,10 +11,10 @@ import java.util.UUID;
 public class N8NResponseDTO {
     private UUID scanId;
     private UUID projectId;
-    private String status;
+    private ScanStatusEnum status;
     private String qualityGate;
     private Long analysisDuration;
-    private Instant analyzedAt;
+    private Date analyzedAt;
     private SonarMetricsDTO metrics;
     private String errorMessage;
     private String logFilePath;
@@ -42,11 +44,11 @@ public class N8NResponseDTO {
         this.scanId = scanId;
     }
 
-    public String getStatus() {
+    public ScanStatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ScanStatusEnum status) {
         this.status = status;
     }
 
@@ -66,11 +68,11 @@ public class N8NResponseDTO {
         this.analysisDuration = analysisDuration;
     }
 
-    public Instant getAnalyzedAt() {
+    public Date getAnalyzedAt() {
         return analyzedAt;
     }
 
-    public void setAnalyzedAt(Instant analyzedAt) {
+    public void setAnalyzedAt(Date analyzedAt) {
         this.analyzedAt = analyzedAt;
     }
 
@@ -98,23 +100,23 @@ public class N8NResponseDTO {
         this.logFilePath = logFilePath;
     }
 
-    //for test result from n8n
+    // for test result from n8n
     @Override
     public String toString() {
         return """
-        N8NResponseDTO {
-          scanId           = %s
-          projectId        = %s
-          status           = %s
-          qualityGate      = %s
-          analysisDuration = %d ms
-          analyzedAt       = %s
-          metrics          = %s
-          errorMessage     = %s
-          logFilePath      = %s
-          markDown         = %s
-        }
-        """.formatted(
+                N8NResponseDTO {
+                  scanId           = %s
+                  projectId        = %s
+                  status           = %s
+                  qualityGate      = %s
+                  analysisDuration = %d ms
+                  analyzedAt       = %s
+                  metrics          = %s
+                  errorMessage     = %s
+                  logFilePath      = %s
+                  markDown         = %s
+                }
+                """.formatted(
                 scanId,
                 projectId,
                 status,
@@ -124,8 +126,7 @@ public class N8NResponseDTO {
                 metrics,
                 errorMessage,
                 logFilePath,
-                markDown
-        );
+                markDown);
     }
 
 }
