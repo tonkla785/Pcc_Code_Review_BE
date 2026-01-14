@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.ScanRequestsDTO;
 import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
 import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
+import pccth.code.review.Backend.DTO.Response.SeverityCountDTO;
+import pccth.code.review.Backend.DTO.Response.SeveritySummaryDTO;
 import pccth.code.review.Backend.Service.ScanService;
 
 import java.util.List;
@@ -36,9 +38,9 @@ public class ScanController {
         return ResponseEntity.ok(projectResponseDTO);
     }
     @GetMapping("/{projectId}/trends")
-    public ResponseEntity<List<ScanResponseDTO>> getProjectIssue(@PathVariable UUID projectId) {
-        List<ScanResponseDTO> scanResponseDTO = scanService.getScansIssue(projectId);
-        return ResponseEntity.ok(scanResponseDTO);
+    public ResponseEntity<SeveritySummaryDTO> getProjectIssue(@PathVariable UUID projectId) {
+        SeveritySummaryDTO severitySummary = scanService.getScansIssue(projectId);
+        return ResponseEntity.ok(severitySummary);
     }
     @GetMapping("/scans/{scanId}")
     public ResponseEntity<ScanResponseDTO> getScanById(@PathVariable UUID scanId) {
