@@ -1,6 +1,6 @@
   version: "3.8"
 
-<<<<<<< HEAD
+
   services:
     db:
       image: postgres:14
@@ -14,7 +14,7 @@
       volumes:
         - postgres_data:/var/lib/postgresql/data
         - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
-=======
+
 services:
   backend:
     build: .
@@ -43,7 +43,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
->>>>>>> main
+
 
     redis:
       image: redis:7
@@ -93,7 +93,7 @@ services:
       volumes:
         - n8n_postgres_data:/var/lib/postgresql/data
 
-<<<<<<< HEAD
+
     n8n:
       image: n8nio/n8n:1.45.0
       container_name: pccth-n8n
@@ -148,7 +148,7 @@ services:
     sonarqube_data:
     sonarqube_extensions:
     n8n_data:
-=======
+
   n8n:
     image: n8nio/n8n:2.2.4
     container_name: pccth-n8n
@@ -186,9 +186,9 @@ volumes:
   n8n_postgres_data:
   sonarqube_data:
   sonarqube_extensions:
-<<<<<<< HEAD
+
   n8n_data:
->>>>>>> main
-=======
+
+
   n8n_data:
->>>>>>> main
+
