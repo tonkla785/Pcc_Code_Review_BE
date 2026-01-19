@@ -59,18 +59,6 @@ public class ProjectService {
             dto.setSonarProjectKey(p.getSonarProjectKey());
             dto.setCreatedAt(p.getCreatedAt());
             dto.setUpdatedAt(p.getUpdatedAt());
-            dto.setScanData(p.getScanData().stream().map(scan -> {
-                ScanResponseDTO scanDto = new ScanResponseDTO();
-                scanDto.setId(scan.getId());
-//                scanDto.setProjectId(p.getId());
-                scanDto.setStatus(scan.getStatus());
-                scanDto.setStartedAt(scan.getStartedAt());
-                scanDto.setCompletedAt(scan.getCompletedAt());
-                scanDto.setQualityGate(scan.getQualityGate());
-                scanDto.setMetrics(scan.getMetrics());
-                scanDto.setLogFilePath(scan.getLogFilePath());
-                return scanDto;
-            }).toList());
             dtoList.add(dto);
         }
 
