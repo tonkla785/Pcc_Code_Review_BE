@@ -242,9 +242,6 @@ public class ScanService {
     }
 
 
-
-
-
     public ScanResponseDTO SaveScan(ScanRequestsDTO req) {
         try {
             ProjectEntity project = projectRepository.findById(req.getProjectId())
@@ -292,13 +289,14 @@ public class ScanService {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {});
+        Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
+        });
         scan.setMetrics(metricsMap);
 
         scan.setStatus(req.getStatus());
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
-        scan.setCompletedAt(req.getAnalyzedAt());
+        scan.setCompletedAt(new Date());
         String logFilePath = "scan-workspace/" + req.getScanId() + "/scan-report.md";
         scan.setLogFilePath(req.getLogFilePath());
 
@@ -326,6 +324,7 @@ public class ScanService {
 
         return dto;
     }
+
     public void writeMarkdownFile(String logFilePath, String markdown) {
         try {
             Path path = Path.of(logFilePath);
