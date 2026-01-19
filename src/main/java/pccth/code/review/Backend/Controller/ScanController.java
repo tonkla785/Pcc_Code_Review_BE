@@ -17,21 +17,16 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
-@PreAuthorize("isAuthenticated()")
 public class ScanController {
     @Autowired
     private ScanService scanService;
-
 
     @GetMapping("/{projectId}/history")
     public ResponseEntity<List<ScanResponseDTO>> getScansByProjectId(@PathVariable UUID projectId) {
         List<ScanResponseDTO> scans = scanService.getScansHistory(projectId);
         return ResponseEntity.ok(scans);
     }
-    @GetMapping("/test-error")
-    public String testError() throws Exception {
-        throw new Exception("Boom!");
-    }
+
     @GetMapping("/{projectId}")
     public ResponseEntity<ProjectResponseDTO> getProject(@PathVariable UUID projectId) {
         ProjectResponseDTO projectResponseDTO = scanService.getProject(projectId);
