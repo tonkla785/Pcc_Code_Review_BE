@@ -3,7 +3,10 @@ package pccth.code.review.Backend.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+<<<<<<< HEAD
 import pccth.code.review.Backend.DTO.Response.N8NIssueResponseDTO;
+=======
+>>>>>>> main
 import pccth.code.review.Backend.DTO.Response.N8NResponseDTO;
 import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Service.GitCloneService;
@@ -36,11 +39,16 @@ public class WebhookController {
         return ResponseEntity.ok(result);
     }
 
+<<<<<<< HEAD
     @PostMapping("/scan/git-clone")
+=======
+    @PostMapping("/git-clone")
+>>>>>>> main
     public ResponseEntity<?> gitClone(@RequestBody N8NRequestDTO req) throws Exception {
         return ResponseEntity.ok(gitCloneService.execute(req));
     }
 
+<<<<<<< HEAD
     @PostMapping("/scan/sonar-scan")
     public ResponseEntity<?> sonarScan(@RequestBody N8NRequestDTO req) throws Exception {
         return ResponseEntity.ok(sonarScanService.execute(req));
@@ -54,4 +62,10 @@ public class WebhookController {
 
         return ResponseEntity.ok(result);
     }
+=======
+    @PostMapping("/sonar-scan")
+    public ResponseEntity<?> sonarScan(@RequestBody N8NRequestDTO req) throws Exception {
+        return ResponseEntity.ok(sonarScanService.execute(req));
+    }
+>>>>>>> main
 }

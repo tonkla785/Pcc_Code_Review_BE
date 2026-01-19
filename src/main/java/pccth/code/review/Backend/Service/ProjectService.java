@@ -28,7 +28,7 @@ public class ProjectService {
     public RepositoryResponseDTO addRepository(RepositoryDTO repository) {
         try {
             ProjectEntity project = new ProjectEntity();
-            project.setId(UUID.randomUUID());
+//            project.setId(UUID.randomUUID());
             project.setName(repository.getName());
             project.setRepositoryUrl(repository.getUrl());
             project.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
@@ -38,6 +38,7 @@ public class ProjectService {
             projectRepository.save(project);
 
             RepositoryResponseDTO response = new RepositoryResponseDTO();
+            response.setProjectId(project.getId());
             response.setMessage("Repository added successfully");
             return response;
         } catch (Exception e) {
@@ -87,6 +88,9 @@ public class ProjectService {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
         try {
+            entity.setName(repository.getName());
+            entity.setRepositoryUrl(repository.getUrl());
+            entity.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
             entity.setUpdatedAt(new Date());
             projectRepository.save(entity);
 
