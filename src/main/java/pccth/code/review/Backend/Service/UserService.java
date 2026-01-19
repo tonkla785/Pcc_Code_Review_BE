@@ -69,7 +69,7 @@ public class UserService {
         refreshTokenService.save(user.getUsername(), refreshToken);
 
         // สร้าง Cookie สำหรับ Refresh Token
-        response.addHeader("Cookie", CookieUtil.createRefreshTokenCookie(refreshToken).toString());
+        response.addHeader("Set-Cookie", CookieUtil.createRefreshTokenCookie(refreshToken).toString());
 
         // สร้าง Response DTO
         LoginResponseDTO loginResponse = new LoginResponseDTO();
