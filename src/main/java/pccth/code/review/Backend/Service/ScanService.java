@@ -16,6 +16,9 @@ import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -272,7 +275,11 @@ public class ScanService {
             ProjectEntity project = projectRepository.findById(req.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
             scan.setProject(project);
+            if (scan.getProject() != null && !scan.getProject().getId().equals(req.getProjectId())) {
+                throw new RuntimeException("Project ID not match");
+            }
         }
+
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
@@ -283,6 +290,10 @@ public class ScanService {
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
         scan.setCompletedAt(req.getAnalyzedAt());
+        String logFilePath = "scan-workspace/" + req.getScanId() + "/scan-report.md";
+        scan.setLogFilePath(req.getLogFilePath());
+
+        writeMarkdownFile(logFilePath, req.getMarkDown());
         ScanEntity updated = scanRepository.save(scan);
 
         ScanResponseDTO dto = new ScanResponseDTO();
@@ -297,5 +308,22 @@ public class ScanService {
 
         return dto;
     }
+    public void writeMarkdownFile(String logFilePath, String markdown) {
+        try {
+            Path path = Path.of(logFilePath);
 
+            if (path.getParent() != null) {
+                Files.createDirectories(path.getParent());
+            }
+            Files.writeString(
+                    path,
+                    markdown,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot write markdown file", e);
+        }
+    }
 }
