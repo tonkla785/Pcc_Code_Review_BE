@@ -1,5 +1,6 @@
 package pccth.code.review.Backend.DTO.Response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
@@ -18,6 +19,8 @@ public class ProjectResponseDTO {
     private String sonarProjectKey;
     private Date createdAt;
     private Date updatedAt;
+
+    @JsonIgnoreProperties("project")
     private List<ScanResponseDTO> scanData = new ArrayList<>();
 
     public UUID getId() {

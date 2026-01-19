@@ -1,7 +1,7 @@
 package pccth.code.review.Backend.Entity;
 
 import jakarta.persistence.*;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.util.Date;
 import java.util.UUID;
 
@@ -15,6 +15,7 @@ public class CommentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "issue_id", nullable = false)
+    @JsonBackReference("issue-comments")
     private IssueEntity issue;
 
     @ManyToOne(fetch = FetchType.LAZY)

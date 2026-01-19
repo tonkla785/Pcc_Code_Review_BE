@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "issues")
@@ -18,6 +20,7 @@ public class IssueEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scan_id", nullable = false)
+    @JsonBackReference("scan-issues")
     private ScanEntity scan;
 
     @Column(name = "issue_key")
@@ -46,6 +49,7 @@ public class IssueEntity {
     private Date createdAt;
 
     @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("issue-comments")
     private List<CommentEntity> commentData = new ArrayList<>();
 
     public UUID getId() {

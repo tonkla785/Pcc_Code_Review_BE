@@ -1,5 +1,6 @@
 package pccth.code.review.Backend.DTO.Response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import pccth.code.review.Backend.Entity.ProjectEntity;
@@ -9,7 +10,10 @@ import java.util.*;
 
 public class ScanResponseDTO {
     private UUID id;
+
+    @JsonIgnoreProperties("scanData")
     private ProjectResponseDTO project;
+
     private ScanStatusEnum status;
     private Date startedAt;
     private Date completedAt;
