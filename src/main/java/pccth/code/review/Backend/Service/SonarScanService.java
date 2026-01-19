@@ -29,37 +29,61 @@ public class SonarScanService {
         String command = switch (type) {
 
             case SPRING_BOOT -> {
-                boolean hasCoverage = new File(
+
+                boolean isGradle = new File(workDir + "/gradlew").exists()
+                        || new File(workDir + "/build.gradle").exists()
+                        || new File(workDir + "/build.gradle.kts").exists();
+
+                boolean hasJacocoMaven = new File(
                         workDir + "/target/site/jacoco/jacoco.xml"
                 ).exists();
 
-                String coverageArg = hasCoverage
-                        ? "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml"
-                        : "";
+                boolean hasJacocoGradle = new File(
+                        workDir + "/build/reports/jacoco/test/jacocoTestReport.xml"
+                ).exists();
 
-                yield """
-                        set -e
-                        cd %1$s
-                        
-                        echo "=== BUILD SPRING BOOT (NO TEST) ==="
+                String coverageArg = "";
+                if (hasJacocoMaven) {
+                    coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml";
+                } else if (hasJacocoGradle) {
+                    coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml";
+                }
+
+                String buildCommand = isGradle
+                        ? """
+                        echo "=== BUILD SPRING BOOT (GRADLE) ==="
+                        chmod +x gradlew || true
+                        ./gradlew build -x test
+                        """
+                        : """
+                        echo "=== BUILD SPRING BOOT (MAVEN) ==="
                         if [ -f mvnw ]; then
                           chmod +x mvnw
                           ./mvnw -B -DskipTests compile
                         else
                           mvn -B -DskipTests compile
                         fi
+                        """;
+
+                yield """
+                        set -e
+                        cd %1$s
+                        
+                        %3$s
                         
                         echo "=== RUN SONAR (SPRING BOOT) ==="
                         sonar-scanner \
                           -Dsonar.projectKey=%2$s \
                           -Dsonar.sources=src/main/java \
-                          -Dsonar.java.binaries=target/classes \
-                          %3$s \
-                          -Dsonar.host.url=%4$s \
-                          -Dsonar.login=%5$s
+                          -Dsonar.java.binaries=%4$s \
+                          %5$s \
+                          -Dsonar.host.url=%6$s \
+                          -Dsonar.login=%7$s
                         """.formatted(
                         workDir,
                         projectKey,
+                        buildCommand,
+                        isGradle ? "build/classes/java/main" : "target/classes",
                         coverageArg,
                         sonarHost,
                         sonarToken
@@ -132,10 +156,13 @@ public class SonarScanService {
             throw new RuntimeException("Sonar scan failed");
         }
 
+        String ceTaskId = readCeTaskId(workDir);
+
         return Map.of(
                 "scanId", scanId,
-                "status", "SONAR_SCAN_FINISHED",
-                "projectType", type.name()
+                "status", "SONAR_SCAN_TRIGGERED",
+                "projectType", type.name(),
+                "ceTaskId", ceTaskId
         );
     }
 
@@ -162,5 +189,22 @@ public class SonarScanService {
         }
 
         return null;
+    }
+
+    private String readCeTaskId(String workDir) throws Exception {
+
+        File report = new File(workDir + "/.scannerwork/report-task.txt");
+
+        if (!report.exists()) {
+            throw new IllegalStateException("report-task.txt not found");
+        }
+
+        for (String line : java.nio.file.Files.readAllLines(report.toPath())) {
+            if (line.startsWith("ceTaskId=")) {
+                return line.substring("ceTaskId=".length()).trim();
+            }
+        }
+
+        throw new IllegalStateException("ceTaskId not found in report-task.txt");
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import pccth.code.review.Backend.Config.WebhookConfig;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+import pccth.code.review.Backend.DTO.Request.ScanRequestsDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
 import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
@@ -23,19 +24,20 @@ import java.util.UUID;
 public class WebhookScanService {
 
     private final ProjectRepository projectRepository;
-    private final ScanRepository scanRepository;
     private final N8NWebhookClient n8NWebhookClient;
+    private final ScanService scanService;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public WebhookScanService(
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
-            N8NWebhookClient n8NWebhookClient
+            N8NWebhookClient n8NWebhookClient,
+            ScanService scanService
     ) {
         this.projectRepository = projectRepository;
-        this.scanRepository = scanRepository;
         this.n8NWebhookClient = n8NWebhookClient;
+        this.scanService = scanService;
     }
 
     public N8NScanQueueResposneDTO triggerScan(UUID projectId, String branch) {
@@ -45,11 +47,10 @@ public class WebhookScanService {
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         // สร้าง Scan
-        ScanEntity scan = new ScanEntity();
-        scan.setProject(project);
+        ScanRequestsDTO scan = new ScanRequestsDTO();
         scan.setStatus(ScanStatusEnum.PENDING);
         scan.setStartedAt(new Date());
-        scanRepository.save(scan);
+        scanService.SaveScan(scan);
 
         // เตรียม payload (ไว้ให้ n8n pop จาก redis)
         N8NRequestDTO request = new N8NRequestDTO();
