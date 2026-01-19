@@ -3,6 +3,7 @@ package pccth.code.review.Backend.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+import pccth.code.review.Backend.DTO.Response.N8NIssueResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NResponseDTO;
 import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Service.GitCloneService;
@@ -35,13 +36,22 @@ public class WebhookController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/git-clone")
+    @PostMapping("/scan/git-clone")
     public ResponseEntity<?> gitClone(@RequestBody N8NRequestDTO req) throws Exception {
         return ResponseEntity.ok(gitCloneService.execute(req));
     }
 
-    @PostMapping("/sonar-scan")
+    @PostMapping("/scan/sonar-scan")
     public ResponseEntity<?> sonarScan(@RequestBody N8NRequestDTO req) throws Exception {
         return ResponseEntity.ok(sonarScanService.execute(req));
+    }
+
+    @PostMapping("/scan/issue-data")
+    public ResponseEntity<N8NIssueResponseDTO> issueData(@RequestBody N8NIssueResponseDTO result) throws Exception {
+        System.out.println(result); // Result from sonarqube
+
+        // Add Logic Here
+
+        return ResponseEntity.ok(result);
     }
 }
