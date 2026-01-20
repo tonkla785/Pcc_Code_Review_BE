@@ -1,14 +1,9 @@
 package pccth.code.review.Backend.Service;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import pccth.code.review.Backend.Config.WebhookConfig;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
-import pccth.code.review.Backend.DTO.Request.ScanRequestsDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
-import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
@@ -17,7 +12,6 @@ import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
 import java.util.Date;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Service
@@ -25,19 +19,18 @@ public class WebhookScanService {
 
     private final ProjectRepository projectRepository;
     private final N8NWebhookClient n8NWebhookClient;
-    private final ScanService scanService;
+    private final ScanRepository scanRepository;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public WebhookScanService(
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
-            N8NWebhookClient n8NWebhookClient,
-            ScanService scanService
+            N8NWebhookClient n8NWebhookClient
     ) {
         this.projectRepository = projectRepository;
         this.n8NWebhookClient = n8NWebhookClient;
-        this.scanService = scanService;
+        this.scanRepository = scanRepository;
     }
 
     public N8NScanQueueResposneDTO triggerScan(UUID projectId, String branch) {
@@ -47,10 +40,11 @@ public class WebhookScanService {
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         // สร้าง Scan
-        ScanRequestsDTO scan = new ScanRequestsDTO();
+        ScanEntity scan = new ScanEntity();
+        scan.setProject(project);
         scan.setStatus(ScanStatusEnum.PENDING);
         scan.setStartedAt(new Date());
-        scanService.SaveScan(scan);
+        scanRepository.save(scan);
 
         // เตรียม payload (ไว้ให้ n8n pop จาก redis)
         N8NRequestDTO request = new N8NRequestDTO();

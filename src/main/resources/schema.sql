@@ -46,7 +46,9 @@ CREATE TABLE issues (
     issue_key VARCHAR(255),
     type VARCHAR(50),
     severity VARCHAR(20),
+    rule_key VARCHAR(100),
     component TEXT,
+    line INT,
     message TEXT,
     assigned_to UUID,
     status VARCHAR(50),
@@ -59,7 +61,23 @@ CREATE TABLE issues (
 
     CONSTRAINT fk_issues_user
         FOREIGN KEY (assigned_to)
-        REFERENCES users(id)
+        REFERENCES users(id),
+
+    CONSTRAINT uq_scan_issue UNIQUE (scan_id, issue_key)
+);
+
+
+--ISSUES Details
+CREATE TABLE issue_details (
+    issue_id UUID PRIMARY KEY,
+    description TEXT,
+    vulnerable_code TEXT,
+    recommended_fix TEXT,
+
+    CONSTRAINT fk_issue_details_issue
+        FOREIGN KEY (issue_id)
+        REFERENCES issues(id)
+        ON DELETE CASCADE
 );
 
 -- COMMENTS
