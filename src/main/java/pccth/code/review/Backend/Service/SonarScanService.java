@@ -26,6 +26,10 @@ public class SonarScanService {
                 throw new IllegalStateException("SONAR_HOST_URL or SONAR_TOKEN not set");
             }
 
+            if (type == ProjectTypeEnum.ANGULAR) {
+                ensureNodeAvailable();
+            }
+
             String command = switch (type) {
 
                 case SPRING_BOOT -> {
@@ -215,4 +219,16 @@ public class SonarScanService {
             throw new RuntimeException("Failed to read ceTaskId", e);
         }
     }
+
+    private void ensureNodeAvailable() {
+        try {
+            Process p = new ProcessBuilder("node", "-v").start();
+            if (p.waitFor() != 0) {
+                throw new IllegalStateException("Node.js not available");
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Node.js is required for frontend scan", e);
+        }
+    }
+
 }
