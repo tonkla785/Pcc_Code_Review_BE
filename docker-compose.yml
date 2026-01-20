@@ -1,5 +1,9 @@
 version: "3.8"
 
+networks:
+  pccth-net:
+    driver: bridge
+
 services:
   backend:
     build: .
@@ -15,6 +19,9 @@ services:
     depends_on:
       - db
       - redis
+      - n8n
+    networks:
+      - pccth-net
 
   db:
     image: postgres:14
@@ -28,6 +35,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - pccth-net
 
   redis:
     image: redis:7
@@ -36,6 +45,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - pccth-net
 
   sonar-db:
     image: postgres:14
@@ -48,6 +59,8 @@ services:
       POSTGRES_PASSWORD: km@2019sd1
     volumes:
       - sonar_postgres_data:/var/lib/postgresql/data
+    networks:
+      - pccth-net
 
   sonarqube:
     image: sonarqube:9.9-community
@@ -64,6 +77,8 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
     depends_on:
       - sonar-db
+    networks:
+      - pccth-net
 
   n8n-db:
     image: postgres:14
@@ -76,6 +91,8 @@ services:
       POSTGRES_PASSWORD: n8npass
     volumes:
       - n8n_postgres_data:/var/lib/postgresql/data
+    networks:
+      - pccth-net
 
   n8n:
     image: n8nio/n8n:2.2.4
@@ -95,10 +112,10 @@ services:
       OFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS: "true"
       N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
 
-      N8N_HOST: localhost
+      N8N_HOST: n8n
       N8N_PORT: 5678
       N8N_PROTOCOL: http
-      WEBHOOK_URL: http://localhost:5678/
+      WEBHOOK_URL: http://n8n:5678/
 
     volumes:
       - n8n_data:/home/node/.n8n
@@ -106,6 +123,8 @@ services:
     depends_on:
       - n8n-db
       - sonarqube
+    networks:
+      - pccth-net
 
 volumes:
   postgres_data:
