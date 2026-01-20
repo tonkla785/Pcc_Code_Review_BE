@@ -3,8 +3,8 @@ package pccth.code.review.Backend.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+import pccth.code.review.Backend.DTO.Response.N8NIssueBatchResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NResponseDTO;
-import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Service.GitCloneService;
 import pccth.code.review.Backend.Service.ProjectService;
 import pccth.code.review.Backend.Service.ScanService;
@@ -35,13 +35,24 @@ public class WebhookController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/git-clone")
-    public ResponseEntity<?> gitClone(@RequestBody N8NRequestDTO req) throws Exception {
+    @PostMapping("/scan/git-clone")
+    public ResponseEntity<?> gitClone(@RequestBody N8NRequestDTO req) {
         return ResponseEntity.ok(gitCloneService.execute(req));
     }
 
-    @PostMapping("/sonar-scan")
-    public ResponseEntity<?> sonarScan(@RequestBody N8NRequestDTO req) throws Exception {
+    @PostMapping("/scan/sonar-scan")
+    public ResponseEntity<?> sonarScan(@RequestBody N8NRequestDTO req) {
         return ResponseEntity.ok(sonarScanService.execute(req));
+    }
+
+    @PostMapping("/scan/issue-data")
+    public ResponseEntity<N8NIssueBatchResponseDTO> receiveIssueResult(@RequestBody N8NIssueBatchResponseDTO result) {
+
+        System.out.println(result); // Result from sonarqube
+        result.getIssues().forEach(issue ->
+                System.out.println(issue)
+        );
+        // Add Logic Here
+        return ResponseEntity.ok(result);
     }
 }
