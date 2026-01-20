@@ -5,15 +5,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import pccth.code.review.Backend.DTO.Request.LoginRequestDTO;
-import pccth.code.review.Backend.DTO.Request.RegisterRequestDTO;
-import pccth.code.review.Backend.DTO.Request.ResetPassDTO;
-import pccth.code.review.Backend.DTO.Response.AccessTokenResponseDTO;
-import pccth.code.review.Backend.DTO.Response.LoginResponseDTO;
-import pccth.code.review.Backend.DTO.Response.RegisterResponseDTO;
+import pccth.code.review.Backend.DTO.Request.*;
+import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Service.AuthService;
 import pccth.code.review.Backend.Service.UserService;
 import pccth.code.review.Backend.Util.CookieUtil;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -60,4 +59,34 @@ public class UserController {
         response.addHeader("Cookie", CookieUtil.clearRefreshTokenCookie().toString());
         return ResponseEntity.ok("Logged out successfully");
     }
+
+    //เพิ่มใหม่วันที่ 20/1/69
+    @PostMapping("/new-user")
+    public ResponseEntity<RegisterResponseDTO> addUser(@Valid @RequestBody ManageUserRequestDTO manageUser) {
+        RegisterResponseDTO response = userService.addUser(manageUser);
+        return ResponseEntity.status(201).body(response); // 201 สำหรับการสร้างใหม่
+    }
+
+    @GetMapping("/all-user")
+    public List<UserResponseDTO> allUser(){
+        return userService.allUser();
+    }
+
+    // แก้ไข repository เฉพาะตัว id
+    @PutMapping("/update-user/{id}")
+    public ResponseEntity<RegisterResponseDTO> updateRepository(@PathVariable UUID id,
+                                                                  @Valid @RequestBody ManageUserRequestDTO manageUser) {
+        RegisterResponseDTO response = userService.updateUser(id, manageUser);
+        return ResponseEntity.status(200).body(response);
+    }
+
+    // ลบ repository เฉพาะตัว id
+    @DeleteMapping("/delete-user/{id}")
+    public ResponseEntity<RegisterResponseDTO> deleteUser(@PathVariable UUID id) {
+        RegisterResponseDTO response = userService.deleteUser(id);
+        return ResponseEntity.status(200).body(response);
+    }
+
+
+
 }

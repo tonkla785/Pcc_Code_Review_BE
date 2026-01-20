@@ -4,16 +4,15 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pccth.code.review.Backend.DTO.Request.LoginRequestDTO;
-import pccth.code.review.Backend.DTO.Request.RegisterRequestDTO;
-import pccth.code.review.Backend.DTO.Request.ResetPassDTO;
-import pccth.code.review.Backend.DTO.Response.LoginResponseDTO;
-import pccth.code.review.Backend.DTO.Response.RegisterResponseDTO;
+import pccth.code.review.Backend.DTO.Request.*;
+import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.CookieUtil;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -113,5 +112,83 @@ public class UserService {
 
         userRepository.save(user);
     }
+
+    // เพิ่ม user
+    public RegisterResponseDTO addUser(ManageUserRequestDTO manageUser){
+        try {
+            UserEntity user = new UserEntity();
+            user.setUsername(manageUser.getUsername());
+            user.setPasswordHash(passwordEncoder.encode(manageUser.getPassword()));
+            user.setEmail(manageUser.getEmail());
+            user.setPhone(manageUser.getPhone());
+            user.setRole(manageUser.getRole());
+            user.setCreateAt(new Date());
+
+            userRepository.save(user);
+
+            RegisterResponseDTO response = new RegisterResponseDTO();
+            response.setMessage("User added successfully");
+            return response;
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
+    }
+
+    // ดึงข้อมูล user ทั้งหมด
+    public List<UserResponseDTO> allUser() {
+        List<UserEntity> user = userRepository.findAll();
+        List<UserResponseDTO> dtoList = new ArrayList<>();
+
+        for (UserEntity u : user) {
+            UserResponseDTO dto = new UserResponseDTO();
+            dto.setId(u.getId());
+            dto.setUsername(u.getUsername());
+            dto.setEmail(u.getEmail());
+            dto.setPhone(u.getPhone());
+            dto.setRole(u.getRole());
+            dto.setCreateAt(u.getCreateAt());
+            dtoList.add(dto);
+        }
+
+        return dtoList;
+    }
+
+    // แก้ไข user
+    public RegisterResponseDTO updateUser(UUID id, ManageUserRequestDTO manageUser) {
+        UserEntity entity = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("user not found")); // ตรวจสอบว่ามี id มั้ย
+        try {
+            entity.setUsername(manageUser.getUsername());
+            entity.setEmail(manageUser.getEmail());
+            entity.setRole(manageUser.getRole());
+            userRepository.save(entity);
+
+            RegisterResponseDTO response = new RegisterResponseDTO();
+            response.setMessage("user updated successfully");
+            return response;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
+    }
+
+    // ลบ user
+    public RegisterResponseDTO deleteUser(UUID id) {
+        UserEntity entity = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found")); // ตรวจสอบว่ามี id มั้ย
+        try {
+            userRepository.delete(entity);
+
+            RegisterResponseDTO response = new RegisterResponseDTO();
+            response.setMessage("User deleted successfully");
+            return response;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Server Error", e);
+        }
+
+    }
+
+
 
 }
