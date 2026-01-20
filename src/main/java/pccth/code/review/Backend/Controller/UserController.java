@@ -87,7 +87,7 @@ public class UserController {
         return ResponseEntity.status(200).body(response);
     }
 
-    // ดึง repository เฉพาะตัว id
+    // ดึง user เฉพาะตัว id
     @GetMapping("/search-user/{id}")
     public UserResponseDTO getRepository(@PathVariable UUID id) {
         return userService.searchUser(id);
