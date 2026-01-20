@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.*;
 
 @Entity
@@ -17,6 +18,7 @@ public class ScanEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonBackReference("project-scans")
     private ProjectEntity project;
 
     @Column(name = "status", length = 50)
@@ -40,6 +42,7 @@ public class ScanEntity {
     private String logFilePath;
 
     @OneToMany(mappedBy = "scan", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("scan-issues")
     private List<IssueEntity> issueData = new ArrayList<>();
 
     public UUID getId() {
