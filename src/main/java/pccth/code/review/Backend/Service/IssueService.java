@@ -1,19 +1,30 @@
+
 package pccth.code.review.Backend.Service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
+import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
+import pccth.code.review.Backend.Entity.CommentEntity;
 import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
+import pccth.code.review.Backend.Entity.UserEntity;
+import pccth.code.review.Backend.Repository.CommentRepository;
 import pccth.code.review.Backend.Repository.IssueRepository;
+import pccth.code.review.Backend.Repository.UserRepository;
 
 import java.util.*;
 
 @Service
 public class IssueService {
     private final IssueRepository issueRepository;
+    private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
-    public IssueService(IssueRepository issueRepository) {
+    public IssueService(IssueRepository issueRepository, CommentRepository commentRepository, UserRepository userRepository) {
         this.issueRepository = issueRepository;
+        this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
     }
 
     public List<IssueEntity> listIssues() {
@@ -70,19 +81,43 @@ public class IssueService {
         catch (Exception e) { return 0; }
     }
 
-    public String getIssueDetail(Long id) {
+    public String getIssueDetail(UUID id) {
         return "Get issue details: " + id;
     }
 
-    public String assignDeveloper(Long id) {
+    public String assignDeveloper(UUID id) {
         return "Assign developer to issue: " + id;
     }
 
-    public String addComment(Long id) {
-        return "Add comment to issue: " + id;
+    public CommentResponseDTO addComment(UUID issueId, CommentRequestDTO request) {
+        IssueEntity issue = issueRepository.findById(issueId)
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
+
+        UserEntity user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CommentEntity comment = new CommentEntity();
+        comment.setIssue(issue);
+        comment.setUser(user);
+        comment.setComment(request.getComment());
+        comment.setCreatedAt(new Date());
+
+        CommentEntity savedComment = commentRepository.save(comment);
+
+        return mapToCommentResponseDTO(savedComment);
     }
 
-    public String updateStatus(Long id) {
+    private CommentResponseDTO mapToCommentResponseDTO(CommentEntity comment) {
+        CommentResponseDTO dto = new CommentResponseDTO();
+        dto.setId(comment.getId());
+        dto.setIssue(comment.getIssue().getId());
+        dto.setUser(comment.getUser().getId());
+        dto.setComment(comment.getComment());
+        dto.setCreatedAt(comment.getCreatedAt());
+        return dto;
+    }
+
+    public String updateStatus(UUID id) {
         return "Update status of issue: " + id;
     }
 }
