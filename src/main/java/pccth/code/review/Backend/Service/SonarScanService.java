@@ -11,159 +11,162 @@ import java.util.UUID;
 @Service
 public class SonarScanService {
 
-    public Map<String, Object> execute(N8NRequestDTO req) throws Exception {
+    public Map<String, Object> execute(N8NRequestDTO req) {
+        try {
+            UUID scanId = req.getScanId();
+            String projectKey = req.getSonarProjectKey();
+            ProjectTypeEnum type = req.getProjectType();
 
-        UUID scanId = req.getScanId();
-        String projectKey = req.getSonarProjectKey();
-        ProjectTypeEnum type = req.getProjectType();
+            String workDir = "/scan-workspace/" + scanId;
 
-        String workDir = "/scan-workspace/" + scanId;
+            String sonarHost = System.getenv("SONAR_HOST_URL");
+            String sonarToken = System.getenv("SONAR_TOKEN");
 
-        String sonarHost = System.getenv("SONAR_HOST_URL");
-        String sonarToken = System.getenv("SONAR_TOKEN");
+            if (sonarHost == null || sonarToken == null) {
+                throw new IllegalStateException("SONAR_HOST_URL or SONAR_TOKEN not set");
+            }
 
-        if (sonarHost == null || sonarToken == null) {
-            throw new IllegalStateException("SONAR_HOST_URL or SONAR_TOKEN not set");
-        }
+            String command = switch (type) {
 
-        String command = switch (type) {
+                case SPRING_BOOT -> {
 
-            case SPRING_BOOT -> {
+                    boolean isGradle = new File(workDir + "/gradlew").exists()
+                            || new File(workDir + "/build.gradle").exists()
+                            || new File(workDir + "/build.gradle.kts").exists();
 
-                boolean isGradle = new File(workDir + "/gradlew").exists()
-                        || new File(workDir + "/build.gradle").exists()
-                        || new File(workDir + "/build.gradle.kts").exists();
+                    boolean hasJacocoMaven = new File(
+                            workDir + "/target/site/jacoco/jacoco.xml"
+                    ).exists();
 
-                boolean hasJacocoMaven = new File(
-                        workDir + "/target/site/jacoco/jacoco.xml"
-                ).exists();
+                    boolean hasJacocoGradle = new File(
+                            workDir + "/build/reports/jacoco/test/jacocoTestReport.xml"
+                    ).exists();
 
-                boolean hasJacocoGradle = new File(
-                        workDir + "/build/reports/jacoco/test/jacocoTestReport.xml"
-                ).exists();
+                    String coverageArg = "";
+                    if (hasJacocoMaven) {
+                        coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml";
+                    } else if (hasJacocoGradle) {
+                        coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml";
+                    }
 
-                String coverageArg = "";
-                if (hasJacocoMaven) {
-                    coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml";
-                } else if (hasJacocoGradle) {
-                    coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml";
+                    String buildCommand = isGradle
+                            ? """
+                            echo "=== BUILD SPRING BOOT (GRADLE) ==="
+                            chmod +x gradlew || true
+                            ./gradlew build -x test
+                            """
+                            : """
+                            echo "=== BUILD SPRING BOOT (MAVEN) ==="
+                            if [ -f mvnw ]; then
+                              chmod +x mvnw
+                              ./mvnw -B -DskipTests compile
+                            else
+                              mvn -B -DskipTests compile
+                            fi
+                            """;
+
+                    yield """
+                            set -e
+                            cd %1$s
+                            
+                            %3$s
+                            
+                            echo "=== RUN SONAR (SPRING BOOT) ==="
+                            sonar-scanner \
+                              -Dsonar.projectKey=%2$s \
+                              -Dsonar.sources=src/main/java \
+                              -Dsonar.java.binaries=%4$s \
+                              %5$s \
+                              -Dsonar.host.url=%6$s \
+                              -Dsonar.login=%7$s
+                            """.formatted(
+                            workDir,
+                            projectKey,
+                            buildCommand,
+                            isGradle ? "build/classes/java/main" : "target/classes",
+                            coverageArg,
+                            sonarHost,
+                            sonarToken
+                    );
                 }
 
-                String buildCommand = isGradle
-                        ? """
-                        echo "=== BUILD SPRING BOOT (GRADLE) ==="
-                        chmod +x gradlew || true
-                        ./gradlew build -x test
-                        """
-                        : """
-                        echo "=== BUILD SPRING BOOT (MAVEN) ==="
-                        if [ -f mvnw ]; then
-                          chmod +x mvnw
-                          ./mvnw -B -DskipTests compile
-                        else
-                          mvn -B -DskipTests compile
-                        fi
-                        """;
+                case ANGULAR -> {
+                    String tsconfig = resolveTsConfig(workDir);
 
-                yield """
+                    boolean hasCoverage = new File(
+                            workDir + "/coverage/lcov.info"
+                    ).exists();
+
+                    String tsconfigArg = tsconfig != null
+                            ? "-Dsonar.typescript.tsconfigPath=" + tsconfig
+                            : "";
+
+                    String coverageArg = hasCoverage
+                            ? "-Dsonar.typescript.lcov.reportPaths=coverage/lcov.info"
+                            : "";
+
+                    yield """
+                            set -e
+                            cd %1$s
+                            
+                            echo "=== RUN SONAR (ANGULAR) ==="
+                            echo "tsconfig: %3$s"
+                            echo "coverage: %4$s"
+                            
+                            sonar-scanner \
+                              -Dsonar.projectKey=%2$s \
+                              -Dsonar.sources=src \
+                              -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts \
+                              -Dsonar.tests=src \
+                              -Dsonar.test.inclusions=**/*.spec.ts \
+                              %5$s \
+                              %6$s \
+                              -Dsonar.host.url=%7$s \
+                              -Dsonar.login=%8$s
+                            """.formatted(
+                            workDir,
+                            projectKey,
+                            tsconfig != null ? tsconfig : "DEFAULT",
+                            hasCoverage ? "ENABLED" : "DISABLED",
+                            tsconfigArg,
+                            coverageArg,
+                            sonarHost,
+                            sonarToken
+                    );
+                }
+
+                default -> """
                         set -e
                         cd %1$s
                         
-                        %3$s
-                        
-                        echo "=== RUN SONAR (SPRING BOOT) ==="
+                        echo "=== RUN SONAR (GENERIC) ==="
                         sonar-scanner \
                           -Dsonar.projectKey=%2$s \
-                          -Dsonar.sources=src/main/java \
-                          -Dsonar.java.binaries=%4$s \
-                          %5$s \
-                          -Dsonar.host.url=%6$s \
-                          -Dsonar.login=%7$s
-                        """.formatted(
-                        workDir,
-                        projectKey,
-                        buildCommand,
-                        isGradle ? "build/classes/java/main" : "target/classes",
-                        coverageArg,
-                        sonarHost,
-                        sonarToken
-                );
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=%3$s \
+                          -Dsonar.login=%4$s
+                        """.formatted(workDir, projectKey, sonarHost, sonarToken);
+            };
+
+            ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
+            pb.inheritIO();
+
+            int exitCode = pb.start().waitFor();
+            if (exitCode != 0) {
+                throw new RuntimeException("Sonar scan failed");
             }
 
-            case ANGULAR -> {
-                String tsconfig = resolveTsConfig(workDir);
+            String ceTaskId = readCeTaskId(workDir);
 
-                boolean hasCoverage = new File(
-                        workDir + "/coverage/lcov.info"
-                ).exists();
-
-                String tsconfigArg = tsconfig != null
-                        ? "-Dsonar.typescript.tsconfigPath=" + tsconfig
-                        : "";
-
-                String coverageArg = hasCoverage
-                        ? "-Dsonar.typescript.lcov.reportPaths=coverage/lcov.info"
-                        : "";
-
-                yield """
-                        set -e
-                        cd %1$s
-                        
-                        echo "=== RUN SONAR (ANGULAR) ==="
-                        echo "tsconfig: %3$s"
-                        echo "coverage: %4$s"
-                        
-                        sonar-scanner \
-                          -Dsonar.projectKey=%2$s \
-                          -Dsonar.sources=src \
-                          -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts \
-                          -Dsonar.tests=src \
-                          -Dsonar.test.inclusions=**/*.spec.ts \
-                          %5$s \
-                          %6$s \
-                          -Dsonar.host.url=%7$s \
-                          -Dsonar.login=%8$s
-                        """.formatted(
-                        workDir,
-                        projectKey,
-                        tsconfig != null ? tsconfig : "DEFAULT",
-                        hasCoverage ? "ENABLED" : "DISABLED",
-                        tsconfigArg,
-                        coverageArg,
-                        sonarHost,
-                        sonarToken
-                );
-            }
-
-            default -> """
-                    set -e
-                    cd %1$s
-                    
-                    echo "=== RUN SONAR (GENERIC) ==="
-                    sonar-scanner \
-                      -Dsonar.projectKey=%2$s \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=%3$s \
-                      -Dsonar.login=%4$s
-                    """.formatted(workDir, projectKey, sonarHost, sonarToken);
-        };
-
-        ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
-        pb.inheritIO();
-
-        int exitCode = pb.start().waitFor();
-        if (exitCode != 0) {
-            throw new RuntimeException("Sonar scan failed");
+            return Map.of(
+                    "scanId", scanId,
+                    "status", "SONAR_SCAN_TRIGGERED",
+                    "projectType", type.name(),
+                    "ceTaskId", ceTaskId
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Sonar scan execution error", e);
         }
-
-        String ceTaskId = readCeTaskId(workDir);
-
-        return Map.of(
-                "scanId", scanId,
-                "status", "SONAR_SCAN_TRIGGERED",
-                "projectType", type.name(),
-                "ceTaskId", ceTaskId
-        );
     }
 
     private String resolveTsConfig(String workDir) {
@@ -191,20 +194,25 @@ public class SonarScanService {
         return null;
     }
 
-    private String readCeTaskId(String workDir) throws Exception {
+    private String readCeTaskId(String workDir) {
 
-        File report = new File(workDir + "/.scannerwork/report-task.txt");
+        try {
+            File report = new File(workDir + "/.scannerwork/report-task.txt");
 
-        if (!report.exists()) {
-            throw new IllegalStateException("report-task.txt not found");
-        }
-
-        for (String line : java.nio.file.Files.readAllLines(report.toPath())) {
-            if (line.startsWith("ceTaskId=")) {
-                return line.substring("ceTaskId=".length()).trim();
+            if (!report.exists()) {
+                throw new IllegalStateException("report-task.txt not found");
             }
-        }
 
-        throw new IllegalStateException("ceTaskId not found in report-task.txt");
+            for (String line : java.nio.file.Files.readAllLines(report.toPath())) {
+                if (line.startsWith("ceTaskId=")) {
+                    return line.substring("ceTaskId=".length()).trim();
+                }
+            }
+
+            throw new IllegalStateException("ceTaskId not found in report-task.txt");
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read ceTaskId", e);
+        }
     }
 }
