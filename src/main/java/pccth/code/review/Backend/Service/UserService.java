@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.*;
 import pccth.code.review.Backend.DTO.Response.*;
+import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.CookieUtil;
@@ -187,6 +188,22 @@ public class UserService {
             throw new RuntimeException("Server Error", e);
         }
 
+    }
+
+    // ดึงข้อมูล repository ตาม id
+    public UserResponseDTO searchUser(UUID id) {
+
+        UserEntity u = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserResponseDTO dto = new UserResponseDTO();
+        dto.setId(u.getId());
+        dto.setUsername(u.getUsername());
+        dto.setEmail(u.getEmail());
+        dto.setPhone(u.getPhone());
+        dto.setRole(u.getRole());
+        dto.setCreateAt(u.getCreateAt());
+        return dto;
     }
 
 
