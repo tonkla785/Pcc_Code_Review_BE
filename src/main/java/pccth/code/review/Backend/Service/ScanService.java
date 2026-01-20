@@ -296,14 +296,6 @@ public class ScanService {
         writeMarkdownFile(logFilePath, req.getMarkDown());
         ScanEntity updated = scanRepository.save(scan);
 
-        if ("SUCCESS".equalsIgnoreCase(String.valueOf(req.getStatus()))) {
-            List<IssueEntity> createdIssues = issueService.processFromMetrics(updated, metricsMap);
-
-            if (updated.getIssueData() != null) {
-                updated.getIssueData().clear();
-                updated.getIssueData().addAll(createdIssues);
-            }
-        }
 
         ScanResponseDTO dto = new ScanResponseDTO();
         dto.setId(updated.getId());
