@@ -66,9 +66,18 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
-
+            ProjectEntity project = scans.getProject();
+            ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
+            projectResponseDTO.setId(project.getId());
+            projectResponseDTO.setName(project.getName());
+            projectResponseDTO.setRepositoryUrl(project.getRepositoryUrl());
+            projectResponseDTO.setProjectType(project.getProjectType());
+            projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
+            projectResponseDTO.setCreatedAt(project.getCreatedAt());
+            projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
+            scanResponseDTO.setProject(projectResponseDTO);
             scanResponseDTO.setStatus(scans.getStatus());
             scanResponseDTO.setStartedAt(scans.getStartedAt());
             scanResponseDTO.setCompletedAt(scans.getCompletedAt());
@@ -230,10 +239,6 @@ public class ScanService {
         return new SeveritySummaryDTO(severityMap);
     }
 
-
-
-
-
     public ScanResponseDTO SaveScan(ScanRequestsDTO req) {
         try {
             ProjectEntity project = projectRepository.findById(req.getProjectId())
@@ -327,3 +332,4 @@ public class ScanService {
         }
     }
 }
+
