@@ -1,6 +1,7 @@
 package pccth.code.review.Backend.Service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
@@ -33,6 +34,7 @@ public class WebhookScanService {
         this.scanRepository = scanRepository;
     }
 
+    @Transactional
     public N8NScanQueueResposneDTO triggerScan(UUID projectId, String branch) {
 
         // หา project
@@ -56,7 +58,11 @@ public class WebhookScanService {
         request.setBranch(branch);
 
         // trigger n8n worker
-        n8NWebhookClient.postToN8N(request);
+        try {
+            n8NWebhookClient.postToN8N(request);
+        } catch (Exception e) {
+            throw new RuntimeException("Trigger n8n scan failed", e);
+        }
 
         //response กลับ UI
         N8NScanQueueResposneDTO response = new N8NScanQueueResposneDTO();
