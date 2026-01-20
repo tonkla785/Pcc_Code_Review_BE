@@ -1,24 +1,28 @@
 package pccth.code.review.Backend.DTO.Request;
 
-import jakarta.validation.constraints.NotNull;
+import pccth.code.review.Backend.DTO.Response.IssuesReponseDTO;
+import pccth.code.review.Backend.Entity.ProjectEntity;
+import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
-import java.util.Date;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class ScanRequestsDTO {
-
-    @NotNull(message = "Project ID cannot be null")
+    private UUID id;
     private UUID projectId;
-
-    private String status;
+    private ScanStatusEnum status;
     private Date startedAt;
     private Date completedAt;
     private String qualityGate;
     private Map<String, Object> metrics;
     private String logFilePath;
 
-    // Getters and Setters
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
     public UUID getProjectId() {
         return projectId;
@@ -28,11 +32,11 @@ public class ScanRequestsDTO {
         this.projectId = projectId;
     }
 
-    public String getStatus() {
+    public ScanStatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ScanStatusEnum status) {
         this.status = status;
     }
 
@@ -75,6 +79,6 @@ public class ScanRequestsDTO {
     public void setLogFilePath(String logFilePath) {
         this.logFilePath = logFilePath;
     }
+
+
 }
-
-
