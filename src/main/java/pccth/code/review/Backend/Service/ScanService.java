@@ -1,7 +1,9 @@
-package pccth.code.review.Backend.Service;
+ package pccth.code.review.Backend.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,18 +20,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ScanService {
 
     @Autowired
     private ScanRepository scanRepository;
-
     @Autowired
     private ProjectRepository projectRepository;
-
-    @Autowired
-    private IssueService issueService;
 
     public List<ScanResponseDTO> getScansHistory(UUID projectId) {
         try {
@@ -67,16 +66,24 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
-
+            ProjectEntity project = scans.getProject();
+            ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
+            projectResponseDTO.setId(project.getId());
+            projectResponseDTO.setName(project.getName());
+            projectResponseDTO.setRepositoryUrl(project.getRepositoryUrl());
+            projectResponseDTO.setProjectType(project.getProjectType());
+            projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
+            projectResponseDTO.setCreatedAt(project.getCreatedAt());
+            projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
+            scanResponseDTO.setProject(projectResponseDTO);
             scanResponseDTO.setStatus(scans.getStatus());
             scanResponseDTO.setStartedAt(scans.getStartedAt());
             scanResponseDTO.setCompletedAt(scans.getCompletedAt());
             scanResponseDTO.setQualityGate(scans.getQualityGate());
             scanResponseDTO.setMetrics(scans.getMetrics());
             scanResponseDTO.setLogFilePath(scans.getLogFilePath());
-
             scanResponseDTO.setIssueData(
                     scans.getIssueData().stream().map(issue -> {
                         IssuesReponseDTO idto = new IssuesReponseDTO();
@@ -87,12 +94,9 @@ public class ScanService {
                         idto.setSeverity(issue.getSeverity());
                         idto.setComponent(issue.getComponent());
                         idto.setMessage(issue.getMessage());
-
-                        idto.setAssignedTo(issue.getAssignedTo() != null ? issue.getAssignedTo().getId() : null);
-
+                        idto.setAssignedTo(issue.getAssignedTo().getId());
                         idto.setStatus(issue.getStatus());
                         idto.setCreatedAt(issue.getCreatedAt());
-
                         idto.setCommentData(
                                 issue.getCommentData().stream().map(comment -> {
                                     CommentResponseDTO commentResponseDTO = new CommentResponseDTO();
@@ -105,7 +109,6 @@ public class ScanService {
                                 }).toList());
                         return idto;
                     }).toList());
-
             return scanResponseDTO;
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -126,7 +129,6 @@ public class ScanService {
                 projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
                 projectResponseDTO.setCreatedAt(project.getCreatedAt());
                 projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
-
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
                 scanResponseDTO.setId(e.getId());
                 scanResponseDTO.setProject(projectResponseDTO);
@@ -136,7 +138,6 @@ public class ScanService {
                 scanResponseDTO.setQualityGate(e.getQualityGate());
                 scanResponseDTO.setMetrics(e.getMetrics());
                 scanResponseDTO.setLogFilePath(e.getLogFilePath());
-
                 scanResponseDTO.setIssueData(
                         e.getIssueData().stream().map(issue -> {
                             IssuesReponseDTO idto = new IssuesReponseDTO();
@@ -147,9 +148,7 @@ public class ScanService {
                             idto.setSeverity(issue.getSeverity());
                             idto.setComponent(issue.getComponent());
                             idto.setMessage(issue.getMessage());
-
-                            idto.setAssignedTo(issue.getAssignedTo() != null ? issue.getAssignedTo().getId() : null);
-
+                            idto.setAssignedTo(issue.getAssignedTo().getId());
                             idto.setStatus(issue.getStatus());
                             idto.setCreatedAt(issue.getCreatedAt());
                             idto.setCommentData(
@@ -164,7 +163,6 @@ public class ScanService {
                                     }).toList());
                             return idto;
                         }).toList());
-
                 responseDTOs.add(scanResponseDTO);
             }
             return responseDTOs;
@@ -189,7 +187,6 @@ public class ScanService {
         try {
             ProjectEntity projectEntity = projectRepository.findById(projectId)
                     .orElseThrow(() -> new RuntimeException("Project not found"));
-
             ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
             projectResponseDTO.setId(projectEntity.getId());
             projectResponseDTO.setName(projectEntity.getName());
@@ -198,17 +195,19 @@ public class ScanService {
             projectResponseDTO.setSonarProjectKey(projectEntity.getSonarProjectKey());
             projectResponseDTO.setCreatedAt(projectEntity.getCreatedAt());
             projectResponseDTO.setUpdatedAt(projectEntity.getUpdatedAt());
-
             List<ScanResponseDTO> scans = projectEntity.getScanData().stream()
                     .map(s -> {
                         ScanResponseDTO scanResponseDTOdto = new ScanResponseDTO();
                         scanResponseDTOdto.setId(s.getId());
+                        scanResponseDTOdto.setStatus(s.getStatus());
+//                        scanResponseDTOdto.setProjectId(s.getProject().getId());
                         scanResponseDTOdto.setStatus(s.getStatus());
                         scanResponseDTOdto.setStartedAt(s.getStartedAt());
                         scanResponseDTOdto.setCompletedAt(s.getCompletedAt());
                         scanResponseDTOdto.setQualityGate(s.getQualityGate());
                         scanResponseDTOdto.setMetrics(s.getMetrics());
                         scanResponseDTOdto.setLogFilePath(s.getLogFilePath());
+
                         return scanResponseDTOdto;
                     })
                     .toList();
@@ -232,12 +231,17 @@ public class ScanService {
                 if (issue == null || issue.getSeverity() == null) continue;
 
                 String severity = issue.getSeverity();
+
                 severityMap.put(severity, severityMap.getOrDefault(severity, 0L) + 1);
             }
         }
 
         return new SeveritySummaryDTO(severityMap);
     }
+
+
+
+
 
     public ScanResponseDTO SaveScan(ScanRequestsDTO req) {
         try {
@@ -257,6 +261,7 @@ public class ScanService {
 
             ScanResponseDTO dto = new ScanResponseDTO();
             dto.setId(saved.getId());
+//            dto.setProjectId(saved.getProject().getId());
             dto.setStatus(saved.getStatus());
             dto.setStartedAt(saved.getStartedAt());
             dto.setCompletedAt(saved.getCompletedAt());
@@ -279,11 +284,15 @@ public class ScanService {
             ProjectEntity project = projectRepository.findById(req.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
             scan.setProject(project);
+            if (scan.getProject() != null && !scan.getProject().getId().equals(req.getProjectId())) {
+                throw new RuntimeException("Project ID not match");
+            }
         }
 
         ObjectMapper mapper = new ObjectMapper();
 
-        Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {});
+        Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
+        });
         scan.setMetrics(metricsMap);
 
         scan.setStatus(req.getStatus());
@@ -296,17 +305,9 @@ public class ScanService {
         writeMarkdownFile(logFilePath, req.getMarkDown());
         ScanEntity updated = scanRepository.save(scan);
 
-        if ("SUCCESS".equalsIgnoreCase(String.valueOf(req.getStatus()))) {
-            List<IssueEntity> createdIssues = issueService.processFromMetrics(updated, metricsMap);
-
-            if (updated.getIssueData() != null) {
-                updated.getIssueData().clear();
-                updated.getIssueData().addAll(createdIssues);
-            }
-        }
-
         ScanResponseDTO dto = new ScanResponseDTO();
         dto.setId(updated.getId());
+//        dto.setProjectId(updated.getProject().getId());
         dto.setStatus(updated.getStatus());
         dto.setStartedAt(updated.getStartedAt());
         dto.setCompletedAt(updated.getCompletedAt());
@@ -335,3 +336,4 @@ public class ScanService {
         }
     }
 }
+
