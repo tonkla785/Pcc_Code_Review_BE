@@ -3,8 +3,6 @@ package pccth.code.review.Backend.DTO.Response;
 import java.util.Date;
 
 public class N8NIssueResponseDTO {
-    private String scanId;
-    private String projectKey;
 
     private String issueKey;
     private String ruleKey;
@@ -19,22 +17,6 @@ public class N8NIssueResponseDTO {
     private String description;
     private String vulnerableCode;
     private String recommendedFix;
-
-    public String getScanId() {
-        return scanId;
-    }
-
-    public void setScanId(String scanId) {
-        this.scanId = scanId;
-    }
-
-    public String getProjectKey() {
-        return projectKey;
-    }
-
-    public void setProjectKey(String projectKey) {
-        this.projectKey = projectKey;
-    }
 
     public String getIssueKey() {
         return issueKey;
@@ -137,9 +119,6 @@ public class N8NIssueResponseDTO {
     public String toString() {
         return """
                 N8NIssueResponseDTO {
-                  scanId          = %s
-                  projectKey      = %s
-
                   issueKey        = %s
                   ruleKey         = %s
                   type            = %s
@@ -155,8 +134,6 @@ public class N8NIssueResponseDTO {
                   recommendedFix  = %s
                 }
                 """.formatted(
-                scanId,
-                projectKey,
                 issueKey,
                 ruleKey,
                 type,
