@@ -2,7 +2,7 @@ package pccth.code.review.Backend.Entity;
 
 import jakarta.persistence.*;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +36,7 @@ public class ProjectEntity {
     private Date updatedAt;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("project-scans")
     private List<ScanEntity> scanData = new ArrayList<>();
 
     public UUID getId() {
