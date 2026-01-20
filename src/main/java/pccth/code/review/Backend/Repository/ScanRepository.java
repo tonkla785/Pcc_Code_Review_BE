@@ -22,5 +22,4 @@ public interface ScanRepository extends JpaRepository<ScanEntity, UUID> {
     List<ScanEntity> findScansWithIssuesByProjectId(@Param("projectId") UUID projectId);
 
 
-
 }

@@ -16,9 +16,6 @@ import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -66,18 +63,9 @@ public class ScanService {
         try {
             ScanEntity scans = scanRepository.findById(scanId)
                     .orElseThrow(() -> new RuntimeException("Scan not found"));
-            ProjectEntity project = scans.getProject();
-            ProjectResponseDTO projectResponseDTO = new ProjectResponseDTO();
-            projectResponseDTO.setId(project.getId());
-            projectResponseDTO.setName(project.getName());
-            projectResponseDTO.setRepositoryUrl(project.getRepositoryUrl());
-            projectResponseDTO.setProjectType(project.getProjectType());
-            projectResponseDTO.setSonarProjectKey(project.getSonarProjectKey());
-            projectResponseDTO.setCreatedAt(project.getCreatedAt());
-            projectResponseDTO.setUpdatedAt(project.getUpdatedAt());
+
             ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
             scanResponseDTO.setId(scans.getId());
-            scanResponseDTO.setProject(projectResponseDTO);
             scanResponseDTO.setStatus(scans.getStatus());
             scanResponseDTO.setStartedAt(scans.getStartedAt());
             scanResponseDTO.setCompletedAt(scans.getCompletedAt());
@@ -239,6 +227,10 @@ public class ScanService {
         return new SeveritySummaryDTO(severityMap);
     }
 
+
+
+
+
     public ScanResponseDTO SaveScan(ScanRequestsDTO req) {
         try {
             ProjectEntity project = projectRepository.findById(req.getProjectId())
@@ -280,11 +272,7 @@ public class ScanService {
             ProjectEntity project = projectRepository.findById(req.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
             scan.setProject(project);
-            if (scan.getProject() != null && !scan.getProject().getId().equals(req.getProjectId())) {
-                throw new RuntimeException("Project ID not match");
-            }
         }
-
         ObjectMapper mapper = new ObjectMapper();
 
         Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
@@ -295,10 +283,6 @@ public class ScanService {
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
         scan.setCompletedAt(req.getAnalyzedAt());
-        String logFilePath = "scan-workspace/" + req.getScanId() + "/scan-report.md";
-        scan.setLogFilePath(logFilePath);
-
-        writeMarkdownFile(logFilePath, req.getMarkDown());
         ScanEntity updated = scanRepository.save(scan);
 
         ScanResponseDTO dto = new ScanResponseDTO();
@@ -313,23 +297,5 @@ public class ScanService {
 
         return dto;
     }
-    public void writeMarkdownFile(String logFilePath, String markdown) {
-        try {
-            Path path = Path.of(logFilePath);
 
-            if (path.getParent() != null) {
-                Files.createDirectories(path.getParent());
-            }
-            Files.writeString(
-                    path,
-                    markdown,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING
-            );
-
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot write markdown file", e);
-        }
-    }
 }
-
