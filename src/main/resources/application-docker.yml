@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: Backend
+
+  datasource:
+    url: jdbc:postgresql://pccth-db:5432/automatedb
+    username: user
+    password: pass
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      host: pccth-redis
+      port: 6379
+
+  cache:
+    type: redis
+
+jwt:
+  secret: pccth-secret-key-code-review-123456789
+  expiration: 86400000
+  refreshExpiration: 604800000
+
+webhook:
+  token: pccth-internal-webhook-secret
+  worker-url: http://pccth-n8n:5678/webhook/scan-worker
