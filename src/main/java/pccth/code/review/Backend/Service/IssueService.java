@@ -74,6 +74,7 @@ public class IssueService {
         }
     }
 
+
     private void upsertIssueDetail(IssueEntity issue, N8NIssueResponseDTO dto) {
 
         boolean hasDetail =
