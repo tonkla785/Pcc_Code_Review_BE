@@ -42,8 +42,7 @@ CREATE TABLE scans (
 -- ISSUES
 CREATE TABLE issues (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    scan_id UUID NOT NULL,
-    issue_key VARCHAR(255),
+    issue_key VARCHAR(255) NOT NULL UNIQUE,
     type VARCHAR(50),
     severity VARCHAR(20),
     rule_key VARCHAR(100),
@@ -54,18 +53,30 @@ CREATE TABLE issues (
     status VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_issues_scan
+    CONSTRAINT fk_issues_user
+        FOREIGN KEY (assigned_to)
+        REFERENCES users(id)
+);
+
+--SCAN ISSUE
+CREATE TABLE scan_issues (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+
+    scan_id UUID NOT NULL,
+    issue_id UUID NOT NULL,
+
+    CONSTRAINT fk_scan_issues_scan
         FOREIGN KEY (scan_id)
         REFERENCES scans(id)
         ON DELETE CASCADE,
 
-    CONSTRAINT fk_issues_user
-        FOREIGN KEY (assigned_to)
-        REFERENCES users(id),
+    CONSTRAINT fk_scan_issues_issue
+        FOREIGN KEY (issue_id)
+        REFERENCES issues(id)
+        ON DELETE CASCADE,
 
-    CONSTRAINT uq_scan_issue UNIQUE (scan_id, issue_key)
+    CONSTRAINT uq_scan_issue UNIQUE (scan_id, issue_id)
 );
-
 
 --ISSUES Details
 CREATE TABLE issue_details (
@@ -100,5 +111,7 @@ CREATE TABLE comments (
 
 -- INDEXES (For Performance)
 CREATE INDEX idx_scans_project_id ON scans(project_id);
-CREATE INDEX idx_issues_scan_id ON issues(scan_id);
+CREATE INDEX idx_scan_issues_scan_id ON scan_issues(scan_id);
+CREATE INDEX idx_scan_issues_issue_id ON scan_issues(issue_id);
 CREATE INDEX idx_issues_assigned_to ON issues(assigned_to);
+
