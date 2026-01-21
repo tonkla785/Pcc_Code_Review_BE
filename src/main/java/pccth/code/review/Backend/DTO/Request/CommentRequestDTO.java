@@ -5,11 +5,23 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public class CommentRequestDTO {
-    @NotNull(message = "User ID is required")
+
+    @NotNull
+    private UUID issueId;
+
+    @NotNull
     private UUID userId;
 
-    @NotBlank(message = "Comment cannot be empty")
+    @NotBlank
     private String comment;
+
+    public UUID getIssueId() {
+        return issueId;
+    }
+
+    public void setIssueId(UUID issueId) {
+        this.issueId = issueId;
+    }
 
     public UUID getUserId() {
         return userId;
