@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NIssueBatchResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NResponseDTO;
+import pccth.code.review.Backend.DTO.ScanWsEvent;
+import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
 import pccth.code.review.Backend.Service.*;
 
 @RestController
@@ -15,13 +17,15 @@ public class WebhookController {
     private final GitCloneService gitCloneService;
     private final SonarScanService sonarScanService;
     private final IssueService issueService;
+    private final ScanStatusPublisher scanStatusPublisher;
 
-    public WebhookController(ProjectService projectService, ScanService scanService, GitCloneService gitCloneService, SonarScanService sonarScanService,IssueService issueService) {
+    public WebhookController(ProjectService projectService, ScanService scanService, GitCloneService gitCloneService, SonarScanService sonarScanService,IssueService issueService, ScanStatusPublisher scanStatusPublisher) {
         this.projectService = projectService;
         this.scanService = scanService;
         this.sonarScanService = sonarScanService;
         this.gitCloneService = gitCloneService;
         this.issueService = issueService;
+        this.scanStatusPublisher = scanStatusPublisher;
     }
 
     @PostMapping("/scan/result")
@@ -31,6 +35,11 @@ public class WebhookController {
         // Add Logic Here
         projectService.updateScanAt(result.getProjectId());
         scanService.updateScan(result);
+
+        scanStatusPublisher.publish(
+                new ScanWsEvent(result.getProjectId(), "SUCCESS")
+        );
+
         return ResponseEntity.ok(result);
     }
 
