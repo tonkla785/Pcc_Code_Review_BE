@@ -8,10 +8,7 @@ import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NIssueBatchResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NIssueResponseDTO;
 import pccth.code.review.Backend.Entity.*;
-import pccth.code.review.Backend.Repository.CommentRepository;
-import pccth.code.review.Backend.Repository.IssueDetailRepository;
-import pccth.code.review.Backend.Repository.IssueRepository;
-import pccth.code.review.Backend.Repository.UserRepository;
+import pccth.code.review.Backend.Repository.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,19 +19,27 @@ public class IssueService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final IssueDetailRepository issueDetailRepository;
-    public IssueService(IssueRepository issueRepository, CommentRepository commentRepository, UserRepository userRepository, IssueDetailRepository issueDetailRepository) {
+    private final ScanIssueRepository scanIssueRepository;
+
+    public IssueService(IssueRepository issueRepository, CommentRepository commentRepository, UserRepository userRepository, IssueDetailRepository issueDetailRepository, ScanIssueRepository scanIssueRepository) {
         this.issueRepository = issueRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.issueDetailRepository = issueDetailRepository;
+        this.scanIssueRepository = scanIssueRepository;
     }
+
     @Transactional
     public void upsertIssuesFromN8n(N8NIssueBatchResponseDTO batch) {
+
         if (batch == null || batch.getIssues() == null) return;
 
         UUID scanId = UUID.fromString(batch.getScanId());
 
-        // set ล่าสุดที่เพิ่งได้มา (issueKey ทั้งหมดในรอบนี้)
+        ScanEntity scanRef = new ScanEntity();
+        scanRef.setId(scanId);
+
+        // issueKey ที่เจอใน scan รอบนี้
         Set<String> latestKeys = batch.getIssues().stream()
                 .map(N8NIssueResponseDTO::getIssueKey)
                 .filter(Objects::nonNull)
@@ -43,48 +48,59 @@ public class IssueService {
         for (N8NIssueResponseDTO dto : batch.getIssues()) {
             if (dto.getIssueKey() == null) continue;
 
-            IssueEntity issue = issueRepository.findByScan_IdAndIssueKey(scanId, dto.getIssueKey())
+            // upsert ISSUE (หาโดย issueKey เท่านั้น)
+            IssueEntity issue = issueRepository
+                    .findByIssueKey(dto.getIssueKey())
                     .orElseGet(IssueEntity::new);
 
-            // ถ้าเป็น insert ใหม่: ต้อง set scan ด้วย (ใช้ reference กัน query scan จริง)
-            // NOTE: ถ้า issue เดิมอยู่คนละ scan แล้วมึงอยากให้มัน "ย้าย scan" ก็ต้อง decide เอง
-            if (issue.getId() == null) {
-                ScanEntity scanRef = new ScanEntity();
-                scanRef.setId(scanId);
-                issue.setScan(scanRef);
+            boolean isNew = issue.getId() == null;
+
+            if (isNew) {
+                issue.setIssueKey(dto.getIssueKey());
+                issue.setCreatedAt(dto.getCreatedAt());
             }
 
-            // update fields
-            issue.setIssueKey(dto.getIssueKey());
             issue.setType(dto.getType());
             issue.setSeverity(dto.getSeverity());
+            issue.setRuleKey(dto.getRuleKey());
             issue.setComponent(dto.getComponent());
             issue.setLine(dto.getLine());
             issue.setMessage(dto.getMessage());
             issue.setStatus(dto.getStatus() != null ? dto.getStatus() : "OPEN");
-            issue.setCreatedAt(dto.getCreatedAt());
-            issue.setRuleKey(dto.getRuleKey()); // หรือ issue.setRuleKey(dto.getRuleKey()) ถ้ามึง rename
 
-            IssueEntity saved = issueRepository.save(issue);
+            IssueEntity savedIssue = issueRepository.save(issue);
 
-            // upsert detail (ใช้ MapsId)
-            upsertIssueDetail(saved, dto);
+            // bind ISSUE ↔ SCAN ผ่าน scan_issues
+            if (!scanIssueRepository.existsByScan_IdAndIssue_Id(scanId, savedIssue.getId())) {
+                ScanIssueEntity link = new ScanIssueEntity();
+                link.setScan(scanRef);
+                link.setIssue(savedIssue);
+                scanIssueRepository.save(link);
+            }
+
+            // upsert ISSUE_DETAIL (1:1)
+            upsertIssueDetail(savedIssue, dto);
         }
 
-        // ปิด issue ที่หายไปในรอบนี้ (เฉพาะ scan นี้)
-        List<IssueEntity> existingForScan = issueRepository.findAllByScan_Id(scanId);
-        for (IssueEntity dbIssue : existingForScan) {
-            String key = dbIssue.getIssueKey();
-            if (key != null && !latestKeys.contains(key)) {
-                if (!"RESOLVED".equalsIgnoreCase(dbIssue.getStatus())) {
-                    dbIssue.setStatus("RESOLVED");
-                    issueRepository.save(dbIssue);
-                }
+        // ปิด issue ที่ไม่เจอใน scan นี้ (เฉพาะ scan นี้)
+        List<ScanIssueEntity> existingLinks =
+                scanIssueRepository.findAllByScan_Id(scanId);
+
+        for (ScanIssueEntity link : existingLinks) {
+            IssueEntity issue = link.getIssue();
+            if (issue.getIssueKey() != null &&
+                    !latestKeys.contains(issue.getIssueKey()) &&
+                    !"RESOLVED".equalsIgnoreCase(issue.getStatus())) {
+
+                issue.setStatus("RESOLVED");
+                issueRepository.save(issue);
             }
         }
     }
 
+
     private void upsertIssueDetail(IssueEntity issue, N8NIssueResponseDTO dto) {
+
         boolean hasAnyDetail =
                 dto.getDescription() != null ||
                         dto.getVulnerableCode() != null ||
@@ -92,17 +108,12 @@ public class IssueService {
 
         if (!hasAnyDetail) return;
 
-        UUID issueId = issue.getId();
-        if (issueId == null) {
-            // กันพลาด: ถ้า issue ยังไม่มี id แสดงว่ายังไม่ถูก save จริง
-            throw new IllegalStateException("Issue id is null, cannot upsert issue_details");
-        }
-
-        IssueDetailEntity detail = issueDetailRepository.findById(issueId)
+        IssueDetailEntity detail = issueDetailRepository
+                .findById(issue.getId())
                 .orElseGet(IssueDetailEntity::new);
 
-        // ชุดสำคัญ: set id ก่อน save
-        detail.setIssueId(issueId);
+        // สำคัญมาก: ผูก entity ไม่ใช่ set id เอง
+        detail.setIssue(issue);
 
         detail.setDescription(dto.getDescription());
         detail.setVulnerableCode(dto.getVulnerableCode());
@@ -110,8 +121,6 @@ public class IssueService {
 
         issueDetailRepository.save(detail);
     }
-
-
 
 
     public CommentResponseDTO addComment(UUID issueId, CommentRequestDTO request) {
@@ -140,9 +149,5 @@ public class IssueService {
         dto.setComment(comment.getComment());
         dto.setCreatedAt(comment.getCreatedAt());
         return dto;
-    }
-
-    public String updateStatus(UUID id) {
-        return "Update status of issue: " + id;
     }
 }

@@ -1,6 +1,7 @@
 package pccth.code.review.Backend.Entity;
 
 import jakarta.persistence.*;
+
 import java.util.UUID;
 
 @Entity
@@ -11,6 +12,11 @@ public class IssueDetailEntity {
     @Column(name = "issue_id")
     private UUID issueId;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @MapsId
+    @JoinColumn(name = "issue_id")
+    private IssueEntity issue;
+
     @Column(name = "description")
     private String description;
 
@@ -20,8 +26,13 @@ public class IssueDetailEntity {
     @Column(name = "recommended_fix")
     private String recommendedFix;
 
+    public IssueEntity getIssue() {
+        return issue;
+    }
 
-    // ===== getters & setters =====
+    public void setIssue(IssueEntity issue) {
+        this.issue = issue;
+    }
 
     public UUID getIssueId() {
         return issueId;
