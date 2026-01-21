@@ -47,7 +47,9 @@ public class SecurityConfig {
                                 "/user/login",
                                 "/user/register",
                                 "/user/refresh",
-                                "/webhooks/**"
+                                "/webhooks/**",
+                                "/ws",
+                                "/ws/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
