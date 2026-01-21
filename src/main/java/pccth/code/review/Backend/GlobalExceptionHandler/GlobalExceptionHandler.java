@@ -138,7 +138,7 @@ public class GlobalExceptionHandler {
             else if (c.contains("scan_issue") || c.contains("uq_scan_issue")) message = "Issue already exists for this scan";
             else message = "Duplicate data: " + constraint;
         } else {
-            // ✅ ตอน debug ให้คืน detail ไปก่อน จะได้รู้ของจริงว่าชนอะไร
+            //ตอน debug ให้คืน detail ไปก่อน จะได้รู้ของจริงว่าชนอะไร
             message = "Data integrity violation: " + detail;
         }
 
