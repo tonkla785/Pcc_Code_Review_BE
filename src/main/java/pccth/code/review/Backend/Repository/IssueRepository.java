@@ -8,19 +8,18 @@ import pccth.code.review.Backend.DTO.Response.IssueStatusCountDTO;
 import pccth.code.review.Backend.Entity.IssueEntity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface IssueRepository extends JpaRepository<IssueEntity, UUID> {
 
-    @Query("""
-        select new pccth.code.review.Backend.DTO.Response.IssueStatusCountDTO(
-            i.severity, count(i)
-        )
-        from IssueEntity i
-        join i.scan s
-        where s.project.id = :projectId
-        group by i.severity
-    """)
-    List<IssueStatusCountDTO> countIssuesBySeverityInProject(@Param("projectId") UUID projectId);
+    Optional<IssueEntity> findByIssueKey(String issueKey);
+
+    List<IssueEntity> findAllByScan_Id(UUID scanId);
+
+    Optional<IssueEntity> findByScan_IdAndIssueKey(UUID scanId, String issueKey);
+
+    @Query("select i.issueKey from IssueEntity i where i.scan.id = :scanId")
+    List<String> findIssueKeysByScanId(UUID scanId);
 }
