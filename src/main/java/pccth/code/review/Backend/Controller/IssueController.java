@@ -5,10 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
 import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
-import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Service.IssueService;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -21,16 +19,8 @@ public class IssueController {
         this.issueService = issueService;
     }
 
-
-
-
     @PostMapping("issues/{id}/comments")
     public ResponseEntity<CommentResponseDTO> addComment(@PathVariable UUID id, @Valid @RequestBody CommentRequestDTO request) {
         return ResponseEntity.ok(issueService.addComment(id, request));
-    }
-
-    @PutMapping("issues/{id}/status")
-    public String updateStatus(@PathVariable UUID id) {
-        return issueService.updateStatus(id);
     }
 }

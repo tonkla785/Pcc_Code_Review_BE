@@ -6,6 +6,7 @@ import org.hibernate.type.SqlTypes;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import java.util.*;
 
 @Entity
@@ -41,9 +42,20 @@ public class ScanEntity {
     @Column(name = "log_file_path")
     private String logFilePath;
 
-    @OneToMany(mappedBy = "scan", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("scan-issues")
-    private List<IssueEntity> issueData = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "scan",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ScanIssueEntity> scanIssues = new ArrayList<>();
+
+    public List<ScanIssueEntity> getScanIssues() {
+        return scanIssues;
+    }
+
+    public void setScanIssues(List<ScanIssueEntity> scanIssues) {
+        this.scanIssues = scanIssues;
+    }
 
     public UUID getId() {
         return id;
@@ -107,13 +119,5 @@ public class ScanEntity {
 
     public void setLogFilePath(String logFilePath) {
         this.logFilePath = logFilePath;
-    }
-
-    public List<IssueEntity> getIssueData() {
-        return issueData;
-    }
-
-    public void setIssueData(List<IssueEntity> issueData) {
-        this.issueData = issueData;
     }
 }
