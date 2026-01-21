@@ -21,20 +21,8 @@ public class IssueController {
         this.issueService = issueService;
     }
 
-    @GetMapping("issues")
-    public List<IssueEntity> getListIssues() {
-        return issueService.listIssues();
-    }
 
-    @GetMapping("issues/{id}")
-    public String getIssueDetail(@PathVariable UUID id) {
-        return issueService.getIssueDetail(id);
-    }
 
-    @PutMapping("issues/{id}/assign")
-    public String assignDeveloper(@PathVariable UUID id) {
-        return issueService.assignDeveloper(id);
-    }
 
     @PostMapping("issues/{id}/comments")
     public ResponseEntity<CommentResponseDTO> addComment(@PathVariable UUID id, @Valid @RequestBody CommentRequestDTO request) {

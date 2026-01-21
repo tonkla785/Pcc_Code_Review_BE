@@ -48,6 +48,13 @@ public class IssueEntity {
     @Column(name = "created_at")
     private Date createdAt;
 
+    @Column(name = "line")
+    private Integer line;
+
+    @Column(name = "rule_key")
+    private String ruleKey;
+
+
     @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("issue-comments")
     private List<CommentEntity> commentData = new ArrayList<>();
@@ -139,4 +146,21 @@ public class IssueEntity {
     public void setCommentData(List<CommentEntity> commentData) {
         this.commentData = commentData;
     }
+
+    public Integer getLine() {
+        return line;
+    }
+
+    public void setLine(Integer line) {
+        this.line = line;
+    }
+
+    public String getRuleKey() {
+        return ruleKey;
+    }
+
+    public void setRuleKey(String ruleKey) {
+        this.ruleKey = ruleKey;
+    }
+
 }
