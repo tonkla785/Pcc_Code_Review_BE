@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pccth.code.review.Backend.DTO.Response.*;
-import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Repository.ProjectRepository;
@@ -51,6 +50,7 @@ public class ScanService {
         dto.setQualityGate(scan.getQualityGate());
         dto.setMetrics(scan.getMetrics());
         dto.setLogFilePath(scan.getLogFilePath());
+<<<<<<< HEAD
         dto.setIssueData(
                 scan.getScanIssues().stream()
                         .map(scanIssue -> {
@@ -89,6 +89,9 @@ public class ScanService {
                         })
                         .toList()
         );
+=======
+
+>>>>>>> main
         return dto;
     }
 
