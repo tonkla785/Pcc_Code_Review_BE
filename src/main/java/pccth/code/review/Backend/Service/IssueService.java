@@ -7,9 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
-import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
-import pccth.code.review.Backend.DTO.Response.N8NIssueBatchResponseDTO;
-import pccth.code.review.Backend.DTO.Response.N8NIssueResponseDTO;
+import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.*;
 import pccth.code.review.Backend.Repository.*;
 
@@ -22,18 +20,23 @@ public class IssueService {
     private EntityManager entityManager;
 
     private final IssueRepository issueRepository;
-    private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
     private final IssueDetailRepository issueDetailRepository;
     private final ScanIssueRepository scanIssueRepository;
+    private final CommentService commentService;
 
-    public IssueService(IssueRepository issueRepository, CommentRepository commentRepository, UserRepository userRepository, IssueDetailRepository issueDetailRepository, ScanIssueRepository scanIssueRepository) {
+    public IssueService(
+            IssueRepository issueRepository,
+            IssueDetailRepository issueDetailRepository,
+            ScanIssueRepository scanIssueRepository,
+            CommentService commentService
+    ) {
         this.issueRepository = issueRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
         this.issueDetailRepository = issueDetailRepository;
         this.scanIssueRepository = scanIssueRepository;
+        this.commentService = commentService;
     }
+
+
 
     @Transactional
     public void upsertIssuesFromN8n(N8NIssueBatchResponseDTO batch) {
@@ -97,31 +100,57 @@ public class IssueService {
     }
 
 
-    public CommentResponseDTO addComment(UUID issueId, CommentRequestDTO request) {
-        IssueEntity issue = issueRepository.findById(issueId)
-                .orElseThrow(() -> new RuntimeException("Issue not found"));
+    @Transactional(readOnly = true)
+    public List<IssuesReponseDTO> getAllIssues() {
 
-        UserEntity user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        List<IssueEntity> issues = issueRepository.findAll();
+        List<IssuesReponseDTO> result = new ArrayList<>();
 
-        CommentEntity comment = new CommentEntity();
-        comment.setIssue(issue);
-        comment.setUser(user);
-        comment.setComment(request.getComment());
-        comment.setCreatedAt(new Date());
+        for (IssueEntity issue : issues) {
+            result.add(mapToIssuesResponseDTO(issue));
+        }
 
-        CommentEntity savedComment = commentRepository.save(comment);
-
-        return mapToCommentResponseDTO(savedComment);
+        return result;
     }
+    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
 
-    private CommentResponseDTO mapToCommentResponseDTO(CommentEntity comment) {
-        CommentResponseDTO dto = new CommentResponseDTO();
-        dto.setId(comment.getId());
-        dto.setIssue(comment.getIssue().getId());
-        dto.setUser(comment.getUser().getId());
-        dto.setComment(comment.getComment());
-        dto.setCreatedAt(comment.getCreatedAt());
+        IssuesReponseDTO dto = new IssuesReponseDTO();
+
+        dto.setId(issue.getId());
+        dto.setIssueKey(issue.getIssueKey());
+        dto.setType(issue.getType());
+        dto.setSeverity(issue.getSeverity());
+        dto.setComponent(issue.getComponent());
+        dto.setMessage(issue.getMessage());
+        dto.setStatus(issue.getStatus());
+        dto.setCreatedAt(issue.getCreatedAt());
+
+        // assigned user
+        if (issue.getAssignedTo() != null) {
+            dto.setAssignedTo(issue.getAssignedTo().getId());
+        }
+
+        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
+        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
+            dto.setScanId(
+                    issue.getScanIssues()
+                            .get(0)
+                            .getScan()
+                            .getId()
+            );
+        }
+
+        // comments
+        List<CommentResponseDTO> comments = new ArrayList<>();
+        if (issue.getCommentData() != null) {
+            for (CommentEntity comment : issue.getCommentData()) {
+                comments.add(commentService.mapToCommentResponseDTO(comment));
+            }
+        }
+        dto.setCommentData(comments);
+
         return dto;
     }
+
+
 }
