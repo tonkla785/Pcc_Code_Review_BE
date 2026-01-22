@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pccth.code.review.Backend.DTO.Response.*;
+import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Repository.ProjectRepository;
@@ -50,7 +51,44 @@ public class ScanService {
         dto.setQualityGate(scan.getQualityGate());
         dto.setMetrics(scan.getMetrics());
         dto.setLogFilePath(scan.getLogFilePath());
+        dto.setIssueData(
+                scan.getScanIssues().stream()
+                        .map(scanIssue -> {
+                            IssueEntity issue = scanIssue.getIssue();
 
+                            IssuesReponseDTO idto = new IssuesReponseDTO();
+                            idto.setId(issue.getId());
+                            idto.setScanId(scan.getId());
+                            idto.setIssueKey(issue.getIssueKey());
+                            idto.setType(issue.getType());
+                            idto.setSeverity(issue.getSeverity());
+                            idto.setComponent(issue.getComponent());
+                            idto.setMessage(issue.getMessage());
+                            idto.setStatus(issue.getStatus());
+                            idto.setCreatedAt(issue.getCreatedAt());
+
+                            if (issue.getAssignedTo() != null) {
+                                idto.setAssignedTo(issue.getAssignedTo().getId());
+                            }
+
+                            idto.setCommentData(
+                                    issue.getCommentData().stream()
+                                            .map(comment -> {
+                                                CommentResponseDTO cdto = new CommentResponseDTO();
+                                                cdto.setId(comment.getId());
+                                                cdto.setComment(comment.getComment());
+                                                cdto.setCreatedAt(comment.getCreatedAt());
+                                                cdto.setIssue(issue.getId());
+                                                cdto.setUser(comment.getUser().getId());
+                                                return cdto;
+                                            })
+                                            .toList()
+                            );
+
+                            return idto;
+                        })
+                        .toList()
+        );
         return dto;
     }
 
