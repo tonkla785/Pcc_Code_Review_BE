@@ -12,6 +12,7 @@ import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RepositoryResponseDTO;
 import pccth.code.review.Backend.DTO.Response.ScanResponseDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
+import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 
@@ -28,7 +29,6 @@ public class ProjectService {
     public RepositoryResponseDTO addRepository(RepositoryDTO repository) {
         try {
             ProjectEntity project = new ProjectEntity();
-//            project.setId(UUID.randomUUID());
             project.setName(repository.getName());
             project.setRepositoryUrl(repository.getUrl());
             project.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
@@ -49,7 +49,8 @@ public class ProjectService {
     // ดึงข้อมูล repository ทั้งหมด
     public List<ProjectResponseDTO> listProjects() {
         List<ProjectEntity> projects = projectRepository.findAll();
-        List<ProjectResponseDTO> dtoList = new ArrayList<>();
+        List<ProjectResponseDTO> projectDto = new ArrayList<>();
+        List<ScanResponseDTO> scanDto = new ArrayList<>();
 
         for (ProjectEntity p : projects) {
             ProjectResponseDTO dto = new ProjectResponseDTO();
@@ -60,10 +61,23 @@ public class ProjectService {
             dto.setSonarProjectKey(p.getSonarProjectKey());
             dto.setCreatedAt(p.getCreatedAt());
             dto.setUpdatedAt(p.getUpdatedAt());
-            dtoList.add(dto);
-        }
 
-        return dtoList;
+            for (ScanEntity scan : p.getScanData()) {
+                ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
+                scanResponseDTO.setId(scan.getId());
+                scanResponseDTO.setStatus(scan.getStatus());
+                scanResponseDTO.setStartedAt(scan.getStartedAt());
+                scanResponseDTO.setCompletedAt(scan.getCompletedAt());
+                scanResponseDTO.setQualityGate(scan.getQualityGate());
+                scanResponseDTO.setMetrics(scan.getMetrics());
+                scanResponseDTO.setLogFilePath(scan.getLogFilePath());
+                scanDto.add(scanResponseDTO);
+            }
+
+            dto.setScanData(scanDto);
+            projectDto.add(dto);
+        }
+        return projectDto;
     }
 
     // ดึงข้อมูล repository ตาม id
