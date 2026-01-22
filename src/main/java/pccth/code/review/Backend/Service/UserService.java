@@ -80,6 +80,7 @@ public class UserService {
         loginResponse.setPhone(user.getPhone());
         loginResponse.setRole(user.getRole());
         return loginResponse;
+
     }
 
     private void validateDuplicateUser(RegisterRequestDTO request) {
@@ -155,13 +156,13 @@ public class UserService {
     }
 
     // แก้ไข user
-    public RegisterResponseDTO updateUser(UUID id, ManageUserRequestDTO manageUser) {
+    public RegisterResponseDTO updateUser(UUID id, UserRequestsDTO userRequestsDTO) {
         UserEntity entity = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("user not found")); // ตรวจสอบว่ามี id มั้ย
         try {
-            entity.setUsername(manageUser.getUsername());
-            entity.setEmail(manageUser.getEmail());
-            entity.setRole(manageUser.getRole());
+            entity.setUsername(userRequestsDTO.getUsername());
+            entity.setEmail(userRequestsDTO.getEmail());
+            entity.setRole(userRequestsDTO.getRole());
             userRepository.save(entity);
 
             RegisterResponseDTO response = new RegisterResponseDTO();
