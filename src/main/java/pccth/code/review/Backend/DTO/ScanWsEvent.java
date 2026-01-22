@@ -7,17 +7,17 @@ import java.util.UUID;
 
 public class ScanWsEvent {
     private UUID projectId;
-    private String status; // SCANNING, SUCCESS, FAILED
+    private ScanStatusEnum status; // SCANNING, SUCCESS, FAILED
 
     // สำหรับ Jackson
     public ScanWsEvent() {
     }
 
-    public ScanWsEvent(UUID projectId, String status) {
+    public ScanWsEvent(UUID projectId, ScanStatusEnum status) {
         this.projectId = projectId;
         this.status = status;
     }
 
     public UUID getProjectId() { return projectId; }
-    public String getStatus() { return status; }
+    public ScanStatusEnum getStatus() { return status; }
 }

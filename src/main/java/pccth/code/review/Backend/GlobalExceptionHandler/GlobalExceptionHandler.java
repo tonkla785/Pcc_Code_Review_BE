@@ -165,7 +165,6 @@ public class GlobalExceptionHandler {
     // Fallback 500 exception อื่นๆ
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponseDTO> handleGeneral(Exception e) {
-        e.printStackTrace(); //เอาไว้ debug
         ApiErrorResponseDTO response =
                 new ApiErrorResponseDTO(
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),
