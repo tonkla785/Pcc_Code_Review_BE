@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -18,12 +19,7 @@ public class IssueEntity {
     @Column(columnDefinition = "uuid")
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "scan_id", nullable = false)
-    @JsonBackReference("scan-issues")
-    private ScanEntity scan;
-
-    @Column(name = "issue_key")
+    @Column(name = "issue_key", nullable = false, length = 255)
     private String issueKey;
 
     @Column(name = "type", length = 50)
@@ -32,25 +28,65 @@ public class IssueEntity {
     @Column(name = "severity", length = 20)
     private String severity;
 
+    @Column(name = "rule_key", length = 100)
+    private String ruleKey;
+
     @Column(name = "component")
     private String component;
 
+    @Column(name = "line")
+    private Integer line;
+
     @Column(name = "message")
     private String message;
+
+    @Column(name = "status", length = 50)
+    private String status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_to")
     private UserEntity assignedTo;
 
-    @Column(name = "status", length = 50)
-    private String status;
-
     @Column(name = "created_at")
     private Date createdAt;
 
-    @OneToMany(mappedBy = "issue", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("issue-comments")
+    @OneToOne(
+            mappedBy = "issue",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private IssueDetailEntity detail;
+
+    @OneToMany(
+            mappedBy = "issue",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<ScanIssueEntity> scanIssues = new ArrayList<>();
+
+    @OneToMany(
+            mappedBy = "issue",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
     private List<CommentEntity> commentData = new ArrayList<>();
+
+    public IssueDetailEntity getDetail() {
+        return detail;
+    }
+
+    public void setDetail(IssueDetailEntity detail) {
+        this.detail = detail;
+    }
+
+    public List<ScanIssueEntity> getScanIssues() {
+        return scanIssues;
+    }
+
+    public void setScanIssues(List<ScanIssueEntity> scanIssues) {
+        this.scanIssues = scanIssues;
+    }
 
     public UUID getId() {
         return id;
@@ -58,14 +94,6 @@ public class IssueEntity {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public ScanEntity getScan() {
-        return scan;
-    }
-
-    public void setScan(ScanEntity scan) {
-        this.scan = scan;
     }
 
     public String getIssueKey() {
@@ -139,4 +167,21 @@ public class IssueEntity {
     public void setCommentData(List<CommentEntity> commentData) {
         this.commentData = commentData;
     }
+
+    public Integer getLine() {
+        return line;
+    }
+
+    public void setLine(Integer line) {
+        this.line = line;
+    }
+
+    public String getRuleKey() {
+        return ruleKey;
+    }
+
+    public void setRuleKey(String ruleKey) {
+        this.ruleKey = ruleKey;
+    }
+
 }

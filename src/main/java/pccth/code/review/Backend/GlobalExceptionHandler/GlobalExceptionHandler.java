@@ -13,6 +13,7 @@ import pccth.code.review.Backend.DTO.ApiErrorResponseDTO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.logging.ErrorManager;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -115,17 +116,37 @@ public class GlobalExceptionHandler {
 
     // Duplicate key / Data integrity
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ApiErrorResponseDTO> handleDataIntegrity(
-            DataIntegrityViolationException e) {
+    public ResponseEntity<ApiErrorResponseDTO> handleDataIntegrity(DataIntegrityViolationException e) {
 
-        ApiErrorResponseDTO response =
-                new ApiErrorResponseDTO(
-                        HttpStatus.BAD_REQUEST.value(),
-                        "Email, username or phone already exists"
-                );
+        Throwable root = e;
+        while (root.getCause() != null) root = root.getCause();
 
-        return ResponseEntity.badRequest().body(response);
+        String message = "Data integrity violation";
+
+        String constraint = null;
+        if (root instanceof org.hibernate.exception.ConstraintViolationException cve) {
+            constraint = cve.getConstraintName();
+        }
+
+        String c = constraint == null ? null : constraint.toLowerCase();
+        String detail = root.getMessage(); // fallback สำคัญมาก
+
+        if (c != null) {
+            if (c.contains("email")) message = "Email already exists";
+            else if (c.contains("username")) message = "Username already exists";
+            else if (c.contains("phone")) message = "Phone already exists";
+            else if (c.contains("scan_issue") || c.contains("uq_scan_issue")) message = "Issue already exists for this scan";
+            else message = "Duplicate data: " + constraint;
+        } else {
+            //ตอน debug ให้คืน detail ไปก่อน จะได้รู้ของจริงว่าชนอะไร
+            message = "Data integrity violation: " + detail;
+        }
+
+
+
+        return ResponseEntity.badRequest().body(new ApiErrorResponseDTO(400, message));
     }
+
 
     // ResponseStatusException
     @ExceptionHandler(ResponseStatusException.class)
