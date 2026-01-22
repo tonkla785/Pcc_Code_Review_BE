@@ -196,42 +196,6 @@ public class IssueService {
 
         return dto;
     }
-    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
-
-        IssuesReponseDTO dto = new IssuesReponseDTO();
-
-        dto.setId(issue.getId());
-        dto.setIssueKey(issue.getIssueKey());
-        dto.setType(issue.getType());
-        dto.setSeverity(issue.getSeverity());
-        dto.setComponent(issue.getComponent());
-        dto.setMessage(issue.getMessage());
-        dto.setStatus(issue.getStatus());
-        dto.setCreatedAt(issue.getCreatedAt());
-
-        // assigned user
-        if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
-        }
-
-        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
-        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
-            dto.setScanId(
-                    issue.getScanIssues()
-                            .get(0)
-                            .getScan()
-                            .getId()
-            );
-        }
-
-        // comments
-        List<CommentResponseDTO> comments = new ArrayList<>();
-        if (issue.getCommentData() != null) {
-            for (CommentEntity comment : issue.getCommentData()) {
-                comments.add(commentService.mapToCommentResponseDTO(comment));
-            }
-        }
-        dto.setCommentData(comments);
 
     @Transactional
     public IssuesReponseDTO updateIssue(IssueUpdateRequestDTO req) {
@@ -273,11 +237,8 @@ public class IssueService {
         if (saved.getScanIssues() != null && !saved.getScanIssues().isEmpty()) {
             dto.setScanId(saved.getScanIssues().get(0).getScan().getId());
         }
-        // commentData ตามของเดิมมึงจะเติมต่อก็ได้
         return dto;
     }
-
-
 }
 
 
