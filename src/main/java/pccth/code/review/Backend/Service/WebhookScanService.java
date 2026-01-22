@@ -71,7 +71,7 @@ public class WebhookScanService {
         }
 
         scanStatusPublisher.publish(
-                new ScanWsEvent(project.getId(), "SCANNING")
+                new ScanWsEvent(project.getId(), ScanStatusEnum.PENDING)
         );
 
         //response กลับ UI
