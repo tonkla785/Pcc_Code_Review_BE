@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
+import pccth.code.review.Backend.DTO.Request.IssueUpdateRequestDTO;
 import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.*;
 import pccth.code.review.Backend.Repository.*;
@@ -152,5 +153,93 @@ public class IssueService {
         return dto;
     }
 
+    public IssuesReponseDTO findIssueById(UUID id) {
 
+        IssueEntity issue = issueRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
+
+
+        IssuesReponseDTO dto = new IssuesReponseDTO();
+
+        dto.setId(issue.getId());
+        dto.setIssueKey(issue.getIssueKey());
+        dto.setType(issue.getType());
+        dto.setSeverity(issue.getSeverity());
+        dto.setComponent(issue.getComponent());
+        dto.setMessage(issue.getMessage());
+        dto.setStatus(issue.getStatus());
+        dto.setCreatedAt(issue.getCreatedAt());
+
+        // assigned user
+        if (issue.getAssignedTo() != null) {
+            dto.setAssignedTo(issue.getAssignedTo().getId());
+        }
+
+        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
+        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
+            dto.setScanId(
+                    issue.getScanIssues()
+                            .get(0)
+                            .getScan()
+                            .getId()
+            );
+        }
+
+        // comments
+        List<CommentResponseDTO> comments = new ArrayList<>();
+        if (issue.getCommentData() != null) {
+            for (CommentEntity comment : issue.getCommentData()) {
+                comments.add(commentService.mapToCommentResponseDTO(comment));
+            }
+        }
+        dto.setCommentData(comments);
+
+        return dto;
+    }
+
+    @Transactional
+    public IssuesReponseDTO updateIssue(IssueUpdateRequestDTO req) {
+
+        IssueEntity issue = issueRepository.findById(req.getId())
+                .orElseThrow(() -> new RuntimeException("Issue not found"));
+
+        boolean hasAnyUpdate = false;
+
+        // update status ถ้าส่งมา
+        if (req.getStatus() != null) {
+            issue.setStatus(req.getStatus());
+            hasAnyUpdate = true;
+        }
+
+        //Note : หน้าบ้านถ้ามีการ UNASSIGNED ให้ส่งคำว่า UNASSIGNED มาจากหน้าบ้านด้วยนะ!!!!
+        if (req.getAssignedTo() != null) {
+            UserEntity userRef = entityManager.getReference(UserEntity.class, req.getAssignedTo());
+            issue.setAssignedTo(userRef);
+            hasAnyUpdate = true;
+        }
+
+        if (!hasAnyUpdate) {
+            throw new RuntimeException("No fields to update (send status and/or assignedTo)");
+        }
+
+        IssueEntity saved = issueRepository.save(issue);
+
+        IssuesReponseDTO dto = new IssuesReponseDTO();
+        dto.setId(saved.getId());
+        dto.setIssueKey(saved.getIssueKey());
+        dto.setType(saved.getType());
+        dto.setSeverity(saved.getSeverity());
+        dto.setComponent(saved.getComponent());
+        dto.setMessage(saved.getMessage());
+        dto.setStatus(saved.getStatus());
+        dto.setCreatedAt(saved.getCreatedAt());
+        if (saved.getAssignedTo() != null) dto.setAssignedTo(saved.getAssignedTo().getId());
+        if (saved.getScanIssues() != null && !saved.getScanIssues().isEmpty()) {
+            dto.setScanId(saved.getScanIssues().get(0).getScan().getId());
+        }
+        // commentData ตามของเดิมมึงจะเติมต่อก็ได้
+        return dto;
+    }
 }
+
+
