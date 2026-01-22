@@ -157,4 +157,5 @@ public class SonarScanService {
             throw new IllegalStateException("Node.js is required for frontend scan", e);
         }
     }
+
 }
