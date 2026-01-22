@@ -237,7 +237,6 @@ public class IssueService {
         if (saved.getScanIssues() != null && !saved.getScanIssues().isEmpty()) {
             dto.setScanId(saved.getScanIssues().get(0).getScan().getId());
         }
-        // commentData ตามของเดิมมึงจะเติมต่อก็ได้
         return dto;
     }
 }
