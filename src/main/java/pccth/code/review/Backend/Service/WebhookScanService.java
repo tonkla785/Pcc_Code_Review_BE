@@ -3,12 +3,15 @@ package pccth.code.review.Backend.Service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+
+import pccth.code.review.Backend.DTO.ScanWsEvent;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 import pccth.code.review.Backend.Integration.N8NWebhookClient;
+import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
@@ -21,17 +24,20 @@ public class WebhookScanService {
     private final ProjectRepository projectRepository;
     private final N8NWebhookClient n8NWebhookClient;
     private final ScanRepository scanRepository;
+    private ScanStatusPublisher scanStatusPublisher;
 
     private final RestTemplate restTemplate = new RestTemplate();
 
     public WebhookScanService(
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
-            N8NWebhookClient n8NWebhookClient
+            N8NWebhookClient n8NWebhookClient,
+            ScanStatusPublisher scanStatusPublisher
     ) {
         this.projectRepository = projectRepository;
         this.n8NWebhookClient = n8NWebhookClient;
         this.scanRepository = scanRepository;
+        this.scanStatusPublisher = scanStatusPublisher;
     }
 
     @Transactional
@@ -63,6 +69,10 @@ public class WebhookScanService {
         } catch (Exception e) {
             throw new RuntimeException("Trigger n8n scan failed", e);
         }
+
+        scanStatusPublisher.publish(
+                new ScanWsEvent(project.getId(), ScanStatusEnum.PENDING)
+        );
 
         //response กลับ UI
         N8NScanQueueResposneDTO response = new N8NScanQueueResposneDTO();
