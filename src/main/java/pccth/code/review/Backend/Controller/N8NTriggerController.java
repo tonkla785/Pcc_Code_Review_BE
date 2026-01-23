@@ -3,6 +3,7 @@ package pccth.code.review.Backend.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.EmailRequestDTO;
+import pccth.code.review.Backend.DTO.Request.TriggerScanRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
 import pccth.code.review.Backend.Service.EmailService;
 import pccth.code.review.Backend.Service.WebhookScanService;
@@ -23,11 +24,14 @@ public class N8NTriggerController {
     @PostMapping("/{projectId}/scan")
     public ResponseEntity<N8NScanQueueResposneDTO> requestScan(
             @PathVariable UUID projectId,
-            @RequestParam(defaultValue = "main") String branch
-    ) {
+            @RequestBody TriggerScanRequestDTO requestDTO) {
         return ResponseEntity.accepted().body(
-                webhookScanService.triggerScan(projectId, branch)
-        );
+                webhookScanService.triggerScan(
+                        projectId,
+                        requestDTO.getBranch() != null ? requestDTO.getBranch() : "main",
+                        requestDTO.getSonarToken(),
+                        requestDTO.getAngularSettings(),
+                        requestDTO.getSpringSettings()));
     }
 
     @PostMapping("/api/email")
