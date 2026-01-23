@@ -39,10 +39,11 @@ CREATE TABLE scans (
         ON DELETE CASCADE
 );
 
--- ISSUES
 CREATE TABLE issues (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     issue_key VARCHAR(255) NOT NULL UNIQUE,
+    project_id UUID NOT NULL,
+
     type VARCHAR(50),
     severity VARCHAR(20),
     rule_key VARCHAR(100),
@@ -53,10 +54,16 @@ CREATE TABLE issues (
     status VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    CONSTRAINT fk_issues_project
+        FOREIGN KEY (project_id)
+        REFERENCES projects(id)
+        ON DELETE CASCADE,
+
     CONSTRAINT fk_issues_user
         FOREIGN KEY (assigned_to)
         REFERENCES users(id)
 );
+
 
 --SCAN ISSUE
 CREATE TABLE scan_issues (

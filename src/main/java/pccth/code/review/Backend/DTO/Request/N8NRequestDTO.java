@@ -7,12 +7,28 @@ import java.util.UUID;
 public class N8NRequestDTO {
     private UUID projectId;
     private UUID scanId;
+    private String sonarToken;
+
+    // Token สำหรับ n8n authen กลับมา Spring Boot
+    private String webhookToken;
 
     private String repositoryUrl;
     private String branch;
 
     private ProjectTypeEnum projectType;
     private String sonarProjectKey;
+
+    // Settings จาก SonarQubeConfig
+    private AngularSettingsDTO angularSettings;
+    private SpringSettingsDTO springSettings;
+
+    public String getSonarToken() {
+        return sonarToken;
+    }
+
+    public void setSonarToken(String sonarToken) {
+        this.sonarToken = sonarToken;
+    }
 
     public UUID getProjectId() {
         return projectId;
@@ -60,5 +76,29 @@ public class N8NRequestDTO {
 
     public void setSonarProjectKey(String sonarProjectKey) {
         this.sonarProjectKey = sonarProjectKey;
+    }
+
+    public AngularSettingsDTO getAngularSettings() {
+        return angularSettings;
+    }
+
+    public void setAngularSettings(AngularSettingsDTO angularSettings) {
+        this.angularSettings = angularSettings;
+    }
+
+    public SpringSettingsDTO getSpringSettings() {
+        return springSettings;
+    }
+
+    public void setSpringSettings(SpringSettingsDTO springSettings) {
+        this.springSettings = springSettings;
+    }
+
+    public String getWebhookToken() {
+        return webhookToken;
+    }
+
+    public void setWebhookToken(String webhookToken) {
+        this.webhookToken = webhookToken;
     }
 }
