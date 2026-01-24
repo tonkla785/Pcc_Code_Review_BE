@@ -61,41 +61,41 @@ public class IssueService {
             //ข้อมูลเยอะเลยใช้ native query
             UUID issueId = (UUID) entityManager
                     .createNativeQuery("""
-                    INSERT INTO issues (
-                        issue_key,
-                        project_id,
-                        type,
-                        severity,
-                        rule_key,
-                        component,
-                        line,
-                        message,
-                        status,
-                        created_at
-                    )
-                    VALUES (
-                        :issueKey,
-                        :projectId,
-                        :type,
-                        :severity,
-                        :ruleKey,
-                        :component,
-                        :line,
-                        :message,
-                        :status,
-                        :createdAt
-                    )
-                    ON CONFLICT (issue_key)
-                    DO UPDATE SET
-                        type = EXCLUDED.type,
-                        severity = EXCLUDED.severity,
-                        rule_key = EXCLUDED.rule_key,
-                        component = EXCLUDED.component,
-                        line = EXCLUDED.line,
-                        message = EXCLUDED.message,
-                        status = EXCLUDED.status
-                    RETURNING id
-                """)
+                                INSERT INTO issues (
+                                    issue_key,
+                                    project_id,
+                                    type,
+                                    severity,
+                                    rule_key,
+                                    component,
+                                    line,
+                                    message,
+                                    status,
+                                    created_at
+                                )
+                                VALUES (
+                                    :issueKey,
+                                    :projectId,
+                                    :type,
+                                    :severity,
+                                    :ruleKey,
+                                    :component,
+                                    :line,
+                                    :message,
+                                    :status,
+                                    :createdAt
+                                )
+                                ON CONFLICT (issue_key)
+                                DO UPDATE SET
+                                    type = EXCLUDED.type,
+                                    severity = EXCLUDED.severity,
+                                    rule_key = EXCLUDED.rule_key,
+                                    component = EXCLUDED.component,
+                                    line = EXCLUDED.line,
+                                    message = EXCLUDED.message,
+                                    status = EXCLUDED.status
+                                RETURNING id
+                            """)
                     .setParameter("issueKey", dto.getIssueKey())
                     .setParameter("projectId", project.getId())
                     .setParameter("type", dto.getType())
@@ -126,7 +126,6 @@ public class IssueService {
         }
     }
 
-
     private void upsertIssueDetail(IssueEntity issue, N8NIssueResponseDTO dto) {
 
         boolean hasDetail =
@@ -148,7 +147,6 @@ public class IssueService {
         issueDetailRepository.save(detail);
     }
 
-
     @Transactional(readOnly = true)
     public List<IssuesReponseDTO> getAllIssues() {
 
@@ -160,45 +158,6 @@ public class IssueService {
         }
 
         return result;
-    }
-    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
-
-        IssuesReponseDTO dto = new IssuesReponseDTO();
-
-        dto.setId(issue.getId());
-        dto.setIssueKey(issue.getIssueKey());
-        dto.setType(issue.getType());
-        dto.setSeverity(issue.getSeverity());
-        dto.setComponent(issue.getComponent());
-        dto.setMessage(issue.getMessage());
-        dto.setStatus(issue.getStatus());
-        dto.setCreatedAt(issue.getCreatedAt());
-
-        // assigned user
-        if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
-        }
-
-        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
-        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
-            dto.setScanId(
-                    issue.getScanIssues()
-                            .get(0)
-                            .getScan()
-                            .getId()
-            );
-        }
-
-        // comments
-        List<CommentResponseDTO> comments = new ArrayList<>();
-        if (issue.getCommentData() != null) {
-            for (CommentEntity comment : issue.getCommentData()) {
-                comments.add(commentService.mapToCommentResponseDTO(comment));
-            }
-        }
-        dto.setCommentData(comments);
-
-        return dto;
     }
 
     public IssuesReponseDTO findIssueById(UUID id) {
@@ -296,6 +255,44 @@ public class IssueService {
                 .map(this::mapToIssuesResponseDTO)
                 .toList();
     }
+
+    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
+
+        IssuesReponseDTO dto = new IssuesReponseDTO();
+
+        dto.setId(issue.getId());
+        dto.setIssueKey(issue.getIssueKey());
+        dto.setType(issue.getType());
+        dto.setSeverity(issue.getSeverity());
+        dto.setComponent(issue.getComponent());
+        dto.setMessage(issue.getMessage());
+        dto.setStatus(issue.getStatus());
+        dto.setCreatedAt(issue.getCreatedAt());
+
+        // assigned user
+        if (issue.getAssignedTo() != null) {
+            dto.setAssignedTo(issue.getAssignedTo().getId());
+        }
+
+        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
+        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
+            dto.setScanId(
+                    issue.getScanIssues()
+                            .get(0)
+                            .getScan()
+                            .getId()
+            );
+        }
+
+        // comments
+        List<CommentResponseDTO> comments = new ArrayList<>();
+        if (issue.getCommentData() != null) {
+            for (CommentEntity comment : issue.getCommentData()) {
+                comments.add(commentService.mapToCommentResponseDTO(comment));
+            }
+        }
+        dto.setCommentData(comments);
+
+        return dto;
+    }
 }
-
-
