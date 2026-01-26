@@ -59,7 +59,7 @@ public class ScanService {
                             IssuesResponseDTO idto = new IssuesResponseDTO();
                             idto.setId(issue.getId());
                             idto.setScanId(scan.getId());
-                            idto.setProjcetId(issue.getProject().getId());
+                            idto.setProjectId(issue.getProject().getId());
                             idto.setLine(issue.getLine());
                             idto.setRuleKey(issue.getRuleKey());
                             idto.setIssueKey(issue.getIssueKey());
