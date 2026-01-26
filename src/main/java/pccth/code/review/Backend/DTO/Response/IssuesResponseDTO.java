@@ -5,18 +5,36 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-public class IssuesReponseDTO {
+public class IssuesResponseDTO {
     private UUID id;
     private UUID scanId;
     private String issueKey;
     private String type;
     private String severity;
+    private String ruleKey;
     private String component;
+    private Integer line;
     private String message;
     private UUID assignedTo;
     private String status;
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
+
+    public String getRuleKey() {
+        return ruleKey;
+    }
+
+    public void setRuleKey(String ruleKey) {
+        this.ruleKey = ruleKey;
+    }
+
+    public Integer getLine() {
+        return line;
+    }
+
+    public void setLine(Integer line) {
+        this.line = line;
+    }
 
     public UUID getId() {
         return id;

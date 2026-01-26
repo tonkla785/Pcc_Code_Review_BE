@@ -94,7 +94,7 @@ public class ScanService {
                         .map(scanIssue -> {
                             IssueEntity issue = scanIssue.getIssue();
 
-                            IssuesReponseDTO idto = new IssuesReponseDTO();
+                            IssuesResponseDTO idto = new IssuesResponseDTO();
                             idto.setId(issue.getId());
                             idto.setScanId(scan.getId());
                             idto.setIssueKey(issue.getIssueKey());

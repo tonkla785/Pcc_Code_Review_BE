@@ -148,10 +148,10 @@ public class IssueService {
     }
 
     @Transactional(readOnly = true)
-    public List<IssuesReponseDTO> getAllIssues() {
+    public List<IssuesResponseDTO> getAllIssues() {
 
         List<IssueEntity> issues = issueRepository.findAll();
-        List<IssuesReponseDTO> result = new ArrayList<>();
+        List<IssuesResponseDTO> result = new ArrayList<>();
 
         for (IssueEntity issue : issues) {
             result.add(mapToIssuesResponseDTO(issue));
@@ -160,18 +160,34 @@ public class IssueService {
         return result;
     }
 
-    public IssuesReponseDTO findIssueById(UUID id) {
+    //get issue details by id issue
+    public IssueDetailResponseDTO findIssueDetailsById(UUID id){
+        IssueDetailEntity issueDetail = issueDetailRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Issue details not found"));
+
+        IssueDetailResponseDTO dto = new IssueDetailResponseDTO();
+
+        dto.setDescription(issueDetail.getDescription());
+        dto.setVulnerableCode(issueDetail.getVulnerableCode());
+        dto.setRecommendedFix(issueDetail.getRecommendedFix());
+
+        return dto;
+    }
+
+    public IssuesResponseDTO findIssueById(UUID id) {
 
         IssueEntity issue = issueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
 
 
-        IssuesReponseDTO dto = new IssuesReponseDTO();
+        IssuesResponseDTO dto = new IssuesResponseDTO();
 
         dto.setId(issue.getId());
         dto.setIssueKey(issue.getIssueKey());
         dto.setType(issue.getType());
         dto.setSeverity(issue.getSeverity());
+        dto.setRuleKey(issue.getRuleKey());
+        dto.setLine(issue.getLine());
         dto.setComponent(issue.getComponent());
         dto.setMessage(issue.getMessage());
         dto.setStatus(issue.getStatus());
@@ -205,7 +221,7 @@ public class IssueService {
     }
 
     @Transactional
-    public IssuesReponseDTO updateIssue(IssueUpdateRequestDTO req) {
+    public IssuesResponseDTO updateIssue(IssueUpdateRequestDTO req) {
 
         IssueEntity issue = issueRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
@@ -231,10 +247,12 @@ public class IssueService {
 
         IssueEntity saved = issueRepository.save(issue);
 
-        IssuesReponseDTO dto = new IssuesReponseDTO();
+        IssuesResponseDTO dto = new IssuesResponseDTO();
         dto.setId(saved.getId());
         dto.setIssueKey(saved.getIssueKey());
         dto.setType(saved.getType());
+        dto.setRuleKey(saved.getRuleKey());
+        dto.setLine(saved.getLine());
         dto.setSeverity(saved.getSeverity());
         dto.setComponent(saved.getComponent());
         dto.setMessage(saved.getMessage());
@@ -248,7 +266,7 @@ public class IssueService {
     }
 
     @Transactional
-    public List<IssuesReponseDTO> getIssuesByType() {
+    public List<IssuesResponseDTO> getIssuesByType() {
         return issueRepository
                 .findByTypeIn(List.of("SECURITY_HOTSPOT", "VULNERABILITY"))
                 .stream()
@@ -256,14 +274,16 @@ public class IssueService {
                 .toList();
     }
 
-    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
+    private IssuesResponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
 
-        IssuesReponseDTO dto = new IssuesReponseDTO();
+        IssuesResponseDTO dto = new IssuesResponseDTO();
 
         dto.setId(issue.getId());
         dto.setIssueKey(issue.getIssueKey());
         dto.setType(issue.getType());
         dto.setSeverity(issue.getSeverity());
+        dto.setRuleKey(issue.getRuleKey());
+        dto.setLine(issue.getLine());
         dto.setComponent(issue.getComponent());
         dto.setMessage(issue.getMessage());
         dto.setStatus(issue.getStatus());
