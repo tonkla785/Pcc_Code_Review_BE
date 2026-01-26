@@ -31,13 +31,13 @@ public class WebhookController {
     @PostMapping("/scan/result")
     public ResponseEntity<N8NResponseDTO> receiveScanResult(@RequestBody N8NResponseDTO result) {
 
-        System.out.println(result); // Result from sonarqube
+        System.out.println("scan result success"); // Result from sonarqube
         // Add Logic Here
         projectService.updateScanAt(result.getProjectId());
         scanService.updateScan(result);
 
         scanStatusPublisher.publish(
-                new ScanWsEvent(result.getProjectId(), "SUCCESS")
+                new ScanWsEvent(result.getProjectId(), result.getStatus())
         );
 
         return ResponseEntity.ok(result);
@@ -56,10 +56,7 @@ public class WebhookController {
     @PostMapping("/scan/issue-data")
     public ResponseEntity<N8NIssueBatchResponseDTO> receiveIssueResult(@RequestBody N8NIssueBatchResponseDTO result) {
 
-        System.out.println(result); // Result from sonarqube
-        result.getIssues().forEach(issue ->
-                System.out.println(issue)
-        );
+        System.out.println("Issue result success"); // Result from sonarqube
         // Add Logic Here
         issueService.upsertIssuesFromN8n(result);
         return ResponseEntity.ok(result);

@@ -11,16 +11,18 @@ import java.util.Date;
 
 @Service
 public class JwtService {
+
     private final JwtConfig jwtConfig;
 
     public JwtService(JwtConfig jwtConfig) {
         this.jwtConfig = jwtConfig;
     }
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String username, String role) {
         try {
             return Jwts.builder()
                     .setSubject(username)
+                    .claim("role", role)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + jwtConfig.getExpiration()))
                     .signWith(Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes()))
@@ -53,6 +55,21 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody()
                     .getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new RuntimeException("JWT token expired", e);
+        } catch (JwtException e) {
+            throw new RuntimeException("Invalid JWT token", e);
+        }
+    }
+
+    public String extractRole(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(jwtConfig.getSecret().getBytes())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("role", String.class);
         } catch (ExpiredJwtException e) {
             throw new RuntimeException("JWT token expired", e);
         } catch (JwtException e) {

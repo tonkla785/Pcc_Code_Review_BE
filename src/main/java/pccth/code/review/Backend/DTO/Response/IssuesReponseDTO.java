@@ -1,8 +1,5 @@
 package pccth.code.review.Backend.DTO.Response;
 
-import pccth.code.review.Backend.Entity.ScanEntity;
-import pccth.code.review.Backend.Entity.UserEntity;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
