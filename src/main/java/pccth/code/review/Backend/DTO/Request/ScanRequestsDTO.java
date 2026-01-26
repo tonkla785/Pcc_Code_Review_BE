@@ -1,7 +1,4 @@
 package pccth.code.review.Backend.DTO.Request;
-
-import pccth.code.review.Backend.DTO.Response.IssuesReponseDTO;
-import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
 import java.util.*;

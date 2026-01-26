@@ -1,9 +1,6 @@
 package pccth.code.review.Backend.DTO.Response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
 import java.util.*;
@@ -20,7 +17,7 @@ public class ScanResponseDTO {
     private String qualityGate;
     private Map<String, Object> metrics;
     private String logFilePath;
-    private List<IssuesReponseDTO> issueData = new ArrayList<>();
+    private List<IssuesResponseDTO> issueData = new ArrayList<>();
 
     public UUID getId() {
         return id;
@@ -86,11 +83,11 @@ public class ScanResponseDTO {
         this.logFilePath = logFilePath;
     }
 
-    public List<IssuesReponseDTO> getIssueData() {
+    public List<IssuesResponseDTO> getIssueData() {
         return issueData;
     }
 
-    public void setIssueData(List<IssuesReponseDTO> issueData) {
+    public void setIssueData(List<IssuesResponseDTO> issueData) {
         this.issueData = issueData;
     }
 }
