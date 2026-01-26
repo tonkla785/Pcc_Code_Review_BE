@@ -62,7 +62,10 @@ public class UserService {
         }
 
         // สร้าง Access Token
-        String accessToken = jwtService.generateAccessToken(user.getUsername());
+        String accessToken = jwtService.generateAccessToken(
+                user.getUsername(),
+                user.getRole()
+        );
 
         // สร้าง Refresh Token
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());

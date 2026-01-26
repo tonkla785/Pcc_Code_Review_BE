@@ -115,37 +115,37 @@ public class N8NIssueResponseDTO {
     }
 
     // for test result from n8n
-    @Override
-    public String toString() {
-        return """
-                N8NIssueResponseDTO {
-                  issueKey        = %s
-                  ruleKey         = %s
-                  type            = %s
-                  severity        = %s
-                  component       = %s
-                  line            = %s
-                  message         = %s
-                  status          = %s
-                  createdAt       = %s
-
-                  description     = %s
-                  vulnerableCode  = %s
-                  recommendedFix  = %s
-                }
-                """.formatted(
-                issueKey,
-                ruleKey,
-                type,
-                severity,
-                component,
-                line,
-                message,
-                status,
-                createdAt,
-                description,
-                vulnerableCode,
-                recommendedFix
-        );
-    }
+//    @Override
+//    public String toString() {
+//        return """
+//                N8NIssueResponseDTO {
+//                  issueKey        = %s
+//                  ruleKey         = %s
+//                  type            = %s
+//                  severity        = %s
+//                  component       = %s
+//                  line            = %s
+//                  message         = %s
+//                  status          = %s
+//                  createdAt       = %s
+//
+//                  description     = %s
+//                  vulnerableCode  = %s
+//                  recommendedFix  = %s
+//                }
+//                """.formatted(
+//                issueKey,
+//                ruleKey,
+//                type,
+//                severity,
+//                component,
+//                line,
+//                message,
+//                status,
+//                createdAt,
+//                description,
+//                vulnerableCode,
+//                recommendedFix
+//        );
+//    }
 }

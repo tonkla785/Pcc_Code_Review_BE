@@ -11,16 +11,15 @@ public class CookieUtil {
     public static ResponseCookie createRefreshTokenCookie(String refreshToken) {
         return ResponseCookie.from(REFRESH_TOKEN_NAME, refreshToken)
                 .httpOnly(true)
-                .secure(false) //dev อยู่ product ค่อย เปลี่ยน
+                .secure(true) //dev อยู่ product ค่อย เปลี่ยน
                 .sameSite("Strict")
-                .path("/user/refresh")
-                .maxAge(Duration.ofDays(7))
+                .path("/user")
                 .build();
     }
 
     public static ResponseCookie clearRefreshTokenCookie() {
         return ResponseCookie.from(REFRESH_TOKEN_NAME, "")
-                .path("/user/refresh")
+                .path("/user")
                 .maxAge(0)
                 .build();
     }

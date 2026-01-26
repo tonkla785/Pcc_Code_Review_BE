@@ -13,7 +13,6 @@ import pccth.code.review.Backend.DTO.ApiErrorResponseDTO;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.logging.ErrorManager;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -135,13 +134,13 @@ public class GlobalExceptionHandler {
             if (c.contains("email")) message = "Email already exists";
             else if (c.contains("username")) message = "Username already exists";
             else if (c.contains("phone")) message = "Phone already exists";
-            else if (c.contains("scan_issue") || c.contains("uq_scan_issue")) message = "Issue already exists for this scan";
+            else if (c.contains("scan_issue") || c.contains("uq_scan_issue"))
+                message = "Issue already exists for this scan";
             else message = "Duplicate data: " + constraint;
         } else {
             //ตอน debug ให้คืน detail ไปก่อน จะได้รู้ของจริงว่าชนอะไร
             message = "Data integrity violation: " + detail;
         }
-
 
 
         return ResponseEntity.badRequest().body(new ApiErrorResponseDTO(400, message));
@@ -165,7 +164,6 @@ public class GlobalExceptionHandler {
     // Fallback 500 exception อื่นๆ
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponseDTO> handleGeneral(Exception e) {
-        e.printStackTrace(); //เอาไว้ debug
         ApiErrorResponseDTO response =
                 new ApiErrorResponseDTO(
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),
