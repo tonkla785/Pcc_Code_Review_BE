@@ -21,6 +21,7 @@ public class IssuesResponseDTO {
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
 
+<<<<<<< HEAD
     public UUID getProjectId() {
         return projectId;
     }
@@ -29,6 +30,8 @@ public class IssuesResponseDTO {
         this.projectId = projectId;
     }
 
+=======
+>>>>>>> main
     public String getRuleKey() {
         return ruleKey;
     }
