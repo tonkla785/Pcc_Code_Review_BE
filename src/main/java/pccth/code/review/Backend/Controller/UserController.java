@@ -56,7 +56,7 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@CookieValue(name = "refresh_token", required = false) String refreshToken, HttpServletResponse response) {
         authService.logout(refreshToken);
-        response.addHeader("Cookie", CookieUtil.clearRefreshTokenCookie().toString());
+        response.addHeader("Set-Cookie", CookieUtil.clearRefreshTokenCookie().toString());
         return ResponseEntity.ok("Logged out successfully");
     }
 

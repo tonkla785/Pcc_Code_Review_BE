@@ -36,4 +36,9 @@ public class IssueController {
      public ResponseEntity<IssuesReponseDTO> updateIssuePost(@Valid @RequestBody IssueUpdateRequestDTO req) {
          return ResponseEntity.ok(issueService.updateIssue(req));
      }
+
+    @GetMapping("/get-issue-by-security")
+    public ResponseEntity<List<IssuesReponseDTO>> getIssueByType() {
+        return ResponseEntity.ok(issueService.getIssuesByType());
+    }
 }

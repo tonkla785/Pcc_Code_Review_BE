@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "issues")
@@ -19,8 +17,12 @@ public class IssueEntity {
     @Column(columnDefinition = "uuid")
     private UUID id;
 
-    @Column(name = "issue_key", nullable = false, length = 255)
+    @Column(name = "issue_key", nullable = false, length = 255,unique = true)
     private String issueKey;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "project_id", nullable = false)
+    private ProjectEntity project;
 
     @Column(name = "type", length = 50)
     private String type;
@@ -71,6 +73,14 @@ public class IssueEntity {
             orphanRemoval = true
     )
     private List<CommentEntity> commentData = new ArrayList<>();
+
+    public ProjectEntity getProject() {
+        return project;
+    }
+
+    public void setProject(ProjectEntity project) {
+        this.project = project;
+    }
 
     public IssueDetailEntity getDetail() {
         return detail;
