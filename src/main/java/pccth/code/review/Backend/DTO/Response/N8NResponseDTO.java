@@ -102,31 +102,31 @@ public class N8NResponseDTO {
 
 
     // for test result from n8n
-    @Override
-    public String toString() {
-        return """
-                N8NResponseDTO {
-                  scanId           = %s
-                  projectId        = %s
-                  status           = %s
-                  qualityGate      = %s
-                  analysisDuration = %d ms
-                  analyzedAt       = %s
-                  metrics          = %s
-                  errorMessage     = %s
-                  logFilePath      = %s
-                  markDown         = %s
-                }
-                """.formatted(
-                scanId,
-                projectId,
-                status,
-                qualityGate,
-                analysisDuration,
-                analyzedAt,
-                metrics,
-                errorMessage,
-                logFilePath,
-                markDown);
-    }
+//    @Override
+//    public String toString() {
+//        return """
+//                N8NResponseDTO {
+//                  scanId           = %s
+//                  projectId        = %s
+//                  status           = %s
+//                  qualityGate      = %s
+//                  analysisDuration = %d ms
+//                  analyzedAt       = %s
+//                  metrics          = %s
+//                  errorMessage     = %s
+//                  logFilePath      = %s
+//                  markDown         = %s
+//                }
+//                """.formatted(
+//                scanId,
+//                projectId,
+//                status,
+//                qualityGate,
+//                analysisDuration,
+//                analyzedAt,
+//                metrics,
+//                errorMessage,
+//                logFilePath,
+//                markDown);
+//    }
 }

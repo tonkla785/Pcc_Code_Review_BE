@@ -1,19 +1,16 @@
-
 package pccth.code.review.Backend.Service;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
 import pccth.code.review.Backend.DTO.Request.IssueUpdateRequestDTO;
 import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.*;
 import pccth.code.review.Backend.Repository.*;
 
+import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class IssueService {
@@ -24,52 +21,103 @@ public class IssueService {
     private final IssueDetailRepository issueDetailRepository;
     private final ScanIssueRepository scanIssueRepository;
     private final CommentService commentService;
+    private final ScanRepository scanRepository;
+    private final ProjectRepository projectRepository;
 
     public IssueService(
             IssueRepository issueRepository,
             IssueDetailRepository issueDetailRepository,
             ScanIssueRepository scanIssueRepository,
-            CommentService commentService
+            CommentService commentService,
+            ScanRepository scanRepository,
+            ProjectRepository projectRepository
     ) {
         this.issueRepository = issueRepository;
         this.issueDetailRepository = issueDetailRepository;
         this.scanIssueRepository = scanIssueRepository;
         this.commentService = commentService;
+        this.scanRepository = scanRepository;
+        this.projectRepository = projectRepository;
     }
-
-
 
     @Transactional
     public void upsertIssuesFromN8n(N8NIssueBatchResponseDTO batch) {
 
         if (batch == null || batch.getIssues() == null) return;
 
+        UUID projectId = UUID.fromString(batch.getProjectId());
         UUID scanId = UUID.fromString(batch.getScanId());
 
-        ScanEntity scanRef = new ScanEntity();
-        scanRef.setId(scanId);
+        ScanEntity scan = scanRepository.findById(scanId)
+                .orElseThrow(() -> new IllegalArgumentException("Scan not found"));
+
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
 
         for (N8NIssueResponseDTO dto : batch.getIssues()) {
 
             if (dto.getIssueKey() == null) continue;
 
-            UUID issueId = issueRepository.upsertIssue(
-                    dto.getIssueKey(),
-                    dto.getType(),
-                    dto.getSeverity(),
-                    dto.getRuleKey(),
-                    dto.getComponent(),
-                    dto.getLine(),
-                    dto.getMessage(),
-                    dto.getStatus() != null ? dto.getStatus() : "OPEN",
-                    dto.getCreatedAt().toInstant()
-            );
+            //ข้อมูลเยอะเลยใช้ native query
+            UUID issueId = (UUID) entityManager
+                    .createNativeQuery("""
+                                INSERT INTO issues (
+                                    issue_key,
+                                    project_id,
+                                    type,
+                                    severity,
+                                    rule_key,
+                                    component,
+                                    line,
+                                    message,
+                                    status,
+                                    created_at
+                                )
+                                VALUES (
+                                    :issueKey,
+                                    :projectId,
+                                    :type,
+                                    :severity,
+                                    :ruleKey,
+                                    :component,
+                                    :line,
+                                    :message,
+                                    :status,
+                                    :createdAt
+                                )
+                                ON CONFLICT (issue_key)
+                                DO UPDATE SET
+                                    type = EXCLUDED.type,
+                                    severity = EXCLUDED.severity,
+                                    rule_key = EXCLUDED.rule_key,
+                                    component = EXCLUDED.component,
+                                    line = EXCLUDED.line,
+                                    message = EXCLUDED.message,
+                                    status = EXCLUDED.status
+                                RETURNING id
+                            """)
+                    .setParameter("issueKey", dto.getIssueKey())
+                    .setParameter("projectId", project.getId())
+                    .setParameter("type", dto.getType())
+                    .setParameter("severity", dto.getSeverity())
+                    .setParameter("ruleKey", dto.getRuleKey())
+                    .setParameter("component", dto.getComponent())
+                    .setParameter("line", dto.getLine())
+                    .setParameter("message", dto.getMessage())
+                    .setParameter("status", dto.getStatus() != null ? dto.getStatus() : "OPEN")
+                    .setParameter(
+                            "createdAt",
+                            dto.getCreatedAt() != null
+                                    ? dto.getCreatedAt().toInstant()
+                                    : Instant.now()
+                    )
+                    .getSingleResult();
 
             IssueEntity issueRef = entityManager.getReference(IssueEntity.class, issueId);
 
             if (!scanIssueRepository.existsByScan_IdAndIssue_Id(scanId, issueId)) {
                 ScanIssueEntity link = new ScanIssueEntity();
-                link.setScan(scanRef);
+                link.setScan(scan);
                 link.setIssue(issueRef);
                 scanIssueRepository.save(link);
             }
@@ -77,7 +125,6 @@ public class IssueService {
             upsertIssueDetail(issueRef, dto);
         }
     }
-
 
     private void upsertIssueDetail(IssueEntity issue, N8NIssueResponseDTO dto) {
 
@@ -100,7 +147,6 @@ public class IssueService {
         issueDetailRepository.save(detail);
     }
 
-
     @Transactional(readOnly = true)
     public List<IssuesReponseDTO> getAllIssues() {
 
@@ -112,45 +158,6 @@ public class IssueService {
         }
 
         return result;
-    }
-    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
-
-        IssuesReponseDTO dto = new IssuesReponseDTO();
-
-        dto.setId(issue.getId());
-        dto.setIssueKey(issue.getIssueKey());
-        dto.setType(issue.getType());
-        dto.setSeverity(issue.getSeverity());
-        dto.setComponent(issue.getComponent());
-        dto.setMessage(issue.getMessage());
-        dto.setStatus(issue.getStatus());
-        dto.setCreatedAt(issue.getCreatedAt());
-
-        // assigned user
-        if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
-        }
-
-        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
-        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
-            dto.setScanId(
-                    issue.getScanIssues()
-                            .get(0)
-                            .getScan()
-                            .getId()
-            );
-        }
-
-        // comments
-        List<CommentResponseDTO> comments = new ArrayList<>();
-        if (issue.getCommentData() != null) {
-            for (CommentEntity comment : issue.getCommentData()) {
-                comments.add(commentService.mapToCommentResponseDTO(comment));
-            }
-        }
-        dto.setCommentData(comments);
-
-        return dto;
     }
 
     public IssuesReponseDTO findIssueById(UUID id) {
@@ -239,6 +246,53 @@ public class IssueService {
         }
         return dto;
     }
+
+    @Transactional
+    public List<IssuesReponseDTO> getIssuesByType() {
+        return issueRepository
+                .findByTypeIn(List.of("SECURITY_HOTSPOT", "VULNERABILITY"))
+                .stream()
+                .map(this::mapToIssuesResponseDTO)
+                .toList();
+    }
+
+    private IssuesReponseDTO mapToIssuesResponseDTO(IssueEntity issue) {
+
+        IssuesReponseDTO dto = new IssuesReponseDTO();
+
+        dto.setId(issue.getId());
+        dto.setIssueKey(issue.getIssueKey());
+        dto.setType(issue.getType());
+        dto.setSeverity(issue.getSeverity());
+        dto.setComponent(issue.getComponent());
+        dto.setMessage(issue.getMessage());
+        dto.setStatus(issue.getStatus());
+        dto.setCreatedAt(issue.getCreatedAt());
+
+        // assigned user
+        if (issue.getAssignedTo() != null) {
+            dto.setAssignedTo(issue.getAssignedTo().getId());
+        }
+
+        // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
+        if (issue.getScanIssues() != null && !issue.getScanIssues().isEmpty()) {
+            dto.setScanId(
+                    issue.getScanIssues()
+                            .get(0)
+                            .getScan()
+                            .getId()
+            );
+        }
+
+        // comments
+        List<CommentResponseDTO> comments = new ArrayList<>();
+        if (issue.getCommentData() != null) {
+            for (CommentEntity comment : issue.getCommentData()) {
+                comments.add(commentService.mapToCommentResponseDTO(comment));
+            }
+        }
+        dto.setCommentData(comments);
+
+        return dto;
+    }
 }
-
-
