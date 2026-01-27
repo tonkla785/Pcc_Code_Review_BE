@@ -46,10 +46,10 @@ public class UserController {
         return ResponseEntity.ok(newAccessToken);
     }
 
-    @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPassDTO request){
+    @PutMapping("/change-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ChangePassDTO request){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        userService.resetPassword(username, request);
+        userService.changePassword(username, request);
         return ResponseEntity.ok("Password reset successfully");
     }
 

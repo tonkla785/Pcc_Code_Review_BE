@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.*;
 import pccth.code.review.Backend.DTO.Response.*;
-import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.CookieUtil;
@@ -99,7 +98,7 @@ public class UserService {
         }
     }
 
-    public void resetPassword(String username, ResetPassDTO request) {
+    public void changePassword(String username, ChangePassDTO request) {
 
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
