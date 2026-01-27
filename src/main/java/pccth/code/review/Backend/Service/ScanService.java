@@ -85,13 +85,11 @@ public class ScanService {
                                                 cdto.setUser(comment.getUser().getId());
                                                 return cdto;
                                             })
-                                            .toList()
-                            );
+                                            .toList());
 
                             return idto;
                         })
-                        .toList()
-        );
+                        .toList());
         return dto;
     }
 
@@ -182,6 +180,12 @@ public class ScanService {
 
         Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
         });
+
+        // Add analysisLogs to metrics if present
+        if (req.getAnalysisLogs() != null && !req.getAnalysisLogs().isEmpty()) {
+            metricsMap.put("analysisLogs", req.getAnalysisLogs());
+        }
+
         scan.setMetrics(metricsMap);
 
         scan.setStatus(req.getStatus());
@@ -205,4 +209,3 @@ public class ScanService {
         return dto;
     }
 }
-
