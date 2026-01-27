@@ -49,6 +49,9 @@ public class SecurityConfig {
                                 "/user/refresh",
                                 "/webhooks/**",
                                 "/ws",
+                                "/api/email",
+                                "/user/forgot-password",
+                                "/user/reset-password",
                                 "/ws/**"
                         ).permitAll()
                         .anyRequest().authenticated()
