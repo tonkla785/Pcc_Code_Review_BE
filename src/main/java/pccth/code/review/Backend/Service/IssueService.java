@@ -183,6 +183,7 @@ public class IssueService {
         IssuesResponseDTO dto = new IssuesResponseDTO();
 
         dto.setId(issue.getId());
+        dto.setProjectId(issue.getProject().getId());
         dto.setIssueKey(issue.getIssueKey());
         dto.setType(issue.getType());
         dto.setSeverity(issue.getSeverity());
@@ -249,6 +250,7 @@ public class IssueService {
 
         IssuesResponseDTO dto = new IssuesResponseDTO();
         dto.setId(saved.getId());
+        dto.setProjectId(saved.getProject().getId());
         dto.setIssueKey(saved.getIssueKey());
         dto.setType(saved.getType());
         dto.setRuleKey(saved.getRuleKey());
@@ -279,6 +281,7 @@ public class IssueService {
         IssuesResponseDTO dto = new IssuesResponseDTO();
 
         dto.setId(issue.getId());
+        dto.setProjectId(issue.getProject().getId());
         dto.setIssueKey(issue.getIssueKey());
         dto.setType(issue.getType());
         dto.setSeverity(issue.getSeverity());
