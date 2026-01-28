@@ -1,11 +1,11 @@
 package pccth.code.review.Backend.DTO.Response;
 
+import pccth.code.review.Backend.DTO.AnalysisLogEntry;
 import pccth.code.review.Backend.DTO.SonarMetricsDTO;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 
 import java.util.Date;
-import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 public class N8NResponseDTO {
@@ -19,6 +19,7 @@ public class N8NResponseDTO {
     private String errorMessage;
     private String logFilePath;
     private String markDown;
+    private List<AnalysisLogEntry> analysisLogs;
 
     public UUID getProjectId() {
         return projectId;
@@ -100,6 +101,13 @@ public class N8NResponseDTO {
         this.logFilePath = logFilePath;
     }
 
+    public List<AnalysisLogEntry> getAnalysisLogs() {
+        return analysisLogs;
+    }
+
+    public void setAnalysisLogs(List<AnalysisLogEntry> analysisLogs) {
+        this.analysisLogs = analysisLogs;
+    }
 
     // for test result from n8n
 //    @Override
@@ -116,6 +124,7 @@ public class N8NResponseDTO {
 //                  errorMessage     = %s
 //                  logFilePath      = %s
 //                  markDown         = %s
+//                  analysisLogs     = %s
 //                }
 //                """.formatted(
 //                scanId,
@@ -127,6 +136,7 @@ public class N8NResponseDTO {
 //                metrics,
 //                errorMessage,
 //                logFilePath,
-//                markDown);
+//                markDown,
+//                analysisLogs);
 //    }
 }

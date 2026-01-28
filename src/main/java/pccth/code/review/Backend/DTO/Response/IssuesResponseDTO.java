@@ -8,6 +8,7 @@ import java.util.UUID;
 public class IssuesResponseDTO {
     private UUID id;
     private UUID scanId;
+    private UUID projectId;
     private String issueKey;
     private String type;
     private String severity;
@@ -19,6 +20,14 @@ public class IssuesResponseDTO {
     private String status;
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
+
+    public UUID getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
+    }
 
     public String getRuleKey() {
         return ruleKey;

@@ -59,6 +59,9 @@ public class ScanService {
                             IssuesResponseDTO idto = new IssuesResponseDTO();
                             idto.setId(issue.getId());
                             idto.setScanId(scan.getId());
+                            idto.setProjectId(issue.getProject().getId());
+                            idto.setLine(issue.getLine());
+                            idto.setRuleKey(issue.getRuleKey());
                             idto.setIssueKey(issue.getIssueKey());
                             idto.setType(issue.getType());
                             idto.setSeverity(issue.getSeverity());
@@ -83,13 +86,11 @@ public class ScanService {
                                                 cdto.setUser(comment.getUser().getId());
                                                 return cdto;
                                             })
-                                            .toList()
-                            );
+                                            .toList());
 
                             return idto;
                         })
-                        .toList()
-        );
+                        .toList());
         return dto;
     }
 
@@ -180,6 +181,12 @@ public class ScanService {
 
         Map<String, Object> metricsMap = mapper.convertValue(req.getMetrics(), new TypeReference<>() {
         });
+
+        // Add analysisLogs to metrics if present
+        if (req.getAnalysisLogs() != null && !req.getAnalysisLogs().isEmpty()) {
+            metricsMap.put("analysisLogs", req.getAnalysisLogs());
+        }
+
         scan.setMetrics(metricsMap);
 
         scan.setStatus(req.getStatus());
