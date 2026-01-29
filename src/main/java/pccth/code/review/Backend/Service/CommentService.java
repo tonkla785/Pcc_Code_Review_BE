@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
 import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
+import pccth.code.review.Backend.DTO.Response.UserResponseDTO;
 import pccth.code.review.Backend.Entity.CommentEntity;
 import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
@@ -51,9 +52,17 @@ public class CommentService {
 
     public CommentResponseDTO mapToCommentResponseDTO(CommentEntity comment) {
         CommentResponseDTO dto = new CommentResponseDTO();
+        UserEntity user = comment.getUser();
+        UserResponseDTO userDTO = new UserResponseDTO();
+        userDTO.setId(user.getId());
+        userDTO.setUsername(user.getUsername());
+        userDTO.setEmail(user.getEmail());
+        userDTO.setPhone(user.getPhone());
+        userDTO.setRole(user.getRole());
+        userDTO.setCreateAt(comment.getCreatedAt());
         dto.setId(comment.getId());
         dto.setIssue(comment.getIssue().getId());
-        dto.setUser(comment.getUser().getId());
+        dto.setUser(userDTO);
         dto.setComment(comment.getComment());
         dto.setCreatedAt(comment.getCreatedAt());
         return dto;
