@@ -50,7 +50,6 @@ public class ProjectService {
     public List<ProjectResponseDTO> listProjects() {
         List<ProjectEntity> projects = projectRepository.findAll();
         List<ProjectResponseDTO> projectDto = new ArrayList<>();
-        List<ScanResponseDTO> scanDto = new ArrayList<>();
 
         for (ProjectEntity p : projects) {
             ProjectResponseDTO dto = new ProjectResponseDTO();
@@ -61,6 +60,8 @@ public class ProjectService {
             dto.setSonarProjectKey(p.getSonarProjectKey());
             dto.setCreatedAt(p.getCreatedAt());
             dto.setUpdatedAt(p.getUpdatedAt());
+
+            List<ScanResponseDTO> scanDto = new ArrayList<>();
 
             for (ScanEntity scan : p.getScanData()) {
                 ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
