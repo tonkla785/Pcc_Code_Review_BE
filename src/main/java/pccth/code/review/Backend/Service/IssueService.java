@@ -170,7 +170,6 @@ public class IssueService {
         IssueEntity issue = issueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
 
-
         IssuesResponseDTO dto = new IssuesResponseDTO();
 
         dto.setId(issue.getId());
@@ -187,7 +186,15 @@ public class IssueService {
 
         // assigned user
         if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
+            UserEntity user = issue.getAssignedTo();
+            UserResponseDTO userDTO = new UserResponseDTO();
+            userDTO.setId(user.getId());
+            userDTO.setUsername(user.getUsername());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setRole(user.getRole());
+            userDTO.setPhone(user.getPhone());
+            userDTO.setCreateAt(user.getCreateAt());
+            dto.setAssignedTo(userDTO);
         }
 
         // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
@@ -204,6 +211,7 @@ public class IssueService {
         List<CommentResponseDTO> comments = new ArrayList<>();
         if (issue.getCommentData() != null) {
             for (CommentEntity comment : issue.getCommentData()) {
+
                 comments.add(commentService.mapToCommentResponseDTO(comment));
             }
         }
@@ -217,6 +225,7 @@ public class IssueService {
 
         IssueEntity issue = issueRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
+
 
         boolean hasAnyUpdate = false;
 
@@ -251,7 +260,13 @@ public class IssueService {
         dto.setMessage(saved.getMessage());
         dto.setStatus(saved.getStatus());
         dto.setCreatedAt(saved.getCreatedAt());
-        if (saved.getAssignedTo() != null) dto.setAssignedTo(saved.getAssignedTo().getId());
+        if (saved.getAssignedTo() != null) {
+            UserEntity user = issue.getAssignedTo();
+            UserResponseDTO userDTO = new UserResponseDTO();
+            userDTO.setId(user.getId());
+            userDTO.setUsername(user.getUsername());
+            dto.setAssignedTo(userDTO);
+        }
         if (saved.getScanIssues() != null && !saved.getScanIssues().isEmpty()) {
             dto.setScanId(saved.getScanIssues().get(0).getScan().getId());
         }
@@ -285,7 +300,15 @@ public class IssueService {
 
         // assigned user
         if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
+            UserEntity user = issue.getAssignedTo();
+            UserResponseDTO userDTO = new UserResponseDTO();
+            userDTO.setId(user.getId());
+            userDTO.setUsername(user.getUsername());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setRole(user.getRole());
+            userDTO.setPhone(user.getPhone());
+            userDTO.setCreateAt(user.getCreateAt());
+            dto.setAssignedTo(userDTO);
         }
 
         // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
