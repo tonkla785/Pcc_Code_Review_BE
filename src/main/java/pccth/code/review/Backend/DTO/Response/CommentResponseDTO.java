@@ -10,7 +10,7 @@ import java.util.UUID;
 public class CommentResponseDTO {
     private UUID id;
     private UUID issue;
-    private UUID user;
+    private UserResponseDTO user;
     private String comment;
     private Date createdAt;
 
@@ -30,11 +30,11 @@ public class CommentResponseDTO {
         this.issue = issue;
     }
 
-    public UUID getUser() {
+    public UserResponseDTO getUser() {
         return user;
     }
 
-    public void setUser(UUID user) {
+    public void setUser(UserResponseDTO user) {
         this.user = user;
     }
 

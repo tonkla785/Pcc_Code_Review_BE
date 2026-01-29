@@ -16,7 +16,7 @@ public class IssuesResponseDTO {
     private String component;
     private Integer line;
     private String message;
-    private UUID assignedTo;
+    private UserResponseDTO assignedTo;
     private String status;
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
@@ -101,11 +101,11 @@ public class IssuesResponseDTO {
         this.message = message;
     }
 
-    public UUID getAssignedTo() {
+    public UserResponseDTO getAssignedTo() {
         return assignedTo;
     }
 
-    public void setAssignedTo(UUID assignedTo) {
+    public void setAssignedTo(UserResponseDTO assignedTo) {
         this.assignedTo = assignedTo;
     }
 
