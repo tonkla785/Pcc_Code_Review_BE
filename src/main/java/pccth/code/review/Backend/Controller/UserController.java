@@ -75,8 +75,8 @@ public class UserController {
     // แก้ไข repository เฉพาะตัว id
     @PutMapping("/update-user/{id}")
     public ResponseEntity<RegisterResponseDTO> updateRepository(@PathVariable UUID id,
-                                                                  @Valid @RequestBody ManageUserRequestDTO manageUser) {
-        RegisterResponseDTO response = userService.updateUser(id, manageUser);
+                                                                  @Valid @RequestBody UserRequestsDTO userRequestsDTO) {
+        RegisterResponseDTO response = userService.updateUser(id, userRequestsDTO);
         return ResponseEntity.status(200).body(response);
     }
 

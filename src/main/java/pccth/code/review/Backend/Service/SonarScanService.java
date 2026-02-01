@@ -1,17 +1,21 @@
 package pccth.code.review.Backend.Service;
 
 import org.springframework.stereotype.Service;
+import pccth.code.review.Backend.DTO.AnalysisLogEntry;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+import pccth.code.review.Backend.DTO.Response.ServiceExecutionResult;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 
 import java.io.File;
-import java.util.Map;
+import java.util.*;
 import java.util.UUID;
 
 @Service
 public class SonarScanService {
 
-    public Map<String, Object> execute(N8NRequestDTO req) {
+    public ServiceExecutionResult execute(N8NRequestDTO req) {
+        List<AnalysisLogEntry> logs = new ArrayList<>();
+
         try {
             UUID scanId = req.getScanId();
             String projectKey = req.getSonarProjectKey();
@@ -30,6 +34,8 @@ public class SonarScanService {
             if (sonarToken == null || sonarToken.isEmpty()) {
                 throw new IllegalStateException("sonarToken not provided in request");
             }
+
+            logs.add(new AnalysisLogEntry("Installing dependencies..."));
 
             if (type == ProjectTypeEnum.ANGULAR) {
                 ensureNodeAvailable();
@@ -198,6 +204,8 @@ public class SonarScanService {
                         """.formatted(workDir, projectKey, sonarHost, sonarToken);
             };
 
+            logs.add(new AnalysisLogEntry("Running sonar scanner..."));
+
             ProcessBuilder pb = new ProcessBuilder("sh", "-c", command);
             pb.inheritIO();
 
@@ -206,14 +214,18 @@ public class SonarScanService {
                 throw new RuntimeException("Sonar scan failed");
             }
 
+            logs.add(new AnalysisLogEntry("Analysis completed successfully"));
+
             String ceTaskId = readCeTaskId(workDir);
 
-            return Map.of(
-                    "scanId", scanId,
-                    "status", "SONAR_SCAN_TRIGGERED",
-                    "projectType", type.name(),
-                    "ceTaskId", ceTaskId);
+            Map<String, Object> data = new HashMap<>();
+            data.put("projectType", type.name());
+            data.put("ceTaskId", ceTaskId);
+
+            return new ServiceExecutionResult(scanId, "SONAR_SCAN_TRIGGERED", data, logs);
+
         } catch (Exception e) {
+            logs.add(new AnalysisLogEntry("Error: " + e.getMessage()));
             throw new RuntimeException("Sonar scan execution error", e);
         }
     }
