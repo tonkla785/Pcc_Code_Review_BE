@@ -43,6 +43,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setRole("USER");
+        user.setStatus("PENDING_VERIFICATION");
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setCreateAt(new Date());
 
@@ -80,6 +81,7 @@ public class UserService {
         loginResponse.setId(user.getId().toString());
         loginResponse.setUsername(user.getUsername());
         loginResponse.setEmail(user.getEmail());
+        loginResponse.setStatus(user.getStatus());
         loginResponse.setPhone(user.getPhone());
         loginResponse.setRole(user.getRole());
         return loginResponse;
@@ -149,6 +151,7 @@ public class UserService {
             dto.setId(u.getId());
             dto.setUsername(u.getUsername());
             dto.setEmail(u.getEmail());
+            dto.setStatus(u.getStatus());
             dto.setPhone(u.getPhone());
             dto.setRole(u.getRole());
             dto.setCreateAt(u.getCreateAt());
@@ -165,6 +168,7 @@ public class UserService {
         try {
             entity.setUsername(userRequestsDTO.getUsername());
             entity.setEmail(userRequestsDTO.getEmail());
+            entity.setStatus(userRequestsDTO.getStatus());
             entity.setRole(userRequestsDTO.getRole());
             userRepository.save(entity);
 
@@ -204,6 +208,7 @@ public class UserService {
         dto.setId(u.getId());
         dto.setUsername(u.getUsername());
         dto.setEmail(u.getEmail());
+        dto.setStatus(u.getStatus());
         dto.setPhone(u.getPhone());
         dto.setRole(u.getRole());
         dto.setCreateAt(u.getCreateAt());
