@@ -16,6 +16,7 @@ services:
       - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      TZ: Asia/Bangkok
     depends_on:
       - db
       - redis

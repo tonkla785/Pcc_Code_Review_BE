@@ -210,7 +210,7 @@ public class ScanService {
         scan.setStatus(req.getStatus());
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
-        scan.setCompletedAt(Date.from(ZonedDateTime.now(ZoneId.of("Asia/Bangkok")).toInstant()));
+        scan.setCompletedAt(new Date());
         String logFilePath = "scan-workspace/" + req.getScanId() + "/scan-report.md";
         scan.setLogFilePath(logFilePath);
 
