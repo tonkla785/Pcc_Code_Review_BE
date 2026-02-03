@@ -5,6 +5,7 @@ CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+    status VARCHAR(20) NOT NULL,
     password_hash TEXT NOT NULL,
     role VARCHAR(50) NOT NULL,
     phone VARCHAR(20) UNIQUE,

@@ -13,12 +13,16 @@ import java.util.UUID;
 @Repository
 public interface ScanRepository extends JpaRepository<ScanEntity, UUID> {
     List<ScanEntity> findByProjectId(UUID projectId);
+
     @Query("""
-        select distinct s
-        from ScanEntity s
-        left join fetch s.scanIssues si
-        left join fetch si.issue i
-        where s.project.id = :projectId
-    """)
+                select distinct s
+                from ScanEntity s
+                left join fetch s.scanIssues si
+                left join fetch si.issue i
+                where s.project.id = :projectId
+            """)
     List<ScanEntity> findScansWithIssuesByProjectId(@Param("projectId") UUID projectId);
+
+    // เรียงลำดับตาม startedAt จากใหม่ไปเก่า
+    List<ScanEntity> findAllByOrderByStartedAtDesc();
 }
