@@ -23,6 +23,7 @@ public class IssueService {
     private final CommentService commentService;
     private final ScanRepository scanRepository;
     private final ProjectRepository projectRepository;
+    private final ProjectService projectService;
 
     public IssueService(
             IssueRepository issueRepository,
@@ -30,7 +31,8 @@ public class IssueService {
             ScanIssueRepository scanIssueRepository,
             CommentService commentService,
             ScanRepository scanRepository,
-            ProjectRepository projectRepository
+            ProjectRepository projectRepository,
+            ProjectService projectService
     ) {
         this.issueRepository = issueRepository;
         this.issueDetailRepository = issueDetailRepository;
@@ -38,6 +40,7 @@ public class IssueService {
         this.commentService = commentService;
         this.scanRepository = scanRepository;
         this.projectRepository = projectRepository;
+        this.projectService = projectService;
     }
 
     @Transactional
@@ -174,6 +177,7 @@ public class IssueService {
 
         dto.setId(issue.getId());
         dto.setProjectId(issue.getProject().getId());
+        dto.setProjectData(projectService.mapToProjectResponseDTO(issue.getProject()));
         dto.setIssueKey(issue.getIssueKey());
         dto.setType(issue.getType());
         dto.setSeverity(issue.getSeverity());
@@ -288,6 +292,7 @@ public class IssueService {
 
         dto.setId(issue.getId());
         dto.setProjectId(issue.getProject().getId());
+        dto.setProjectData(projectService.mapToProjectResponseDTO(issue.getProject()));
         dto.setIssueKey(issue.getIssueKey());
         dto.setType(issue.getType());
         dto.setSeverity(issue.getSeverity());
