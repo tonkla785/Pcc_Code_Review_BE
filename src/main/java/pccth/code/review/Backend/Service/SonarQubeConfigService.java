@@ -9,6 +9,7 @@ import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.SonarQubeConfigRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -53,7 +54,8 @@ public class SonarQubeConfigService {
         config.setQgMaxBugs(0);
         config.setQgMaxVulnerabilities(0);
         config.setQgMaxCodeSmells(0);
-
+        config.setCreatedAt(new Date());
+        config.setUpdatedAt(new Date());
         SonarQubeConfigEntity saved = sonarQubeConfigRepository.save(config);
         return mapToResponseDTO(saved);
     }
@@ -108,6 +110,12 @@ public class SonarQubeConfigService {
             config.setQgMaxVulnerabilities(request.getQgMaxVulnerabilities());
         if (request.getQgMaxCodeSmells() != null)
             config.setQgMaxCodeSmells(request.getQgMaxCodeSmells());
+
+        // Set updatedAt for update
+        config.setUpdatedAt(new Date());
+        if (config.getCreatedAt() == null) {
+            config.setCreatedAt(new Date());
+        }
 
         SonarQubeConfigEntity saved = sonarQubeConfigRepository.save(config);
         return mapToResponseDTO(saved);
