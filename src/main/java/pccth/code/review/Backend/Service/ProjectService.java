@@ -152,5 +152,13 @@ public class ProjectService {
         }
 
     }
+    public ProjectResponseDTO mapToProjectResponseDTO(ProjectEntity p) {
+        if (p == null) return null;
+
+        ProjectResponseDTO dto = new ProjectResponseDTO();
+        dto.setId(p.getId());
+        dto.setName(p.getName());
+        return dto;
+    }
 
 }
