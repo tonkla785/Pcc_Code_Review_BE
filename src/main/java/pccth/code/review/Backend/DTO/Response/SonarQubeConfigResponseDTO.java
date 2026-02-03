@@ -8,6 +8,7 @@ public class SonarQubeConfigResponseDTO {
     private UUID id;
     private UUID userId;
     private String serverUrl;
+    private String authToken;
     private String organization;
 
     // Angular Settings
@@ -31,6 +32,14 @@ public class SonarQubeConfigResponseDTO {
 
     private Date createdAt;
     private Date updatedAt;
+
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
 
     // Getters and Setters
     public UUID getId() {

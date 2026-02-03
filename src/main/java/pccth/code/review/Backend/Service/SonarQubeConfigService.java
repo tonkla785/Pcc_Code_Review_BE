@@ -127,7 +127,7 @@ public class SonarQubeConfigService {
         dto.setUserId(entity.getUser().getId());
         dto.setServerUrl(entity.getServerUrl());
         dto.setOrganization(entity.getOrganization());
-        // Note: authToken is NOT returned for security reasons
+        dto.setAuthToken(entity.getAuthToken());
 
         dto.setAngularRunNpm(entity.getAngularRunNpm());
         dto.setAngularCoverage(entity.getAngularCoverage());
