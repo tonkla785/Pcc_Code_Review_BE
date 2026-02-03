@@ -50,7 +50,7 @@ public class SonarQubeConfigService {
         config.setSpringRunTests(false);
         config.setSpringJacoco(false);
         config.setQgFailOnError(false);
-        config.setQgCoverageThreshold(80);
+        config.setQgCoverageThreshold(0);
         config.setQgMaxBugs(0);
         config.setQgMaxVulnerabilities(0);
         config.setQgMaxCodeSmells(0);

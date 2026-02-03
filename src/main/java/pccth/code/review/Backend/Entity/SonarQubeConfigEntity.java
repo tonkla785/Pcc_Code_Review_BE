@@ -56,7 +56,7 @@ public class SonarQubeConfigEntity {
     private Boolean qgFailOnError = false;
 
     @Column(name = "qg_coverage_threshold")
-    private Integer qgCoverageThreshold = 80;
+    private Integer qgCoverageThreshold = 0;
 
     @Column(name = "qg_max_bugs")
     private Integer qgMaxBugs = 0;
