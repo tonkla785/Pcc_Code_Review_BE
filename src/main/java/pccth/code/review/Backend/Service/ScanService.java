@@ -7,10 +7,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pccth.code.review.Backend.DTO.Response.*;
+import pccth.code.review.Backend.DTO.ScanWsEvent;
 import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
+import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanIssueRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
@@ -29,6 +31,8 @@ public class ScanService {
     private ProjectRepository projectRepository;
     @Autowired
     private ScanIssueRepository scanIssueRepository;
+    @Autowired
+    private ScanStatusPublisher scanStatusPublisher;
 
     public ScanResponseDTO getScansById(UUID scanId) {
 
@@ -224,6 +228,10 @@ public class ScanService {
         dto.setQualityGate(updated.getQualityGate());
         dto.setMetrics(updated.getMetrics());
         dto.setLogFilePath(updated.getLogFilePath());
+
+        scanStatusPublisher.publish(
+                new ScanWsEvent(req.getProjectId(), req.getStatus(),req.getScanId())
+        );
 
         return dto;
     }
