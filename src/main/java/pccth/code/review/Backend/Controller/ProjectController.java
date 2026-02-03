@@ -17,7 +17,6 @@ import jakarta.validation.Valid;
 import pccth.code.review.Backend.DTO.Request.RepositoryDTO;
 import pccth.code.review.Backend.DTO.Response.ProjectResponseDTO;
 import pccth.code.review.Backend.DTO.Response.RepositoryResponseDTO;
-import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Service.ProjectService;
 
 @RestController
