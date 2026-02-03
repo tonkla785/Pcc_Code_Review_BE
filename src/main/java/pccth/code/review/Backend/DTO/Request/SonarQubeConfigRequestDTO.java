@@ -2,10 +2,7 @@ package pccth.code.review.Backend.DTO.Request;
 
 public class SonarQubeConfigRequestDTO {
 
-<<<<<<< HEAD
     private String userId;
-=======
->>>>>>> main
     private String serverUrl;
     private String authToken;
     private String organization;
@@ -29,7 +26,6 @@ public class SonarQubeConfigRequestDTO {
     private Integer qgMaxVulnerabilities;
     private Integer qgMaxCodeSmells;
 
-<<<<<<< HEAD
     // User ID getter/setter
     public String getUserId() {
         return userId;
@@ -39,8 +35,6 @@ public class SonarQubeConfigRequestDTO {
         this.userId = userId;
     }
 
-=======
->>>>>>> main
     // Getters and Setters
     public String getServerUrl() {
         return serverUrl;

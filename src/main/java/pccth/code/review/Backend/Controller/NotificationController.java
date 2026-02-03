@@ -1,10 +1,6 @@
 package pccth.code.review.Backend.Controller;
 
 import org.springframework.http.ResponseEntity;
-<<<<<<< HEAD
-=======
-import org.springframework.security.core.Authentication;
->>>>>>> main
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.NotificationRequestDTO;
 import pccth.code.review.Backend.DTO.Response.NotificationResponseDTO;
@@ -24,17 +20,10 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-<<<<<<< HEAD
     @GetMapping("/{userId}")
     public ResponseEntity<List<NotificationResponseDTO>> getAllNotifications(@PathVariable String userId) {
         UUID userUUID = UUID.fromString(userId);
         List<NotificationResponseDTO> notifications = notificationService.getAllByUserId(userUUID);
-=======
-    @GetMapping
-    public ResponseEntity<List<NotificationResponseDTO>> getAllNotifications(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
-        List<NotificationResponseDTO> notifications = notificationService.getAllByUserId(userId);
->>>>>>> main
         return ResponseEntity.ok(notifications);
     }
 
@@ -51,17 +40,10 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-<<<<<<< HEAD
     @PatchMapping("/{userId}/read-all")
     public ResponseEntity<Void> markAllAsRead(@PathVariable String userId) {
         UUID userUUID = UUID.fromString(userId);
         notificationService.markAllAsRead(userUUID);
-=======
-    @PatchMapping("/read-all")
-    public ResponseEntity<Void> markAllAsRead(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
-        notificationService.markAllAsRead(userId);
->>>>>>> main
         return ResponseEntity.ok().build();
     }
 }
