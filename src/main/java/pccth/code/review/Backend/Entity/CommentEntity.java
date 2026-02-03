@@ -25,6 +25,10 @@ public class CommentEntity {
     @Column(name = "comment", nullable = false)
     private String comment;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_comment_id")
+    private CommentEntity parentComment;
+
     @Column(name = "created_at")
     private Date createdAt;
 
@@ -66,5 +70,13 @@ public class CommentEntity {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public CommentEntity getParentComment() {
+        return parentComment;
+    }
+
+    public void setParentComment(CommentEntity parentComment) {
+        this.parentComment = parentComment;
     }
 }
