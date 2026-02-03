@@ -118,7 +118,7 @@ public class ScanService {
 
     public List<ScanResponseDTO> getScansAll() {
 
-        List<ScanEntity> scans = scanRepository.findAllByOrderByStartedAtDesc();
+        List<ScanEntity> scans = scanRepository.findAllByOrderByStartedAtAsc();
         List<ScanResponseDTO> result = new ArrayList<>();
 
         for (ScanEntity scan : scans) {

@@ -15,6 +15,8 @@ public class CommentRequestDTO {
     @NotBlank
     private String comment;
 
+    private UUID parentCommentId; // For reply functionality
+
     public UUID getIssueId() {
         return issueId;
     }
@@ -37,5 +39,13 @@ public class CommentRequestDTO {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public UUID getParentCommentId() {
+        return parentCommentId;
+    }
+
+    public void setParentCommentId(UUID parentCommentId) {
+        this.parentCommentId = parentCommentId;
     }
 }
