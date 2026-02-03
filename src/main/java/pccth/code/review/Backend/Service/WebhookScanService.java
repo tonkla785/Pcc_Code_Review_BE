@@ -85,7 +85,8 @@ public class WebhookScanService {
         }
 
         scanStatusPublisher.publish(
-                new ScanWsEvent(project.getId(), ScanStatusEnum.PENDING));
+                new ScanWsEvent(project.getId(), ScanStatusEnum.PENDING, scan.getId())
+        );
 
         // response กลับ UI
         N8NScanQueueResposneDTO response = new N8NScanQueueResposneDTO();
