@@ -52,8 +52,7 @@ public class WebhookController {
     @PostMapping("/scan/issue-data")
     public ResponseEntity<N8NIssueBatchResponseDTO> receiveIssueResult(@RequestBody N8NIssueBatchResponseDTO result) {
 
-        System.out.println("Issue result success"); // Result from sonarqube
-        // Add Logic Here
+        System.out.println("Issue result success");
         issueService.upsertIssuesFromN8n(result);
         return ResponseEntity.ok(result);
     }

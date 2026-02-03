@@ -227,3 +227,25 @@ CREATE INDEX idx_notifications_created_at ON notifications(user_id, created_at D
 CREATE INDEX idx_report_history_user_id ON report_history(user_id);
 CREATE INDEX idx_report_history_project_id ON report_history(project_id);
 CREATE INDEX idx_report_history_generated_at ON report_history(user_id, generated_at DESC);
+
+
+CREATE TABLE email_verification_tokens (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL,
+  token_hash TEXT NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  used_at TIMESTAMP NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  CONSTRAINT fk_evt_user
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+);
+
+-- token_hash ควร unique กันชน
+CREATE UNIQUE INDEX uq_evt_token_hash ON email_verification_tokens(token_hash);
+
+-- index ช่วยหาเร็ว
+CREATE INDEX idx_evt_user_id ON email_verification_tokens(user_id);
+CREATE INDEX idx_evt_expires_at ON email_verification_tokens(expires_at);

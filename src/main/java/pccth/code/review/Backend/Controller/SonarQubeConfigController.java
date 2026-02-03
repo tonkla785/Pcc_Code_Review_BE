@@ -19,17 +19,30 @@ public class SonarQubeConfigController {
         this.sonarQubeConfigService = sonarQubeConfigService;
     }
 
+<<<<<<< HEAD
     @GetMapping("/{userId}")
     public ResponseEntity<SonarQubeConfigResponseDTO> getConfig(@PathVariable String userId) {
         UUID userUUID = UUID.fromString(userId);
         SonarQubeConfigResponseDTO config = sonarQubeConfigService.getByUserId(userUUID);
+=======
+    @GetMapping
+    public ResponseEntity<SonarQubeConfigResponseDTO> getConfig(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        SonarQubeConfigResponseDTO config = sonarQubeConfigService.getByUserId(userId);
+>>>>>>> main
         return ResponseEntity.ok(config);
     }
 
     @PutMapping
     public ResponseEntity<SonarQubeConfigResponseDTO> updateConfig(
+<<<<<<< HEAD
             @RequestBody SonarQubeConfigRequestDTO request) {
         UUID userId = UUID.fromString(request.getUserId());
+=======
+            Authentication authentication,
+            @RequestBody SonarQubeConfigRequestDTO request) {
+        UUID userId = UUID.fromString(authentication.getName());
+>>>>>>> main
         SonarQubeConfigResponseDTO updated = sonarQubeConfigService.updateConfig(userId, request);
         return ResponseEntity.ok(updated);
     }
