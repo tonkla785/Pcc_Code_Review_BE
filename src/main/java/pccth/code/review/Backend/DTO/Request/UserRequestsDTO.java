@@ -10,6 +10,15 @@ public class UserRequestsDTO {
     @NotBlank(message = "Phone number is required")
     private String phone;
     private String role;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getUsername() {
         return username;

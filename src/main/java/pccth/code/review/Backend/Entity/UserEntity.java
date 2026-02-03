@@ -28,8 +28,19 @@ public class UserEntity {
     @Column(name = "phone", length = 20)
     private String phone;
 
+    @Column(name = "status", nullable = false, length = 20)
+    private String status;
+
     @Column(name = "created_at")
     private Date createAt;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getPhone() {
         return phone;

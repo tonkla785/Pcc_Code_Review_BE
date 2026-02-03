@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/user/login",
                                 "/user/register",
                                 "/user/refresh",
+                                "/user/logout",
                                 "/webhooks/**",
                                 "/ws",
                                 "/api/email",

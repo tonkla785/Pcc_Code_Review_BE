@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.*;
 import pccth.code.review.Backend.DTO.Response.*;
-import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.CookieUtil;
@@ -43,6 +42,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setRole("USER");
+        user.setStatus("PENDING_VERIFICATION");
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setCreateAt(new Date());
 
@@ -80,6 +80,7 @@ public class UserService {
         loginResponse.setId(user.getId().toString());
         loginResponse.setUsername(user.getUsername());
         loginResponse.setEmail(user.getEmail());
+        loginResponse.setStatus(user.getStatus());
         loginResponse.setPhone(user.getPhone());
         loginResponse.setRole(user.getRole());
         return loginResponse;
@@ -100,7 +101,7 @@ public class UserService {
         }
     }
 
-    public void resetPassword(String username, ResetPassDTO request) {
+    public void changePassword(String username, ChangePassDTO request) {
 
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -149,6 +150,7 @@ public class UserService {
             dto.setId(u.getId());
             dto.setUsername(u.getUsername());
             dto.setEmail(u.getEmail());
+            dto.setStatus(u.getStatus());
             dto.setPhone(u.getPhone());
             dto.setRole(u.getRole());
             dto.setCreateAt(u.getCreateAt());
@@ -165,6 +167,7 @@ public class UserService {
         try {
             entity.setUsername(userRequestsDTO.getUsername());
             entity.setEmail(userRequestsDTO.getEmail());
+            entity.setStatus(userRequestsDTO.getStatus());
             entity.setRole(userRequestsDTO.getRole());
             userRepository.save(entity);
 
@@ -204,6 +207,7 @@ public class UserService {
         dto.setId(u.getId());
         dto.setUsername(u.getUsername());
         dto.setEmail(u.getEmail());
+        dto.setStatus(u.getStatus());
         dto.setPhone(u.getPhone());
         dto.setRole(u.getRole());
         dto.setCreateAt(u.getCreateAt());
