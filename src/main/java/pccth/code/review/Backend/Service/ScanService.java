@@ -7,13 +7,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pccth.code.review.Backend.DTO.Response.*;
+import pccth.code.review.Backend.DTO.ScanWsEvent;
 import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
+import pccth.code.review.Backend.Entity.UserEntity;
+import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanIssueRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.*;
 
 @Service
@@ -25,6 +31,8 @@ public class ScanService {
     private ProjectRepository projectRepository;
     @Autowired
     private ScanIssueRepository scanIssueRepository;
+    @Autowired
+    private ScanStatusPublisher scanStatusPublisher;
 
     public ScanResponseDTO getScansById(UUID scanId) {
 
@@ -55,8 +63,18 @@ public class ScanService {
                 scan.getScanIssues().stream()
                         .map(scanIssue -> {
                             IssueEntity issue = scanIssue.getIssue();
-
+                            UserEntity user = issue.getAssignedTo();
                             IssuesResponseDTO idto = new IssuesResponseDTO();
+                            if (issue.getAssignedTo() != null) {
+                                UserResponseDTO userDTO = new UserResponseDTO();
+                                userDTO.setId(user.getId());
+                                userDTO.setUsername(user.getUsername());
+                                userDTO.setEmail(user.getEmail());
+                                userDTO.setRole(user.getRole());
+                                userDTO.setPhone(user.getPhone());
+                                userDTO.setCreateAt(user.getCreateAt());
+                                idto.setAssignedTo(userDTO);
+                            }
                             idto.setId(issue.getId());
                             idto.setScanId(scan.getId());
                             idto.setProjectId(issue.getProject().getId());
@@ -66,23 +84,28 @@ public class ScanService {
                             idto.setType(issue.getType());
                             idto.setSeverity(issue.getSeverity());
                             idto.setComponent(issue.getComponent());
+                            idto.setLine(issue.getLine());
                             idto.setMessage(issue.getMessage());
                             idto.setStatus(issue.getStatus());
                             idto.setCreatedAt(issue.getCreatedAt());
-
-                            if (issue.getAssignedTo() != null) {
-                                idto.setAssignedTo(issue.getAssignedTo().getId());
-                            }
 
                             idto.setCommentData(
                                     issue.getCommentData().stream()
                                             .map(comment -> {
                                                 CommentResponseDTO cdto = new CommentResponseDTO();
+                                                UserEntity users = comment.getUser();
+                                                UserResponseDTO userDTO = new UserResponseDTO();
+                                                userDTO.setId(users.getId());
+                                                userDTO.setUsername(users.getUsername());
+                                                userDTO.setEmail(users.getEmail());
+                                                userDTO.setPhone(users.getPhone());
+                                                userDTO.setRole(users.getRole());
+                                                userDTO.setCreateAt(comment.getCreatedAt());
                                                 cdto.setId(comment.getId());
                                                 cdto.setComment(comment.getComment());
                                                 cdto.setCreatedAt(comment.getCreatedAt());
                                                 cdto.setIssue(issue.getId());
-                                                cdto.setUser(comment.getUser().getId());
+                                                cdto.setUser(userDTO);
                                                 return cdto;
                                             })
                                             .toList());
@@ -95,7 +118,7 @@ public class ScanService {
 
     public List<ScanResponseDTO> getScansAll() {
 
-        List<ScanEntity> scans = scanRepository.findAll();
+        List<ScanEntity> scans = scanRepository.findAllByOrderByStartedAtAsc();
         List<ScanResponseDTO> result = new ArrayList<>();
 
         for (ScanEntity scan : scans) {
@@ -191,7 +214,7 @@ public class ScanService {
         scan.setStatus(req.getStatus());
         scan.setQualityGate(req.getQualityGate());
         scan.setLogFilePath(req.getLogFilePath());
-        scan.setCompletedAt(req.getAnalyzedAt());
+        scan.setCompletedAt(new Date());
         String logFilePath = "scan-workspace/" + req.getScanId() + "/scan-report.md";
         scan.setLogFilePath(logFilePath);
 
@@ -205,6 +228,10 @@ public class ScanService {
         dto.setQualityGate(updated.getQualityGate());
         dto.setMetrics(updated.getMetrics());
         dto.setLogFilePath(updated.getLogFilePath());
+
+        scanStatusPublisher.publish(
+                new ScanWsEvent(req.getProjectId(), req.getStatus(),req.getScanId())
+        );
 
         return dto;
     }

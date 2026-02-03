@@ -58,44 +58,34 @@ public class IssueService {
 
             if (dto.getIssueKey() == null) continue;
 
-            //ข้อมูลเยอะเลยใช้ native query
+            // ข้อมูลเยอะเลยใช้ native query
+            String incomingStatus = dto.getStatus() != null ? dto.getStatus() : "OPEN";
+            incomingStatus = incomingStatus.toUpperCase(Locale.ROOT);
+
             UUID issueId = (UUID) entityManager
                     .createNativeQuery("""
-                                INSERT INTO issues (
-                                    issue_key,
-                                    project_id,
-                                    type,
-                                    severity,
-                                    rule_key,
-                                    component,
-                                    line,
-                                    message,
-                                    status,
-                                    created_at
-                                )
-                                VALUES (
-                                    :issueKey,
-                                    :projectId,
-                                    :type,
-                                    :severity,
-                                    :ruleKey,
-                                    :component,
-                                    :line,
-                                    :message,
-                                    :status,
-                                    :createdAt
-                                )
-                                ON CONFLICT (issue_key)
-                                DO UPDATE SET
-                                    type = EXCLUDED.type,
-                                    severity = EXCLUDED.severity,
-                                    rule_key = EXCLUDED.rule_key,
-                                    component = EXCLUDED.component,
-                                    line = EXCLUDED.line,
-                                    message = EXCLUDED.message,
-                                    status = EXCLUDED.status
-                                RETURNING id
-                            """)
+            INSERT INTO issues (
+                issue_key, project_id, type, severity, rule_key, component, line, message, status, created_at
+            )
+            VALUES (
+                :issueKey, :projectId, :type, :severity, :ruleKey, :component, :line, :message, :status, :createdAt
+            )
+            ON CONFLICT (issue_key)
+            DO UPDATE SET
+                type = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.type ELSE EXCLUDED.type END,
+                severity = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.severity ELSE EXCLUDED.severity END,
+                rule_key = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.rule_key ELSE EXCLUDED.rule_key END,
+                component = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.component ELSE EXCLUDED.component END,
+                line = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.line ELSE EXCLUDED.line END,
+                message = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.message ELSE EXCLUDED.message END,
+                status = CASE
+                    WHEN issues.status = 'CLOSED' THEN issues.status
+                    WHEN EXCLUDED.status IN ('RESOLVED','CLOSED') THEN 'RESOLVED'
+                    WHEN issues.status = 'IN_PROGRESS' THEN issues.status
+                    ELSE EXCLUDED.status
+                END
+            RETURNING id
+        """)
                     .setParameter("issueKey", dto.getIssueKey())
                     .setParameter("projectId", project.getId())
                     .setParameter("type", dto.getType())
@@ -104,14 +94,15 @@ public class IssueService {
                     .setParameter("component", dto.getComponent())
                     .setParameter("line", dto.getLine())
                     .setParameter("message", dto.getMessage())
-                    .setParameter("status", dto.getStatus() != null ? dto.getStatus() : "OPEN")
-                    .setParameter(
-                            "createdAt",
-                            dto.getCreatedAt() != null
-                                    ? dto.getCreatedAt().toInstant()
-                                    : Instant.now()
+                    .setParameter("status", incomingStatus)
+                    .setParameter("createdAt",
+                            dto.getCreatedAt() != null ? dto.getCreatedAt().toInstant() : Instant.now()
                     )
                     .getSingleResult();
+
+
+
+
 
             IssueEntity issueRef = entityManager.getReference(IssueEntity.class, issueId);
 
@@ -161,7 +152,7 @@ public class IssueService {
     }
 
     //get issue details by id issue
-    public IssueDetailResponseDTO findIssueDetailsById(UUID id){
+    public IssueDetailResponseDTO findIssueDetailsById(UUID id) {
         IssueDetailEntity issueDetail = issueDetailRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Issue details not found"));
 
@@ -179,7 +170,6 @@ public class IssueService {
         IssueEntity issue = issueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
 
-
         IssuesResponseDTO dto = new IssuesResponseDTO();
 
         dto.setId(issue.getId());
@@ -196,7 +186,15 @@ public class IssueService {
 
         // assigned user
         if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
+            UserEntity user = issue.getAssignedTo();
+            UserResponseDTO userDTO = new UserResponseDTO();
+            userDTO.setId(user.getId());
+            userDTO.setUsername(user.getUsername());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setRole(user.getRole());
+            userDTO.setPhone(user.getPhone());
+            userDTO.setCreateAt(user.getCreateAt());
+            dto.setAssignedTo(userDTO);
         }
 
         // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)
@@ -213,6 +211,7 @@ public class IssueService {
         List<CommentResponseDTO> comments = new ArrayList<>();
         if (issue.getCommentData() != null) {
             for (CommentEntity comment : issue.getCommentData()) {
+
                 comments.add(commentService.mapToCommentResponseDTO(comment));
             }
         }
@@ -226,6 +225,7 @@ public class IssueService {
 
         IssueEntity issue = issueRepository.findById(req.getId())
                 .orElseThrow(() -> new RuntimeException("Issue not found"));
+
 
         boolean hasAnyUpdate = false;
 
@@ -260,7 +260,13 @@ public class IssueService {
         dto.setMessage(saved.getMessage());
         dto.setStatus(saved.getStatus());
         dto.setCreatedAt(saved.getCreatedAt());
-        if (saved.getAssignedTo() != null) dto.setAssignedTo(saved.getAssignedTo().getId());
+        if (saved.getAssignedTo() != null) {
+            UserEntity user = issue.getAssignedTo();
+            UserResponseDTO userDTO = new UserResponseDTO();
+            userDTO.setId(user.getId());
+            userDTO.setUsername(user.getUsername());
+            dto.setAssignedTo(userDTO);
+        }
         if (saved.getScanIssues() != null && !saved.getScanIssues().isEmpty()) {
             dto.setScanId(saved.getScanIssues().get(0).getScan().getId());
         }
@@ -294,7 +300,15 @@ public class IssueService {
 
         // assigned user
         if (issue.getAssignedTo() != null) {
-            dto.setAssignedTo(issue.getAssignedTo().getId());
+            UserEntity user = issue.getAssignedTo();
+            UserResponseDTO userDTO = new UserResponseDTO();
+            userDTO.setId(user.getId());
+            userDTO.setUsername(user.getUsername());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setRole(user.getRole());
+            userDTO.setPhone(user.getPhone());
+            userDTO.setCreateAt(user.getCreateAt());
+            dto.setAssignedTo(userDTO);
         }
 
         // scanId (issue อาจอยู่หลาย scan → เอาอันแรก)

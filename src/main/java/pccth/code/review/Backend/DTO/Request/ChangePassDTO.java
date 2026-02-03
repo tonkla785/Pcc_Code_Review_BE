@@ -2,7 +2,7 @@ package pccth.code.review.Backend.DTO.Request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class ResetPassDTO {
+public class ChangePassDTO {
 
     @NotBlank(message = "Current password is required")
     private String currentPassword;

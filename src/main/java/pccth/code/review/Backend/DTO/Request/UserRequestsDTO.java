@@ -1,10 +1,13 @@
-package pccth.code.review.Backend.DTO.Response;
+package pccth.code.review.Backend.DTO.Request;
 
-public class LoginResponseDTO {
-    private String accessToken;
-    private String id;
+import jakarta.validation.constraints.NotBlank;
+
+public class UserRequestsDTO {
+    @NotBlank(message = "Username is required")
     private String username;
+    @NotBlank(message = "Email is required")
     private String email;
+    @NotBlank(message = "Phone number is required")
     private String phone;
     private String role;
     private String status;
@@ -15,22 +18,6 @@ public class LoginResponseDTO {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getUsername() {

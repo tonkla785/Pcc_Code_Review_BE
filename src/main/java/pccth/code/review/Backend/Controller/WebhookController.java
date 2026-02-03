@@ -36,10 +36,6 @@ public class WebhookController {
         projectService.updateScanAt(result.getProjectId());
         scanService.updateScan(result);
 
-        scanStatusPublisher.publish(
-                new ScanWsEvent(result.getProjectId(), result.getStatus())
-        );
-
         return ResponseEntity.ok(result);
     }
 

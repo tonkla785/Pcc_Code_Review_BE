@@ -46,10 +46,10 @@ public class UserController {
         return ResponseEntity.ok(newAccessToken);
     }
 
-    @PutMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPassDTO request){
+    @PutMapping("/change-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ChangePassDTO request){
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        userService.resetPassword(username, request);
+        userService.changePassword(username, request);
         return ResponseEntity.ok("Password reset successfully");
     }
 
@@ -75,8 +75,8 @@ public class UserController {
     // แก้ไข repository เฉพาะตัว id
     @PutMapping("/update-user/{id}")
     public ResponseEntity<RegisterResponseDTO> updateRepository(@PathVariable UUID id,
-                                                                  @Valid @RequestBody ManageUserRequestDTO manageUser) {
-        RegisterResponseDTO response = userService.updateUser(id, manageUser);
+                                                                  @Valid @RequestBody UserRequestsDTO userRequestsDTO) {
+        RegisterResponseDTO response = userService.updateUser(id, userRequestsDTO);
         return ResponseEntity.status(200).body(response);
     }
 
