@@ -1,7 +1,6 @@
 package pccth.code.review.Backend.DTO.Response;
 
 import java.util.List;
-import java.util.UUID;
 
 public class N8NIssueBatchResponseDTO {
     private String scanId;

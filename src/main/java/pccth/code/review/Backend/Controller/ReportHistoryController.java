@@ -1,7 +1,6 @@
 package pccth.code.review.Backend.Controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.ReportHistoryRequestDTO;
 import pccth.code.review.Backend.DTO.Response.ReportHistoryResponseDTO;
@@ -21,27 +20,27 @@ public class ReportHistoryController {
         this.reportHistoryService = reportHistoryService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<ReportHistoryResponseDTO>> getAllReportHistory(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<ReportHistoryResponseDTO>> getAllReportHistory(@PathVariable String id) {
+        UUID userId = UUID.fromString(id);
         List<ReportHistoryResponseDTO> reports = reportHistoryService.getAllByUserId(userId);
         return ResponseEntity.ok(reports);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/{userId}")
     public ResponseEntity<List<ReportHistoryResponseDTO>> searchByProjectName(
-            Authentication authentication,
+            @PathVariable String id,
             @RequestParam String keyword) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(id);
         List<ReportHistoryResponseDTO> reports = reportHistoryService.searchByProjectName(userId, keyword);
         return ResponseEntity.ok(reports);
     }
 
-    @PostMapping
+    @PostMapping("/create/{userId}")
     public ResponseEntity<ReportHistoryResponseDTO> createReportHistory(
-            Authentication authentication,
+            @PathVariable String id,
             @Valid @RequestBody ReportHistoryRequestDTO request) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(id);
         ReportHistoryResponseDTO report = reportHistoryService.createReportHistory(userId, request);
         return ResponseEntity.ok(report);
     }
