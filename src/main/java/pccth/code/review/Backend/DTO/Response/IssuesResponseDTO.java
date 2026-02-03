@@ -20,6 +20,8 @@ public class IssuesResponseDTO {
     private String status;
     private Date createdAt;
     private List<CommentResponseDTO> commentData = new ArrayList<>();
+    private ProjectResponseDTO projectData;
+
 
     public UUID getProjectId() {
         return projectId;
@@ -132,4 +134,13 @@ public class IssuesResponseDTO {
     public void setCommentData(List<CommentResponseDTO> commentData) {
         this.commentData = commentData;
     }
+
+    public ProjectResponseDTO getProjectData() {
+        return projectData;
+    }
+
+    public void setProjectData(ProjectResponseDTO projectData) {
+        this.projectData = projectData;
+    }
 }
+
