@@ -14,11 +14,8 @@ import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
 import pccth.code.review.Backend.Repository.ProjectRepository;
-import pccth.code.review.Backend.Repository.ScanIssueRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.*;
 
@@ -30,8 +27,11 @@ public class ScanService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
+<<<<<<< HEAD
     private ScanIssueRepository scanIssueRepository;
     @Autowired
+=======
+>>>>>>> main
     private ScanStatusPublisher scanStatusPublisher;
 
     public ScanResponseDTO getScansById(UUID scanId) {
@@ -118,7 +118,7 @@ public class ScanService {
 
     public List<ScanResponseDTO> getScansAll() {
 
-        List<ScanEntity> scans = scanRepository.findAllByOrderByStartedAtDesc();
+        List<ScanEntity> scans = scanRepository.findAllByOrderByStartedAtAsc();
         List<ScanResponseDTO> result = new ArrayList<>();
 
         for (ScanEntity scan : scans) {

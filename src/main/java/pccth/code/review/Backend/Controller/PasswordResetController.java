@@ -2,8 +2,6 @@ package pccth.code.review.Backend.Controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pccth.code.review.Backend.DTO.Request.ForgotPasswordRequestDTO;
-import pccth.code.review.Backend.DTO.Request.ResetPasswordRequestDTO;
 import pccth.code.review.Backend.Service.PasswordResetService;
 
 import java.util.Map;
