@@ -7,6 +7,7 @@ import pccth.code.review.Backend.DTO.Response.NotificationResponseDTO;
 import pccth.code.review.Backend.Entity.*;
 import pccth.code.review.Backend.Repository.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -53,6 +54,7 @@ public class NotificationService {
         notification.setType(request.getType());
         notification.setTitle(request.getTitle());
         notification.setMessage(request.getMessage());
+        notification.setCreatedAt(new Date());
         notification.setIsRead(false);
 
         // Set related entities if provided

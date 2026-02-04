@@ -15,10 +15,6 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
 
     List<NotificationEntity> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
-    List<NotificationEntity> findByUserIdAndIsReadFalseOrderByCreatedAtDesc(UUID userId);
-
-    List<NotificationEntity> findByUserIdAndTypeOrderByCreatedAtDesc(UUID userId, String type);
-
     @Modifying
     @Query("UPDATE NotificationEntity n SET n.isRead = true WHERE n.user.id = :userId")
     int markAllAsReadByUserId(@Param("userId") UUID userId);
