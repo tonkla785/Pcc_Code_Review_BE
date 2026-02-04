@@ -1,7 +1,6 @@
 package pccth.code.review.Backend.Controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.SonarQubeConfigRequestDTO;
 import pccth.code.review.Backend.DTO.Response.SonarQubeConfigResponseDTO;
@@ -19,18 +18,17 @@ public class SonarQubeConfigController {
         this.sonarQubeConfigService = sonarQubeConfigService;
     }
 
-    @GetMapping
-    public ResponseEntity<SonarQubeConfigResponseDTO> getConfig(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
-        SonarQubeConfigResponseDTO config = sonarQubeConfigService.getByUserId(userId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<SonarQubeConfigResponseDTO> getConfig(@PathVariable String userId) {
+        UUID userUUID = UUID.fromString(userId);
+        SonarQubeConfigResponseDTO config = sonarQubeConfigService.getByUserId(userUUID);
         return ResponseEntity.ok(config);
     }
 
     @PutMapping
     public ResponseEntity<SonarQubeConfigResponseDTO> updateConfig(
-            Authentication authentication,
             @RequestBody SonarQubeConfigRequestDTO request) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(request.getUserId());
         SonarQubeConfigResponseDTO updated = sonarQubeConfigService.updateConfig(userId, request);
         return ResponseEntity.ok(updated);
     }

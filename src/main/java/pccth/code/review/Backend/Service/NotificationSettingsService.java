@@ -9,6 +9,7 @@ import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.NotificationSettingsRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -47,6 +48,8 @@ public class NotificationSettingsService {
         settings.setIssuesEnabled(true);
         settings.setSystemEnabled(true);
         settings.setReportsEnabled(false);
+        settings.setCreatedAt(new Date());
+        settings.setUpdatedAt(new Date());
 
         NotificationSettingsEntity saved = notificationSettingsRepository.save(settings);
         return mapToResponseDTO(saved);
@@ -74,6 +77,12 @@ public class NotificationSettingsService {
         }
         if (request.getReportsEnabled() != null) {
             settings.setReportsEnabled(request.getReportsEnabled());
+        }
+
+        // Set updatedAt for update
+        settings.setUpdatedAt(new Date());
+        if (settings.getCreatedAt() == null) {
+            settings.setCreatedAt(new Date());
         }
 
         NotificationSettingsEntity saved = notificationSettingsRepository.save(settings);
