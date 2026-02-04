@@ -1,7 +1,6 @@
 package pccth.code.review.Backend.Controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.ReportHistoryRequestDTO;
 import pccth.code.review.Backend.DTO.Response.ReportHistoryResponseDTO;
@@ -21,28 +20,28 @@ public class ReportHistoryController {
         this.reportHistoryService = reportHistoryService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<ReportHistoryResponseDTO>> getAllReportHistory(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
-        List<ReportHistoryResponseDTO> reports = reportHistoryService.getAllByUserId(userId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<ReportHistoryResponseDTO>> getAllReportHistory(@PathVariable String userId) {
+        UUID userIdUUID = UUID.fromString(userId);
+        List<ReportHistoryResponseDTO> reports = reportHistoryService.getAllByUserId(userIdUUID);
         return ResponseEntity.ok(reports);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/search/{userId}")
     public ResponseEntity<List<ReportHistoryResponseDTO>> searchByProjectName(
-            Authentication authentication,
+            @PathVariable String userId,
             @RequestParam String keyword) {
-        UUID userId = UUID.fromString(authentication.getName());
-        List<ReportHistoryResponseDTO> reports = reportHistoryService.searchByProjectName(userId, keyword);
+        UUID userIdUUID = UUID.fromString(userId);
+        List<ReportHistoryResponseDTO> reports = reportHistoryService.searchByProjectName(userIdUUID, keyword);
         return ResponseEntity.ok(reports);
     }
 
-    @PostMapping
+    @PostMapping("/create/{userId}")
     public ResponseEntity<ReportHistoryResponseDTO> createReportHistory(
-            Authentication authentication,
+            @PathVariable String userId,
             @Valid @RequestBody ReportHistoryRequestDTO request) {
-        UUID userId = UUID.fromString(authentication.getName());
-        ReportHistoryResponseDTO report = reportHistoryService.createReportHistory(userId, request);
+        UUID userIdUUID = UUID.fromString(userId);
+        ReportHistoryResponseDTO report = reportHistoryService.createReportHistory(userIdUUID, request);
         return ResponseEntity.ok(report);
     }
 }

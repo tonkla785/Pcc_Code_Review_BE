@@ -2,8 +2,6 @@ package pccth.code.review.Backend.Util;
 
 import org.springframework.http.ResponseCookie;
 
-import java.time.Duration;
-
 public class CookieUtil {
 
     private static final String REFRESH_TOKEN_NAME = "refresh_token";

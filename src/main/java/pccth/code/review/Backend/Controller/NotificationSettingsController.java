@@ -1,7 +1,6 @@
 package pccth.code.review.Backend.Controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.NotificationSettingsRequestDTO;
 import pccth.code.review.Backend.DTO.Response.NotificationSettingsResponseDTO;
@@ -19,18 +18,17 @@ public class NotificationSettingsController {
         this.notificationSettingsService = notificationSettingsService;
     }
 
-    @GetMapping
-    public ResponseEntity<NotificationSettingsResponseDTO> getSettings(Authentication authentication) {
-        UUID userId = UUID.fromString(authentication.getName());
-        NotificationSettingsResponseDTO settings = notificationSettingsService.getByUserId(userId);
+    @GetMapping("/{userId}")
+    public ResponseEntity<NotificationSettingsResponseDTO> getSettings(@PathVariable String userId) {
+        UUID userUUID = UUID.fromString(userId);
+        NotificationSettingsResponseDTO settings = notificationSettingsService.getByUserId(userUUID);
         return ResponseEntity.ok(settings);
     }
 
     @PutMapping
     public ResponseEntity<NotificationSettingsResponseDTO> updateSettings(
-            Authentication authentication,
             @RequestBody NotificationSettingsRequestDTO request) {
-        UUID userId = UUID.fromString(authentication.getName());
+        UUID userId = UUID.fromString(request.getUserId());
         NotificationSettingsResponseDTO updated = notificationSettingsService.updateSettings(userId, request);
         return ResponseEntity.ok(updated);
     }

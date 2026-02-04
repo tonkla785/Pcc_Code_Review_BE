@@ -14,11 +14,8 @@ import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
 import pccth.code.review.Backend.Repository.ProjectRepository;
-import pccth.code.review.Backend.Repository.ScanIssueRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.*;
 
@@ -29,8 +26,6 @@ public class ScanService {
     private ScanRepository scanRepository;
     @Autowired
     private ProjectRepository projectRepository;
-    @Autowired
-    private ScanIssueRepository scanIssueRepository;
     @Autowired
     private ScanStatusPublisher scanStatusPublisher;
 
