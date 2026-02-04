@@ -72,41 +72,55 @@ public class CommentService {
 
     /**
      * ส่ง notification เมื่อมี comment ใหม่
+     * แจ้งเตือนทุกคนที่เคย comment บน issue นี้ (ยกเว้นคน comment นี้)
      */
     private void sendCommentNotification(CommentEntity comment, IssueEntity issue, UserEntity commenter,
             CommentEntity parentComment) {
-        UUID targetUserId = null;
-        String title = "";
-        String message = "";
+
+        String title;
+        String message;
 
         if (parentComment != null) {
-            // Reply to a comment - notify the parent comment owner
-            targetUserId = parentComment.getUser().getId();
-            title = "New Reply";
-            message = commenter.getUsername() + " replied to your comment on issue: " + issue.getMessage();
-        } else if (issue.getAssignedTo() != null) {
-            // New comment on issue - notify the assigned user
-            targetUserId = issue.getAssignedTo().getId();
-            title = "New Comment";
-            message = commenter.getUsername() + " commented on issue: " + issue.getMessage();
+            // Reply to a comment
+            title = "💬 New Reply";
+            message = "@" + commenter.getUsername() + " replied to a comment on issue: "
+                    + truncateMessage(issue.getMessage(), 50);
+        } else {
+            // New comment on issue
+            title = "💬 New Comment";
+            message = "@" + commenter.getUsername() + " commented on issue: " + truncateMessage(issue.getMessage(), 50);
         }
 
-        // Don't notify if the commenter is the target user
-        if (targetUserId != null && !targetUserId.equals(commenter.getId())) {
-            NotificationRequestDTO notificationRequest = new NotificationRequestDTO();
-            notificationRequest.setUserId(targetUserId);
-            notificationRequest.setType("Issues");
-            notificationRequest.setTitle(title);
-            notificationRequest.setMessage(message);
-            notificationRequest.setRelatedIssueId(issue.getId());
-            notificationRequest.setRelatedCommentId(comment.getId());
+        // Get all users who have commented on this issue
+        List<UUID> usersToNotify = commentRepository.findDistinctUserIdsByIssueId(issue.getId());
 
-            // Save to database
-            NotificationResponseDTO notification = notificationService.createNotification(notificationRequest);
-
-            // Send via WebSocket for real-time
-            webSocketNotificationService.sendNotificationToUser(targetUserId, notification);
+        // Also add assigned user if exists
+        if (issue.getAssignedTo() != null && !usersToNotify.contains(issue.getAssignedTo().getId())) {
+            usersToNotify.add(issue.getAssignedTo().getId());
         }
+
+        // Send notification to each user (except the commenter)
+        for (UUID targetUserId : usersToNotify) {
+            if (!targetUserId.equals(commenter.getId())) {
+                NotificationRequestDTO notificationRequest = new NotificationRequestDTO();
+                notificationRequest.setUserId(targetUserId);
+                notificationRequest.setType("System");
+                notificationRequest.setTitle(title);
+                notificationRequest.setMessage(message);
+                notificationRequest.setRelatedIssueId(issue.getId());
+                notificationRequest.setRelatedCommentId(comment.getId());
+
+                // Save to database and send via WebSocket (NotificationService handles
+                // WebSocket now)
+                notificationService.createNotification(notificationRequest);
+            }
+        }
+    }
+
+    private String truncateMessage(String message, int maxLength) {
+        if (message == null)
+            return "";
+        return message.length() > maxLength ? message.substring(0, maxLength) + "..." : message;
     }
 
     public CommentResponseDTO mapToCommentResponseDTO(CommentEntity comment) {
