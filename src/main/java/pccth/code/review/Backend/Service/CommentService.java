@@ -15,6 +15,7 @@ import pccth.code.review.Backend.Repository.IssueRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,19 +25,16 @@ public class CommentService {
     private final IssueRepository issueRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
-    private final WebSocketNotificationService webSocketNotificationService;
 
     public CommentService(
             CommentRepository commentRepository,
             IssueRepository issueRepository,
             UserRepository userRepository,
-            NotificationService notificationService,
-            WebSocketNotificationService webSocketNotificationService) {
+            NotificationService notificationService) {
         this.commentRepository = commentRepository;
         this.issueRepository = issueRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
-        this.webSocketNotificationService = webSocketNotificationService;
     }
 
     @Transactional
@@ -70,10 +68,6 @@ public class CommentService {
         return mapToCommentResponseDTO(saved);
     }
 
-    /**
-     * ส่ง notification เมื่อมี comment ใหม่
-     * แจ้งเตือนทุกคนที่เคย comment บน issue นี้ (ยกเว้นคน comment นี้)
-     */
     private void sendCommentNotification(CommentEntity comment, IssueEntity issue, UserEntity commenter,
             CommentEntity parentComment) {
 
