@@ -27,11 +27,6 @@ public class ScanService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
-<<<<<<< HEAD
-    private ScanIssueRepository scanIssueRepository;
-    @Autowired
-=======
->>>>>>> main
     private ScanStatusPublisher scanStatusPublisher;
 
     public ScanResponseDTO getScansById(UUID scanId) {
