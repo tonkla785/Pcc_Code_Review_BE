@@ -42,7 +42,7 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhone(request.getPhone());
         user.setRole("USER");
-        user.setStatus("UNVERIFY");
+        user.setStatus("UNVERIFIED");
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         user.setCreateAt(new Date());
 
