@@ -2,10 +2,19 @@ package pccth.code.review.Backend.DTO.Request;
 
 public class NotificationSettingsRequestDTO {
 
+    private String userId;
     private Boolean scansEnabled;
     private Boolean issuesEnabled;
     private Boolean systemEnabled;
     private Boolean reportsEnabled;
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
     public Boolean getScansEnabled() {
         return scansEnabled;

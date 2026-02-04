@@ -1,7 +1,5 @@
 package pccth.code.review.Backend.DTO.Response;
 
-import jakarta.persistence.Column;
-
 import java.util.Date;
 import java.util.UUID;
 

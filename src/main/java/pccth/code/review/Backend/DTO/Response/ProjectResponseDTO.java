@@ -1,8 +1,6 @@
 package pccth.code.review.Backend.DTO.Response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 
 import java.util.ArrayList;

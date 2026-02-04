@@ -9,6 +9,7 @@ import pccth.code.review.Backend.Entity.UserEntity;
 import pccth.code.review.Backend.Repository.SonarQubeConfigRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 
+import java.util.Date;
 import java.util.UUID;
 
 @Service
@@ -49,11 +50,12 @@ public class SonarQubeConfigService {
         config.setSpringRunTests(false);
         config.setSpringJacoco(false);
         config.setQgFailOnError(false);
-        config.setQgCoverageThreshold(80);
+        config.setQgCoverageThreshold(0);
         config.setQgMaxBugs(0);
         config.setQgMaxVulnerabilities(0);
         config.setQgMaxCodeSmells(0);
-
+        config.setCreatedAt(new Date());
+        config.setUpdatedAt(new Date());
         SonarQubeConfigEntity saved = sonarQubeConfigRepository.save(config);
         return mapToResponseDTO(saved);
     }
@@ -109,6 +111,12 @@ public class SonarQubeConfigService {
         if (request.getQgMaxCodeSmells() != null)
             config.setQgMaxCodeSmells(request.getQgMaxCodeSmells());
 
+        // Set updatedAt for update
+        config.setUpdatedAt(new Date());
+        if (config.getCreatedAt() == null) {
+            config.setCreatedAt(new Date());
+        }
+
         SonarQubeConfigEntity saved = sonarQubeConfigRepository.save(config);
         return mapToResponseDTO(saved);
     }
@@ -119,7 +127,7 @@ public class SonarQubeConfigService {
         dto.setUserId(entity.getUser().getId());
         dto.setServerUrl(entity.getServerUrl());
         dto.setOrganization(entity.getOrganization());
-        // Note: authToken is NOT returned for security reasons
+        dto.setAuthToken(entity.getAuthToken());
 
         dto.setAngularRunNpm(entity.getAngularRunNpm());
         dto.setAngularCoverage(entity.getAngularCoverage());
