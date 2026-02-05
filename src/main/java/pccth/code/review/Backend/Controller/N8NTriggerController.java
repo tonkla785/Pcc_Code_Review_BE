@@ -30,6 +30,7 @@ public class N8NTriggerController {
                         projectId,
                         requestDTO.getBranch() != null ? requestDTO.getBranch() : "main",
                         requestDTO.getSonarToken(),
+                        requestDTO.getGitToken(),        // << เพิ่ม
                         requestDTO.getAngularSettings(),
                         requestDTO.getSpringSettings()));
     }

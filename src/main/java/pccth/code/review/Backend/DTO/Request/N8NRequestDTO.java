@@ -9,6 +9,8 @@ public class N8NRequestDTO {
     private UUID scanId;
     private String sonarToken;
 
+    private String gitToken;
+
     // Token สำหรับ n8n authen กลับมา Spring Boot
     private String webhookToken;
 
@@ -101,4 +103,8 @@ public class N8NRequestDTO {
     public void setWebhookToken(String webhookToken) {
         this.webhookToken = webhookToken;
     }
+
+    public String getGitToken() {return gitToken; }
+
+    public void setGitToken(String gitToken) { this.gitToken = gitToken; }
 }
