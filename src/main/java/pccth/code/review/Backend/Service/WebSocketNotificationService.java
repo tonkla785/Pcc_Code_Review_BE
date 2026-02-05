@@ -20,9 +20,13 @@ public class WebSocketNotificationService {
                 "/topic/notifications/" + userId.toString(),
                 notification);
     }
-    
+
     public void broadcastGlobalNotification(NotificationResponseDTO notification) {
         messagingTemplate.convertAndSend("/topic/notifications/global", notification);
         System.out.println("BROADCAST GLOBAL: " + notification.getTitle());
+    }
+
+    public void broadcastComment(String issueId, Object commentData) {
+        messagingTemplate.convertAndSend("/topic/issue/" + issueId + "/comments", commentData);
     }
 }
