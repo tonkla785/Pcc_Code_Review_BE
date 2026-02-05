@@ -29,6 +29,8 @@ public class ReportHistoryRequestDTO {
     private Boolean includeQualityGate;
     private Boolean includeIssueBreakdown;
     private Boolean includeSecurityAnalysis;
+    private Boolean includeTechnicalDebt;
+    private Boolean includeRecommendations;
 
     // Snapshot data
     private Map<String, Object> snapshotData;
@@ -36,6 +38,23 @@ public class ReportHistoryRequestDTO {
     private Long fileSizeBytes;
 
     // Getters and Setters
+
+    public Boolean getIncludeTechnicalDebt() {
+        return includeTechnicalDebt;
+    }
+
+    public void setIncludeTechnicalDebt(Boolean includeTechnicalDebt) {
+        this.includeTechnicalDebt = includeTechnicalDebt;
+    }
+
+    public Boolean getIncludeRecommendations() {
+        return includeRecommendations;
+    }
+
+    public void setIncludeRecommendations(Boolean includeRecommendations) {
+        this.includeRecommendations = includeRecommendations;
+    }
+
     public UUID getProjectId() {
         return projectId;
     }
