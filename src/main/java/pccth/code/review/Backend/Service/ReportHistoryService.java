@@ -11,6 +11,7 @@ import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ReportHistoryRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -61,6 +62,7 @@ public class ReportHistoryService {
         report.setDateTo(request.getDateTo());
         report.setFormat(request.getFormat());
         report.setGeneratedBy(request.getGeneratedBy());
+        report.setGeneratedAt(new Date());
 
         // Selected sections
         if (request.getIncludeQualityGate() != null) {

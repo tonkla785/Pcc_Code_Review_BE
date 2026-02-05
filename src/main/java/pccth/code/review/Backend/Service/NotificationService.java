@@ -7,6 +7,7 @@ import pccth.code.review.Backend.DTO.Response.NotificationResponseDTO;
 import pccth.code.review.Backend.Entity.*;
 import pccth.code.review.Backend.Repository.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class NotificationService {
     private final ScanRepository scanRepository;
     private final IssueRepository issueRepository;
     private final CommentRepository commentRepository;
+    private final WebSocketNotificationService webSocketService;
 
     public NotificationService(
             NotificationRepository notificationRepository,
@@ -27,13 +29,15 @@ public class NotificationService {
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
             IssueRepository issueRepository,
-            CommentRepository commentRepository) {
+            CommentRepository commentRepository,
+            WebSocketNotificationService webSocketService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.scanRepository = scanRepository;
         this.issueRepository = issueRepository;
         this.commentRepository = commentRepository;
+        this.webSocketService = webSocketService;
     }
 
     public List<NotificationResponseDTO> getAllByUserId(UUID userId) {
@@ -53,6 +57,7 @@ public class NotificationService {
         notification.setType(request.getType());
         notification.setTitle(request.getTitle());
         notification.setMessage(request.getMessage());
+        notification.setCreatedAt(new Date());
         notification.setIsRead(false);
 
         // Set related entities if provided
@@ -74,7 +79,12 @@ public class NotificationService {
         }
 
         NotificationEntity saved = notificationRepository.save(notification);
-        return mapToResponseDTO(saved);
+        NotificationResponseDTO responseDTO = mapToResponseDTO(saved);
+
+        // Send realtime notification via WebSocket
+        webSocketService.sendNotificationToUser(user.getId(), responseDTO);
+
+        return responseDTO;
     }
 
     @Transactional
