@@ -47,6 +47,7 @@ public class WebhookScanService {
             UUID projectId,
             String branch,
             String sonarToken,
+            String gitToken,
             AngularSettingsDTO angularSettings,
             SpringSettingsDTO springSettings) {
         // หา project
@@ -68,6 +69,7 @@ public class WebhookScanService {
         request.setProjectType(project.getProjectType());
         request.setSonarProjectKey(project.getSonarProjectKey());
         request.setBranch(branch);
+        request.setGitToken(gitToken);
 
         // Settings จาก frontend
         request.setSonarToken(sonarToken);
