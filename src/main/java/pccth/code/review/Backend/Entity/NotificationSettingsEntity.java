@@ -26,7 +26,7 @@ public class NotificationSettingsEntity {
     private Boolean systemEnabled = true;
 
     @Column(name = "reports_enabled")
-    private Boolean reportsEnabled = false;
+    private Boolean reportsEnabled = true;
 
     @Column(name = "created_at")
     private Date createdAt;
