@@ -9,6 +9,9 @@ public class TriggerScanRequestDTO {
     private String sonarToken;
     private AngularSettingsDTO angularSettings;
     private SpringSettingsDTO springSettings;
+    private String gitToken;
+
+
 
     public String getBranch() {
         return branch;
@@ -41,4 +44,8 @@ public class TriggerScanRequestDTO {
     public void setSpringSettings(SpringSettingsDTO springSettings) {
         this.springSettings = springSettings;
     }
+
+    public String getGitToken() { return gitToken; }
+
+    public void setGitToken(String gitToken) { this.gitToken = gitToken; }
 }
