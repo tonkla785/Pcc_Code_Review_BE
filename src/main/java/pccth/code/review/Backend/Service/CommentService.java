@@ -25,16 +25,19 @@ public class CommentService {
     private final IssueRepository issueRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final WebSocketNotificationService webSocketNotificationService;
 
     public CommentService(
             CommentRepository commentRepository,
             IssueRepository issueRepository,
             UserRepository userRepository,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            WebSocketNotificationService webSocketNotificationService) {
         this.commentRepository = commentRepository;
         this.issueRepository = issueRepository;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
+        this.webSocketNotificationService = webSocketNotificationService;
     }
 
     @Transactional
@@ -65,11 +68,16 @@ public class CommentService {
         // Send real-time notification
         sendCommentNotification(saved, issue, user, parentComment);
 
-        return mapToCommentResponseDTO(saved);
+        CommentResponseDTO responseDTO = mapToCommentResponseDTO(saved);
+
+        // Broadcast comment to listeners
+        webSocketNotificationService.broadcastComment(issue.getId().toString(), responseDTO);
+
+        return responseDTO;
     }
 
     private void sendCommentNotification(CommentEntity comment, IssueEntity issue, UserEntity commenter,
-            CommentEntity parentComment) {
+                                         CommentEntity parentComment) {
 
         String title;
         String message;
