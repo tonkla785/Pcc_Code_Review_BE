@@ -15,14 +15,18 @@ import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 import pccth.code.review.Backend.Repository.ProjectRepository;
+import pccth.code.review.Backend.Messaging.ProjectBroadcastPublisher;
+import pccth.code.review.Backend.Messaging.ProjectBroadcastPublisher.ProjectChangeEvent;
 
 @Service
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectBroadcastPublisher projectBroadcastPublisher;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProjectBroadcastPublisher projectBroadcastPublisher) {
         this.projectRepository = projectRepository;
+        this.projectBroadcastPublisher = projectBroadcastPublisher;
     }
 
     // เพิ่ม repository
@@ -36,6 +40,10 @@ public class ProjectService {
             project.setCreatedAt(new Date());
 
             projectRepository.save(project);
+
+            // Broadcast project added to all users
+            projectBroadcastPublisher.broadcastProjectChange(
+                    new ProjectChangeEvent("ADDED", project.getId(), project.getName()));
 
             RepositoryResponseDTO response = new RepositoryResponseDTO();
             response.setProjectId(project.getId());
@@ -109,6 +117,10 @@ public class ProjectService {
             entity.setUpdatedAt(new Date());
             projectRepository.save(entity);
 
+            // Broadcast project updated to all users
+            projectBroadcastPublisher.broadcastProjectChange(
+                    new ProjectChangeEvent("UPDATED", entity.getId(), entity.getName()));
+
             RepositoryResponseDTO response = new RepositoryResponseDTO();
             response.setMessage("Repository updated successfully");
             return response;
@@ -141,7 +153,12 @@ public class ProjectService {
         ProjectEntity entity = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Repository not found")); // ตรวจสอบว่ามี id มั้ย
         try {
+            String projectName = entity.getName();
             projectRepository.delete(entity);
+
+            // Broadcast project deleted to all users
+            projectBroadcastPublisher.broadcastProjectChange(
+                    new ProjectChangeEvent("DELETED", id, projectName));
 
             RepositoryResponseDTO response = new RepositoryResponseDTO();
             response.setMessage("Repository deleted successfully");
@@ -152,8 +169,10 @@ public class ProjectService {
         }
 
     }
+
     public ProjectResponseDTO mapToProjectResponseDTO(ProjectEntity p) {
-        if (p == null) return null;
+        if (p == null)
+            return null;
 
         ProjectResponseDTO dto = new ProjectResponseDTO();
         dto.setId(p.getId());
