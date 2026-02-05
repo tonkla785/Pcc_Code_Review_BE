@@ -21,6 +21,7 @@ public class NotificationService {
     private final ScanRepository scanRepository;
     private final IssueRepository issueRepository;
     private final CommentRepository commentRepository;
+    private final WebSocketNotificationService webSocketService;
 
     public NotificationService(
             NotificationRepository notificationRepository,
@@ -28,13 +29,15 @@ public class NotificationService {
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
             IssueRepository issueRepository,
-            CommentRepository commentRepository) {
+            CommentRepository commentRepository,
+            WebSocketNotificationService webSocketService) {
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.scanRepository = scanRepository;
         this.issueRepository = issueRepository;
         this.commentRepository = commentRepository;
+        this.webSocketService = webSocketService;
     }
 
     public List<NotificationResponseDTO> getAllByUserId(UUID userId) {
@@ -76,7 +79,12 @@ public class NotificationService {
         }
 
         NotificationEntity saved = notificationRepository.save(notification);
-        return mapToResponseDTO(saved);
+        NotificationResponseDTO responseDTO = mapToResponseDTO(saved);
+
+        // Send realtime notification via WebSocket
+        webSocketService.sendNotificationToUser(user.getId(), responseDTO);
+
+        return responseDTO;
     }
 
     @Transactional
