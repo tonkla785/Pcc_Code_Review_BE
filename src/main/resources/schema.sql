@@ -43,7 +43,7 @@ CREATE TABLE sonarqube_config (
     spring_jdk_version INTEGER,
     -- Quality Gates
     qg_fail_on_error BOOLEAN DEFAULT false,
-    qg_coverage_threshold INTEGER DEFAULT 80,
+    qg_coverage_threshold INTEGER DEFAULT 0,
     qg_max_bugs INTEGER DEFAULT 0,
     qg_max_vulnerabilities INTEGER DEFAULT 0,
     qg_max_code_smells INTEGER DEFAULT 0,
