@@ -35,18 +35,21 @@ public class EmailVerificationService {
         this.emailService = emailService;
     }
 
+
     @Transactional
     public void sendVerificationEmail(UUID userId) {
         UserEntity user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
 
-        // ✅ verified แล้วไม่ต้องส่ง
-        if ("ACTIVE".equalsIgnoreCase(user.getStatus())) return;
+        if ("VERIFIED".equalsIgnoreCase(user.getStatus())) return;
 
-        // ✅ invalidate token เก่าที่ active (กัน spam/ซ้อน)
+        if (!"PENDING_VERIFICATION".equalsIgnoreCase(user.getStatus())) {
+            user.setStatus("PENDING_VERIFICATION");
+            userRepo.save(user);
+        }
+
         tokenRepo.invalidateAllActiveTokens(userId, Instant.now());
 
-        // ✅ ใช้ util ของมึง
         String rawToken  = ResetTokenUtil.randomToken();
         String tokenHash = ResetTokenUtil.sha256Base64Url(rawToken);
 
@@ -85,11 +88,13 @@ public class EmailVerificationService {
 
         UserEntity user = t.getUser();
 
-        // ✅ mark verified
-        user.setStatus("ACTIVE"); // หรือ "PENDING_VERIFICATION" ตอนสมัคร
+        if (!"PENDING_VERIFICATION".equalsIgnoreCase(user.getStatus())) {
+            throw new IllegalArgumentException("USER_NOT_PENDING_VERIFICATION");
+        }
+
+        user.setStatus("VERIFIED");
         userRepo.save(user);
 
-        // ✅ mark token used
         t.setUsedAt(Instant.now());
         tokenRepo.save(t);
     }
