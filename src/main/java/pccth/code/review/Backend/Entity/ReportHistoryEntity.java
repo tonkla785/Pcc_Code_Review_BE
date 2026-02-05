@@ -53,6 +53,12 @@ public class ReportHistoryEntity {
     @Column(name = "include_security_analysis")
     private Boolean includeSecurityAnalysis = false;
 
+    @Column(name = "include_technical_debt")
+    private Boolean includeTechnicalDebt = false;
+
+    @Column(name = "include_recommendations")
+    private Boolean includeRecommendations =false;
+
     // Snapshot data (JSONB)
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "snapshot_data", columnDefinition = "jsonb")
@@ -62,6 +68,24 @@ public class ReportHistoryEntity {
     private Long fileSizeBytes;
 
     // Getters and Setters
+
+
+    public Boolean getIncludeTechnicalDebt() {
+        return includeTechnicalDebt;
+    }
+
+    public void setIncludeTechnicalDebt(Boolean includeTechnicalDebt) {
+        this.includeTechnicalDebt = includeTechnicalDebt;
+    }
+
+    public Boolean getIncludeRecommendations() {
+        return includeRecommendations;
+    }
+
+    public void setIncludeRecommendations(Boolean includeRecommendations) {
+        this.includeRecommendations = includeRecommendations;
+    }
+
     public UUID getId() {
         return id;
     }

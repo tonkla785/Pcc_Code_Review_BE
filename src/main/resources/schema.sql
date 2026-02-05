@@ -98,6 +98,8 @@ CREATE TABLE report_history (
     include_quality_gate BOOLEAN DEFAULT false,
     include_issue_breakdown BOOLEAN DEFAULT false,
     include_security_analysis BOOLEAN DEFAULT false,
+    include_technical_debt BOOLEAN DEFAULT false,
+    include_recommendations BOOLEAN DEFAULT false,
 
     -- Optional: เก็บ snapshot data (JSON แทน table แยก)
     snapshot_data JSONB,                       -- เก็บ scans, issues, securityData
