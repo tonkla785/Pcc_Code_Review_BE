@@ -84,6 +84,12 @@ public class NotificationService {
         // Send realtime notification via WebSocket
         webSocketService.sendNotificationToUser(user.getId(), responseDTO);
 
+        // If isBroadcast flag is set, also broadcast to all users (for scan complete,
+        // quality gate, new issues)
+        if (Boolean.TRUE.equals(request.getIsBroadcast())) {
+            webSocketService.broadcastGlobalNotification(responseDTO);
+        }
+
         return responseDTO;
     }
 
