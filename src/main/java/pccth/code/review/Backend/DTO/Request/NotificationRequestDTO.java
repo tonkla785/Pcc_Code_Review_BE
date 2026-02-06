@@ -22,6 +22,10 @@ public class NotificationRequestDTO {
     private UUID relatedIssueId;
     private UUID relatedCommentId;
 
+    // If true, broadcast to all users (for scan complete, quality gate failed, new
+    // issues)
+    private Boolean isBroadcast = false;
+
     // Getters and Setters
     public UUID getUserId() {
         return userId;
@@ -85,5 +89,13 @@ public class NotificationRequestDTO {
 
     public void setRelatedCommentId(UUID relatedCommentId) {
         this.relatedCommentId = relatedCommentId;
+    }
+
+    public Boolean getIsBroadcast() {
+        return isBroadcast;
+    }
+
+    public void setIsBroadcast(Boolean isBroadcast) {
+        this.isBroadcast = isBroadcast;
     }
 }
