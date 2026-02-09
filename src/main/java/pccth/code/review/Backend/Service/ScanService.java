@@ -42,6 +42,7 @@ public class ScanService {
         projectDTO.setRepositoryUrl(project.getRepositoryUrl());
         projectDTO.setProjectType(project.getProjectType());
         projectDTO.setSonarProjectKey(project.getSonarProjectKey());
+        projectDTO.setCostPerDay(project.getCostPerDay());
         projectDTO.setCreatedAt(project.getCreatedAt());
         projectDTO.setUpdatedAt(project.getUpdatedAt());
 
@@ -126,6 +127,7 @@ public class ScanService {
             projectDTO.setRepositoryUrl(project.getRepositoryUrl());
             projectDTO.setProjectType(project.getProjectType());
             projectDTO.setSonarProjectKey(project.getSonarProjectKey());
+            projectDTO.setCostPerDay(project.getCostPerDay());
             projectDTO.setCreatedAt(project.getCreatedAt());
             projectDTO.setUpdatedAt(project.getUpdatedAt());
 
@@ -155,21 +157,22 @@ public class ScanService {
             projectResponseDTO.setRepositoryUrl(projectEntity.getRepositoryUrl());
             projectResponseDTO.setProjectType(projectEntity.getProjectType());
             projectResponseDTO.setSonarProjectKey(projectEntity.getSonarProjectKey());
+            projectResponseDTO.setCostPerDay(projectEntity.getCostPerDay());
             projectResponseDTO.setCreatedAt(projectEntity.getCreatedAt());
             projectResponseDTO.setUpdatedAt(projectEntity.getUpdatedAt());
             List<ScanResponseDTO> scans = projectEntity.getScanData().stream()
                     .map(s -> {
-                        ScanResponseDTO scanResponseDTOdto = new ScanResponseDTO();
-                        scanResponseDTOdto.setId(s.getId());
-                        scanResponseDTOdto.setStatus(s.getStatus());
-                        scanResponseDTOdto.setStatus(s.getStatus());
-                        scanResponseDTOdto.setStartedAt(s.getStartedAt());
-                        scanResponseDTOdto.setCompletedAt(s.getCompletedAt());
-                        scanResponseDTOdto.setQualityGate(s.getQualityGate());
-                        scanResponseDTOdto.setMetrics(s.getMetrics());
-                        scanResponseDTOdto.setLogFilePath(s.getLogFilePath());
+                        ScanResponseDTO scanResponseDTO = new ScanResponseDTO();
+                        scanResponseDTO.setId(s.getId());
+                        scanResponseDTO.setStatus(s.getStatus());
+                        scanResponseDTO.setStatus(s.getStatus());
+                        scanResponseDTO.setStartedAt(s.getStartedAt());
+                        scanResponseDTO.setCompletedAt(s.getCompletedAt());
+                        scanResponseDTO.setQualityGate(s.getQualityGate());
+                        scanResponseDTO.setMetrics(s.getMetrics());
+                        scanResponseDTO.setLogFilePath(s.getLogFilePath());
 
-                        return scanResponseDTOdto;
+                        return scanResponseDTO;
                     })
                     .toList();
 
