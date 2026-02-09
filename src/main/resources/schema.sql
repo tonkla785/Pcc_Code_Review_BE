@@ -59,6 +59,7 @@ CREATE TABLE projects (
     repository_url TEXT NOT NULL,
     project_type VARCHAR(50),
     sonar_project_key VARCHAR(255),
+    cost_per_day DECIMAL(10,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
