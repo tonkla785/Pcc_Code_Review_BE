@@ -128,6 +128,7 @@ public class UserService {
             user.setEmail(manageUser.getEmail());
             user.setPhone(manageUser.getPhone());
             user.setRole(manageUser.getRole());
+            user.setStatus("UNVERIFIED");
             user.setCreateAt(new Date());
 
             userRepository.save(user);
