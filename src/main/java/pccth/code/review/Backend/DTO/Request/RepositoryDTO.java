@@ -1,6 +1,9 @@
 package pccth.code.review.Backend.DTO.Request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.math.BigDecimal;
 
 public class RepositoryDTO {
     @NotBlank(message = "Name is required")
@@ -9,6 +12,16 @@ public class RepositoryDTO {
     private String url;
     @NotBlank(message = "Type is required")
     private String type;
+    @NotNull(message = "Cost is required")
+    private BigDecimal costPerDay;
+
+    public BigDecimal getCostPerDay() {
+        return costPerDay;
+    }
+
+    public void setCostPerDay(BigDecimal costPerDay) {
+        this.costPerDay = costPerDay;
+    }
 
     public String getName() {
         return name;
