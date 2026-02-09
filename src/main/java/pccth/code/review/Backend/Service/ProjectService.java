@@ -37,6 +37,7 @@ public class ProjectService {
             project.setRepositoryUrl(repository.getUrl());
             project.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
             project.setSonarProjectKey(repository.getName().trim().replaceAll("\\s+", "-"));
+            project.setCostPerDay(repository.getCostPerDay());
             project.setCreatedAt(new Date());
 
             projectRepository.save(project);
@@ -66,6 +67,7 @@ public class ProjectService {
             dto.setRepositoryUrl(p.getRepositoryUrl());
             dto.setProjectType(p.getProjectType());
             dto.setSonarProjectKey(p.getSonarProjectKey());
+            dto.setCostPerDay(p.getCostPerDay());
             dto.setCreatedAt(p.getCreatedAt());
             dto.setUpdatedAt(p.getUpdatedAt());
 
@@ -101,6 +103,7 @@ public class ProjectService {
         response.setRepositoryUrl(entity.getRepositoryUrl());
         response.setProjectType(entity.getProjectType());
         response.setSonarProjectKey(entity.getSonarProjectKey());
+        response.setCostPerDay(entity.getCostPerDay());
         response.setCreatedAt(entity.getCreatedAt());
         response.setUpdatedAt(entity.getUpdatedAt());
         return response;
@@ -114,6 +117,7 @@ public class ProjectService {
             entity.setName(repository.getName());
             entity.setRepositoryUrl(repository.getUrl());
             entity.setProjectType(ProjectTypeEnum.valueOf(repository.getType()));
+            entity.setCostPerDay(repository.getCostPerDay());
             entity.setUpdatedAt(new Date());
             projectRepository.save(entity);
 
