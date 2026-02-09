@@ -10,7 +10,12 @@ public class TriggerScanRequestDTO {
     private AngularSettingsDTO angularSettings;
     private SpringSettingsDTO springSettings;
     private String gitToken;
+    private QualityGateSettingsDTO qualityGateSettings;
 
+    public QualityGateSettingsDTO getQualityGateSettings() { return qualityGateSettings; }
+    public void setQualityGateSettings(QualityGateSettingsDTO qualityGateSettings) {
+        this.qualityGateSettings = qualityGateSettings;
+    }
 
 
     public String getBranch() {

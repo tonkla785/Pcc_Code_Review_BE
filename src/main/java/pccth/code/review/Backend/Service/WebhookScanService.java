@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pccth.code.review.Backend.DTO.Request.QualityGateSettingsDTO;
 import pccth.code.review.Backend.DTO.ScanWsEvent;
 import pccth.code.review.Backend.DTO.Request.AngularSettingsDTO;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
@@ -49,7 +50,8 @@ public class WebhookScanService {
             String sonarToken,
             String gitToken,
             AngularSettingsDTO angularSettings,
-            SpringSettingsDTO springSettings) {
+            SpringSettingsDTO springSettings,
+            QualityGateSettingsDTO qualityGateSettings) {
         // หา project
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"));
@@ -75,6 +77,8 @@ public class WebhookScanService {
         request.setSonarToken(sonarToken);
         request.setAngularSettings(angularSettings);
         request.setSpringSettings(springSettings);
+        request.setQualityGateSettings(qualityGateSettings);
+
 
         // Token สำหรับ n8n authen กลับมา Spring Boot
         request.setWebhookToken(webhookToken);
