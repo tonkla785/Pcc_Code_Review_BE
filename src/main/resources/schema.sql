@@ -43,7 +43,7 @@ CREATE TABLE sonarqube_config (
     spring_jdk_version INTEGER,
     -- Quality Gates
     qg_fail_on_error BOOLEAN DEFAULT false,
-    qg_coverage_threshold INTEGER DEFAULT 80,
+    qg_coverage_threshold INTEGER DEFAULT 0,
     qg_max_bugs INTEGER DEFAULT 0,
     qg_max_vulnerabilities INTEGER DEFAULT 0,
     qg_max_code_smells INTEGER DEFAULT 0,
@@ -98,6 +98,8 @@ CREATE TABLE report_history (
     include_quality_gate BOOLEAN DEFAULT false,
     include_issue_breakdown BOOLEAN DEFAULT false,
     include_security_analysis BOOLEAN DEFAULT false,
+    include_technical_debt BOOLEAN DEFAULT false,
+    include_recommendations BOOLEAN DEFAULT false,
 
     -- Optional: เก็บ snapshot data (JSON แทน table แยก)
     snapshot_data JSONB,                       -- เก็บ scans, issues, securityData

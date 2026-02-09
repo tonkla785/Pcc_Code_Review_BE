@@ -74,6 +74,12 @@ public class ReportHistoryService {
         if (request.getIncludeSecurityAnalysis() != null) {
             report.setIncludeSecurityAnalysis(request.getIncludeSecurityAnalysis());
         }
+        if (request.getIncludeTechnicalDebt() != null) {
+            report.setIncludeTechnicalDebt(request.getIncludeTechnicalDebt());
+        }
+        if (request.getIncludeRecommendations() != null) {
+            report.setIncludeRecommendations(request.getIncludeRecommendations());
+        }
 
         // Snapshot data
         if (request.getSnapshotData() != null) {
@@ -102,6 +108,8 @@ public class ReportHistoryService {
         dto.setIncludeQualityGate(entity.getIncludeQualityGate());
         dto.setIncludeIssueBreakdown(entity.getIncludeIssueBreakdown());
         dto.setIncludeSecurityAnalysis(entity.getIncludeSecurityAnalysis());
+        dto.setIncludeTechnicalDebt(entity.getIncludeTechnicalDebt());
+        dto.setIncludeRecommendations(entity.getIncludeRecommendations());
         dto.setSnapshotData(entity.getSnapshotData());
         dto.setFileSizeBytes(entity.getFileSizeBytes());
         return dto;
