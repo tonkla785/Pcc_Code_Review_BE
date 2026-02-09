@@ -3,6 +3,7 @@ package pccth.code.review.Backend.Service;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import pccth.code.review.Backend.DTO.Response.NotificationResponseDTO;
+import pccth.code.review.Backend.DTO.Response.VerifieddResponseDTO;
 
 import java.util.UUID;
 
@@ -29,4 +30,9 @@ public class WebSocketNotificationService {
     public void broadcastComment(String issueId, Object commentData) {
         messagingTemplate.convertAndSend("/topic/issue/" + issueId + "/comments", commentData);
     }
+
+    public void UerVERIFIED(UUID userId, VerifieddResponseDTO verifieddResponseDTO){
+
+    }
+
 }
