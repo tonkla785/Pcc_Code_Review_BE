@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-/**
- * Publisher for broadcasting project changes (add/edit/delete) to all users
- */
+
 @Component
 public class ProjectBroadcastPublisher {
 
@@ -17,19 +15,11 @@ public class ProjectBroadcastPublisher {
         this.messagingTemplate = messagingTemplate;
     }
 
-    /**
-     * Broadcast project change to all connected users
-     * 
-     * @param event ProjectChangeEvent containing action and projectId
-     */
     public void broadcastProjectChange(ProjectChangeEvent event) {
         messagingTemplate.convertAndSend("/topic/projects", event);
         System.out.println("BROADCAST PROJECT: " + event.getAction() + " - " + event.getProjectId());
     }
 
-    /**
-     * Event class for project changes
-     */
     public static class ProjectChangeEvent {
         private String action; // "ADDED", "UPDATED", "DELETED"
         private UUID projectId;

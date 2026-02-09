@@ -32,7 +32,11 @@ public class N8NTriggerController {
                         requestDTO.getSonarToken(),
                         requestDTO.getGitToken(),        // << เพิ่ม
                         requestDTO.getAngularSettings(),
-                        requestDTO.getSpringSettings()));
+                        requestDTO.getSpringSettings(),
+                        requestDTO.getQualityGateSettings()
+                )
+        );
+
     }
 
     @PostMapping("/api/email")

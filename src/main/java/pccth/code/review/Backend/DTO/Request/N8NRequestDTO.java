@@ -23,6 +23,7 @@ public class N8NRequestDTO {
     // Settings จาก SonarQubeConfig
     private AngularSettingsDTO angularSettings;
     private SpringSettingsDTO springSettings;
+    private QualityGateSettingsDTO qualityGateSettings;
 
     public String getSonarToken() {
         return sonarToken;
@@ -107,4 +108,12 @@ public class N8NRequestDTO {
     public String getGitToken() {return gitToken; }
 
     public void setGitToken(String gitToken) { this.gitToken = gitToken; }
+
+    public QualityGateSettingsDTO getQualityGateSettings() {
+        return qualityGateSettings;
+    }
+
+    public void setQualityGateSettings(QualityGateSettingsDTO qualityGateSettings) {
+        this.qualityGateSettings = qualityGateSettings;
+    }
 }
