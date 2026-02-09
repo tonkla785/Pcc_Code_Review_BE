@@ -4,7 +4,6 @@ public class VerifieddResponseDTO {
     private String id;
     private String username;
     private String email;
-    private String phone;
 
     public String getId() {
         return id;
@@ -54,8 +53,10 @@ public class VerifieddResponseDTO {
         this.status = status;
     }
 
+    private String phone;
     private String role;
     private String status;
+
 
 
 }

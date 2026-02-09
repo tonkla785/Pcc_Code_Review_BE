@@ -32,7 +32,7 @@ public class WebSocketNotificationService {
     }
 
     public void UerVERIFIED(UUID userId, VerifieddResponseDTO verifieddResponseDTO){
-
+        messagingTemplate.convertAndSend("/user/search-user/" + userId + "/comments", verifieddResponseDTO);
     }
 
 }
