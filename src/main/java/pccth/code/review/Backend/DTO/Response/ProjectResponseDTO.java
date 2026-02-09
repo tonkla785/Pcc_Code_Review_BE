@@ -3,6 +3,7 @@ package pccth.code.review.Backend.DTO.Response;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,11 +16,20 @@ public class ProjectResponseDTO {
     private String repositoryUrl;
     private ProjectTypeEnum projectType;
     private String sonarProjectKey;
+    private BigDecimal costPerDay;
     private Date createdAt;
     private Date updatedAt;
 
     @JsonIgnoreProperties("project")
     private List<ScanResponseDTO> scanData = new ArrayList<>();
+
+    public BigDecimal getCostPerDay() {
+        return costPerDay;
+    }
+
+    public void setCostPerDay(BigDecimal costPerDay) {
+        this.costPerDay = costPerDay;
+    }
 
     public UUID getId() {
         return id;
