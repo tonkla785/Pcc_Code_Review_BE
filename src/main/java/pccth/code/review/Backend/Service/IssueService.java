@@ -264,6 +264,7 @@ public class IssueService {
         dto.setMessage(saved.getMessage());
         dto.setStatus(saved.getStatus());
         dto.setCreatedAt(saved.getCreatedAt());
+        dto.setProjectData(projectService.mapToProjectResponseDTO(issue.getProject()));
         if (saved.getAssignedTo() != null) {
             UserEntity user = issue.getAssignedTo();
             UserResponseDTO userDTO = new UserResponseDTO();
