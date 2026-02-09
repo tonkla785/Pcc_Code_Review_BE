@@ -3,6 +3,8 @@ package pccth.code.review.Backend.Entity;
 import jakarta.persistence.*;
 import pccth.code.review.Backend.EnumType.ProjectTypeEnum;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +31,9 @@ public class ProjectEntity {
     @Column(name = "sonar_project_key")
     private String sonarProjectKey;
 
+    @Column(name = "cost_per_day", precision = 10, scale = 2)
+    private BigDecimal costPerDay;
+
     @Column(name = "created_at")
     private Date createdAt;
 
@@ -38,6 +43,14 @@ public class ProjectEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("project-scans")
     private List<ScanEntity> scanData = new ArrayList<>();
+
+    public BigDecimal getCostPerDay() {
+        return costPerDay;
+    }
+
+    public void setCostPerDay(BigDecimal costPerDay) {
+        this.costPerDay = costPerDay;
+    }
 
     public UUID getId() {
         return id;
