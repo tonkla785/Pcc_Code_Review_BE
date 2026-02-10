@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.IssueUpdateRequestDTO;
 import pccth.code.review.Backend.DTO.Request.NotificationRequestDTO;
+import pccth.code.review.Backend.Messaging.IssueBroadcastPublisher;
 import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.*;
 import pccth.code.review.Backend.Repository.*;
@@ -26,6 +27,7 @@ public class IssueService {
     private final ProjectRepository projectRepository;
     private final ProjectService projectService;
     private final NotificationService notificationService;
+    private final IssueBroadcastPublisher issueBroadcastPublisher;
 
     public IssueService(
             IssueRepository issueRepository,
@@ -35,7 +37,8 @@ public class IssueService {
             ScanRepository scanRepository,
             ProjectRepository projectRepository,
             ProjectService projectService,
-            NotificationService notificationService) {
+            NotificationService notificationService,
+            IssueBroadcastPublisher issueBroadcastPublisher) {
         this.issueRepository = issueRepository;
         this.issueDetailRepository = issueDetailRepository;
         this.scanIssueRepository = scanIssueRepository;
@@ -44,6 +47,7 @@ public class IssueService {
         this.projectRepository = projectRepository;
         this.projectService = projectService;
         this.notificationService = notificationService;
+        this.issueBroadcastPublisher = issueBroadcastPublisher;
     }
 
     @Transactional
@@ -287,6 +291,11 @@ public class IssueService {
         if (saved.getScanIssues() != null && !saved.getScanIssues().isEmpty()) {
             dto.setScanId(saved.getScanIssues().get(0).getScan().getId());
         }
+
+        // Broadcast issue change to all users via WebSocket
+        issueBroadcastPublisher.broadcastIssueChange(
+                new IssueBroadcastPublisher.IssueChangeEvent("UPDATED", saved.getId()));
+
         return dto;
     }
 
