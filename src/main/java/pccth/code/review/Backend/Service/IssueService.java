@@ -70,35 +70,66 @@ public class IssueService {
             if (dto.getIssueKey() == null)
                 continue;
 
-            // ข้อมูลเยอะเลยใช้ native query
             String incomingStatus = dto.getStatus() != null ? dto.getStatus() : "OPEN";
             incomingStatus = incomingStatus.toUpperCase(Locale.ROOT);
 
             UUID issueId = (UUID) entityManager
                     .createNativeQuery(
                             """
-                                        INSERT INTO issues (
-                                            issue_key, project_id, type, severity, rule_key, component, line, message, status, created_at
-                                        )
-                                        VALUES (
-                                            :issueKey, :projectId, :type, :severity, :ruleKey, :component, :line, :message, :status, :createdAt
-                                        )
-                                        ON CONFLICT (issue_key)
-                                        DO UPDATE SET
-                                            type = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.type ELSE EXCLUDED.type END,
-                                            severity = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.severity ELSE EXCLUDED.severity END,
-                                            rule_key = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.rule_key ELSE EXCLUDED.rule_key END,
-                                            component = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.component ELSE EXCLUDED.component END,
-                                            line = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.line ELSE EXCLUDED.line END,
-                                            message = CASE WHEN issues.status = 'IN_PROGRESS' THEN issues.message ELSE EXCLUDED.message END,
-                                            status = CASE
-                                                WHEN issues.status = 'CLOSED' THEN issues.status
-                                                WHEN EXCLUDED.status IN ('RESOLVED','CLOSED') THEN 'RESOLVED'
-                                                WHEN issues.status = 'IN_PROGRESS' THEN issues.status
-                                                ELSE EXCLUDED.status
-                                            END
-                                        RETURNING id
-                                    """)
+                            INSERT INTO issues (
+                                issue_key, project_id, type, severity, rule_key, component, line, message, status, created_at
+                            )
+                            VALUES (
+                                :issueKey, :projectId, :type, :severity, :ruleKey, :component, :line, :message, :status, :createdAt
+                            )
+                            ON CONFLICT (issue_key)
+                            DO UPDATE SET
+    
+                                type = CASE
+                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.type
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.type
+                                    ELSE EXCLUDED.type
+                                END,
+    
+                                severity = CASE
+                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.severity
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.severity
+                                    ELSE EXCLUDED.severity
+                                END,
+    
+                                rule_key = CASE
+                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.rule_key
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.rule_key
+                                    ELSE EXCLUDED.rule_key
+                                END,
+    
+                                component = CASE
+                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.component
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.component
+                                    ELSE EXCLUDED.component
+                                END,
+    
+                                line = CASE
+                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.line
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.line
+                                    ELSE EXCLUDED.line
+                                END,
+    
+                                message = CASE
+                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.message
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.message
+                                    ELSE EXCLUDED.message
+                                END,
+    
+                                status = CASE
+                                    WHEN issues.status = 'CLOSED' THEN issues.status
+                                    WHEN EXCLUDED.status IN ('RESOLVED','CLOSED') THEN 'RESOLVED'
+                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.status
+                                    ELSE EXCLUDED.status
+                                END
+    
+                            RETURNING id
+                            """)
                     .setParameter("issueKey", dto.getIssueKey())
                     .setParameter("projectId", project.getId())
                     .setParameter("type", dto.getType())
@@ -109,7 +140,9 @@ public class IssueService {
                     .setParameter("message", dto.getMessage())
                     .setParameter("status", incomingStatus)
                     .setParameter("createdAt",
-                            dto.getCreatedAt() != null ? dto.getCreatedAt().toInstant() : Instant.now())
+                            dto.getCreatedAt() != null
+                                    ? dto.getCreatedAt().toInstant()
+                                    : Instant.now())
                     .getSingleResult();
 
             IssueEntity issueRef = entityManager.getReference(IssueEntity.class, issueId);
