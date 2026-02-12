@@ -23,7 +23,6 @@ public class ScanStatusPublisher {
         try {
             String json = objectMapper.writeValueAsString(event);
             redisTemplate.convertAndSend(topic.getTopic(), json);
-            System.out.println("REDIS PUBLISH " + json);
         } catch (Exception e) {
             throw new RuntimeException("Failed to publish scan status", e);
         }

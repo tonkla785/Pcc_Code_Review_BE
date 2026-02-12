@@ -16,7 +16,6 @@ public class IssueBroadcastPublisher {
 
     public void broadcastIssueChange(IssueChangeEvent event) {
         messagingTemplate.convertAndSend("/topic/issues", event);
-        System.out.println("BROADCAST ISSUE: " + event.getAction() + " - " + event.getIssueId());
     }
 
     public static class IssueChangeEvent {

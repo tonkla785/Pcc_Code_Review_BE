@@ -23,8 +23,6 @@ public class ScanStatusSubscriber implements MessageListener {
             String payload = new String(message.getBody());
             ScanWsEvent event = objectMapper.readValue(payload, ScanWsEvent.class);
 
-            System.out.println("REDIS RECEIVE " + payload);
-
             // ส่ง WebSocket ให้ UI ทุก backend instance จะทำอันนี้
             messagingTemplate.convertAndSend("/topic/scan-status", event);
 
