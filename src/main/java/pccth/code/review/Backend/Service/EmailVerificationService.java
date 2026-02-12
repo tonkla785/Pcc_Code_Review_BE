@@ -1,5 +1,6 @@
 package pccth.code.review.Backend.Service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,8 @@ import pccth.code.review.Backend.EnumType.EmailType;
 import pccth.code.review.Backend.Repository.EmailVerificationTokenRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.ResetTokenUtil;
+import pccth.code.review.Backend.Service.WebSocketNotificationService;
+
 
 import java.time.Duration;
 import java.time.Instant;
@@ -21,6 +24,8 @@ public class EmailVerificationService {
     private final EmailVerificationTokenRepository tokenRepo;
     private final UserRepository userRepo;
     private final EmailService emailService;
+    private final WebSocketNotificationService webSocketNotificationService;
+
 
     @Value("${app.frontend.reset-url:http://localhost:4200/}")
     private String frontendBaseUrl;
@@ -28,12 +33,15 @@ public class EmailVerificationService {
     public EmailVerificationService(
             EmailVerificationTokenRepository tokenRepo,
             UserRepository userRepo,
-            EmailService emailService
+            EmailService emailService,
+            WebSocketNotificationService webSocketNotificationService
     ) {
         this.tokenRepo = tokenRepo;
         this.userRepo = userRepo;
         this.emailService = emailService;
+        this.webSocketNotificationService = webSocketNotificationService;
     }
+
 
 
     @Transactional
@@ -70,6 +78,11 @@ public class EmailVerificationService {
         dto.setLink(link);
 
         emailService.send(dto);
+
+
+
+        webSocketNotificationService.sendUserVerifyStatus(user.getId(), user.getStatus());
+
     }
 
     @Transactional
@@ -97,5 +110,8 @@ public class EmailVerificationService {
 
         t.setUsedAt(Instant.now());
         tokenRepo.save(t);
+
+        webSocketNotificationService.sendUserVerifyStatus(user.getId(), user.getStatus());
+
     }
 }
