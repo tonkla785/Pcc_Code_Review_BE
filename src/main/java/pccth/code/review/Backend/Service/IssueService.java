@@ -244,7 +244,10 @@ public class IssueService {
 
         // Note : หน้าบ้านถ้ามีการ UNASSIGNED ให้ส่งคำว่า UNASSIGNED
         // มาจากหน้าบ้านด้วยนะ!!!!
-        if (req.getAssignedTo() != null) {
+        if (req.getAssignedTo() == null) {
+            issue.setAssignedTo(null);
+        }else
+         {
             UserEntity userRef = entityManager.getReference(UserEntity.class, req.getAssignedTo());
             issue.setAssignedTo(userRef);
 
