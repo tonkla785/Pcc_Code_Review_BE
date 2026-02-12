@@ -25,7 +25,6 @@ public class WebSocketNotificationService {
 
     public void broadcastGlobalNotification(NotificationResponseDTO notification) {
         messagingTemplate.convertAndSend("/topic/notifications/global", notification);
-        System.out.println("BROADCAST GLOBAL: " + notification.getTitle());
     }
 
     public void broadcastComment(String issueId, Object commentData) {
@@ -37,8 +36,5 @@ public class WebSocketNotificationService {
                 "/topic/user/" + userId + "/verify-status",
                 new UserWsEvent(userId, status)
         );
-        System.out.println("BROADCAST GLOBAL: " + status);
     }
-
-
 }
