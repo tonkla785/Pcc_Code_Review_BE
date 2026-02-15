@@ -59,42 +59,36 @@ public class SonarScanService {
                     // ใช้ค่า jacoco จาก settings
                     boolean useJacoco = springSettings != null && springSettings.isJacoco();
 
-                    String coverageArg = "";
-                    if (useJacoco) {
-                        if (isGradle) {
-                            boolean hasJacocoGradle = new File(
-                                    workDir + "/build/reports/jacoco/test/jacocoTestReport.xml").exists();
-                            if (hasJacocoGradle) {
-                                coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml";
-                            }
-                        } else {
-                            boolean hasJacocoMaven = new File(
-                                    workDir + "/target/site/jacoco/jacoco.xml").exists();
-                            if (hasJacocoMaven) {
-                                coverageArg = "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml";
-                            }
-                        }
-                    }
-
                     // ใช้ค่า runTests จาก settings
                     boolean runTests = springSettings != null && springSettings.isRunTests();
-                    String testFlag = runTests ? "" : "-DskipTests";
 
+                    // กำหนด coverageArg โดยไม่ต้องเช็ค file เพราะ report จะถูกสร้างหลัง build
+                    String coverageArg = "";
+                    if (useJacoco && runTests) {
+                        coverageArg = isGradle
+                                ? "-Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml"
+                                : "-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml";
+                    }
+
+                    // ถ้า runTests=true → ใช้ verify (รัน test + generate JaCoCo report)
+                    // ถ้า runTests=false → ใช้ compile -DskipTests
                     String buildCommand = isGradle
                             ? """
                                     echo "=== BUILD SPRING BOOT (GRADLE) ==="
                                     chmod +x gradlew || true
-                                    ./gradlew build %s
-                                    """.formatted(runTests ? "" : "-x test")
+                                    ./gradlew %s
+                                    """.formatted(runTests ? "build" : "build -x test")
                             : """
                                     echo "=== BUILD SPRING BOOT (MAVEN) ==="
                                     if [ -f mvnw ]; then
                                       chmod +x mvnw
-                                      ./mvnw -B %s compile
+                                      ./mvnw -B %s
                                     else
-                                      mvn -B %s compile
+                                      mvn -B %s
                                     fi
-                                    """.formatted(testFlag, testFlag);
+                                    """.formatted(
+                                    runTests ? "verify" : "compile -DskipTests",
+                                    runTests ? "verify" : "compile -DskipTests");
 
                     yield """
                             set -e
@@ -126,8 +120,6 @@ public class SonarScanService {
 
                     // ใช้ค่า coverage จาก settings
                     boolean useCoverage = angularSettings != null && angularSettings.isCoverage();
-                    boolean hasCoverage = useCoverage && new File(
-                            workDir + "/coverage/lcov.info").exists();
 
                     // ใช้ค่า tsFiles จาก settings
                     boolean includeTsFiles = angularSettings != null && angularSettings.isTsFiles();
@@ -136,7 +128,8 @@ public class SonarScanService {
                             ? "-Dsonar.typescript.tsconfigPath=" + tsconfig
                             : "";
 
-                    String coverageArg = hasCoverage
+                    // กำหนด coverageArg โดยไม่เช็ค file เพราะจะถูกสร้างหลัง ng test
+                    String coverageArg = useCoverage
                             ? "-Dsonar.typescript.lcov.reportPaths=coverage/lcov.info"
                             : "";
 
@@ -158,11 +151,21 @@ public class SonarScanService {
                                     """
                             : "";
 
+                    // ถ้า coverage=true → รัน ng test --code-coverage ก่อน sonar-scanner
+                    String testCommand = useCoverage
+                            ? """
+                                    echo "=== RUNNING TESTS WITH COVERAGE ==="
+                                    npx ng test --no-watch --code-coverage || true
+                                    """
+                            : "";
+
                     yield """
                             set -e
                             cd %1$s
 
                             %9$s
+
+                            %11$s
 
                             echo "=== RUN SONAR (ANGULAR) ==="
                             echo "tsconfig: %3$s"
@@ -182,13 +185,14 @@ public class SonarScanService {
                             workDir,
                             projectKey,
                             tsconfig != null ? tsconfig : "DEFAULT",
-                            hasCoverage ? "ENABLED" : "DISABLED",
+                            useCoverage ? "ENABLED" : "DISABLED",
                             tsconfigArg,
                             coverageArg,
                             sonarHost,
                             sonarToken,
                             npmCommand,
-                            exclusions);
+                            exclusions,
+                            testCommand);
                 }
 
                 default -> """
