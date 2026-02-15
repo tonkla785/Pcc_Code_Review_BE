@@ -17,7 +17,6 @@ public class ProjectBroadcastPublisher {
 
     public void broadcastProjectChange(ProjectChangeEvent event) {
         messagingTemplate.convertAndSend("/topic/projects", event);
-        System.out.println("BROADCAST PROJECT: " + event.getAction() + " - " + event.getProjectId());
     }
 
     public static class ProjectChangeEvent {
