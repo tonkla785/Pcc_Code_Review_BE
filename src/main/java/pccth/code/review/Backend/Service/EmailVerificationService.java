@@ -26,6 +26,8 @@ public class EmailVerificationService {
     private final EmailService emailService;
     private final WebSocketNotificationService webSocketNotificationService;
 
+    @Value("${app.backend.public-url:http://localhost:8080}")
+    private String backendPublicUrl;
 
     @Value("${app.frontend.reset-url:http://localhost:4200/}")
     private String frontendBaseUrl;
@@ -69,7 +71,7 @@ public class EmailVerificationService {
 
         tokenRepo.save(t);
 
-        String link = frontendBaseUrl + "/verify-email?token=" + rawToken;
+        String link = backendPublicUrl + "/api/email-verification/confirm?token=" + rawToken;
 
         EmailRequestDTO dto = new EmailRequestDTO();
         dto.setType(EmailType.EmailVerification);
