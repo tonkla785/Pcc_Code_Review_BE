@@ -48,6 +48,7 @@ public class SecurityConfig {
                                                                 "/ws",
                                                                 "/api/email",
                                                                 "/user/forgot-password",
+                                                                "/api/email-verification/**",
                                                                 "/user/reset-password",
                                                                 "/ws/**",
                                                                 "/error")
