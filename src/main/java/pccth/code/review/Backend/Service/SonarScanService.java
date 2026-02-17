@@ -130,7 +130,7 @@ public class SonarScanService {
 
                     // กำหนด coverageArg โดยไม่เช็ค file เพราะจะถูกสร้างหลัง ng test
                     String coverageArg = useCoverage
-                            ? "-Dsonar.typescript.lcov.reportPaths=coverage/lcov.info"
+                            ? "-Dsonar.javascript.lcov.reportPaths=coverage/**/lcov.info"
                             : "";
 
                     // ใช้ค่า exclusions จาก settings (ถ้ามี)
@@ -155,7 +155,7 @@ public class SonarScanService {
                     String testCommand = useCoverage
                             ? """
                                     echo "=== RUNNING TESTS WITH COVERAGE ==="
-                                    npx ng test --no-watch --code-coverage || true
+                                    npx ng test --no-watch --code-coverage --browsers=ChromeHeadless || true
                                     """
                             : "";
 

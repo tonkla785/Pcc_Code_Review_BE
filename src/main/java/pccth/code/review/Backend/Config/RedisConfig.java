@@ -8,11 +8,13 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import pccth.code.review.Backend.Messaging.ScanStatusSubscriber;
+import pccth.code.review.Backend.Messaging.IssueStatusSubscriber;
 
 @Configuration
 public class RedisConfig {
 
     public static final String TOPIC_SCAN_STATUS = "scan-status";
+    public static final String TOPIC_ISSUE_STATUS = "issue-status";
 
     @Bean
     public RedisTemplate<String, String> redisTemplate(
@@ -31,18 +33,24 @@ public class RedisConfig {
         return new ChannelTopic(TOPIC_SCAN_STATUS);
     }
 
+    @Bean
+    public ChannelTopic issueStatusTopic() {
+        return new ChannelTopic(TOPIC_ISSUE_STATUS);
+    }
+
     // 2. สร้าง Container สำหรับฟัง Redis ผูกกับ Subscriber
     @Bean
     public RedisMessageListenerContainer redisContainer(
             RedisConnectionFactory factory,
-            ScanStatusSubscriber subscriber,
-            ChannelTopic scanStatusTopic
-    ) {
-        RedisMessageListenerContainer container =
-                new RedisMessageListenerContainer();
+            ScanStatusSubscriber scanSubscriber,
+            ChannelTopic scanStatusTopic,
+            IssueStatusSubscriber issueSubscriber,
+            ChannelTopic issueStatusTopic) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 
         container.setConnectionFactory(factory);
-        container.addMessageListener(subscriber, scanStatusTopic);
+        container.addMessageListener(scanSubscriber, scanStatusTopic);
+        container.addMessageListener(issueSubscriber, issueStatusTopic);
 
         return container;
     }

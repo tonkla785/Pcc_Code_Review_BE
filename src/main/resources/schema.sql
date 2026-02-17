@@ -159,6 +159,8 @@ CREATE TABLE issue_details (
     description TEXT,
     vulnerable_code TEXT,
     recommended_fix TEXT,
+    recommended_fix_by_ai TEXT,
+    status TEXT,
 
     CONSTRAINT fk_issue_details_issue
         FOREIGN KEY (issue_id)

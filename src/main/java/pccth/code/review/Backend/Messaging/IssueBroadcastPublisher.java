@@ -1,6 +1,5 @@
 package pccth.code.review.Backend.Messaging;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -8,14 +7,14 @@ import java.util.UUID;
 @Component
 public class IssueBroadcastPublisher {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final IssueStatusPublisher issueStatusPublisher;
 
-    public IssueBroadcastPublisher(SimpMessagingTemplate messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    public IssueBroadcastPublisher(IssueStatusPublisher issueStatusPublisher) {
+        this.issueStatusPublisher = issueStatusPublisher;
     }
 
     public void broadcastIssueChange(IssueChangeEvent event) {
-        messagingTemplate.convertAndSend("/topic/issues", event);
+        issueStatusPublisher.publish(event);
     }
 
     public static class IssueChangeEvent {
