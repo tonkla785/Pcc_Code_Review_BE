@@ -3,8 +3,10 @@ package pccth.code.review.Backend.Controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.EmailRequestDTO;
+import pccth.code.review.Backend.DTO.Request.RecommendAiRequestDTO;
 import pccth.code.review.Backend.DTO.Request.TriggerScanRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
+import pccth.code.review.Backend.DTO.Response.RecommendFixByAiResponseDTO;
 import pccth.code.review.Backend.Service.EmailService;
 import pccth.code.review.Backend.Service.WebhookScanService;
 
@@ -43,5 +45,10 @@ public class N8NTriggerController {
     public ResponseEntity<Void> sendEmail(@RequestBody EmailRequestDTO dto) {
         emailService.send(dto);
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/api/recommend-fix-ai")
+    public ResponseEntity<RecommendFixByAiResponseDTO> recommendFixAi(@RequestBody RecommendAiRequestDTO requestDTO) {
+        return ResponseEntity.ok(webhookScanService.recommendFixByAi(requestDTO));
     }
 }
