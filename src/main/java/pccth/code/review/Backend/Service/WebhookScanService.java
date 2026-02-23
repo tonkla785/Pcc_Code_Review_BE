@@ -4,17 +4,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import pccth.code.review.Backend.DTO.Request.QualityGateSettingsDTO;
+import pccth.code.review.Backend.DTO.Request.*;
+import pccth.code.review.Backend.DTO.Response.RecommendFixByAiResponseDTO;
 import pccth.code.review.Backend.DTO.ScanWsEvent;
-import pccth.code.review.Backend.DTO.Request.AngularSettingsDTO;
-import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
-import pccth.code.review.Backend.DTO.Request.SpringSettingsDTO;
 import pccth.code.review.Backend.DTO.Response.N8NScanQueueResposneDTO;
+import pccth.code.review.Backend.Entity.IssueDetailEntity;
+import pccth.code.review.Backend.Entity.IssueEntity;
 import pccth.code.review.Backend.Entity.ProjectEntity;
 import pccth.code.review.Backend.Entity.ScanEntity;
 import pccth.code.review.Backend.EnumType.ScanStatusEnum;
 import pccth.code.review.Backend.Integration.N8NWebhookClient;
 import pccth.code.review.Backend.Messaging.ScanStatusPublisher;
+import pccth.code.review.Backend.Repository.IssueDetailRepository;
+import pccth.code.review.Backend.Repository.IssueRepository;
 import pccth.code.review.Backend.Repository.ProjectRepository;
 import pccth.code.review.Backend.Repository.ScanRepository;
 
@@ -24,6 +26,8 @@ import java.util.UUID;
 @Service
 public class WebhookScanService {
 
+    private final IssueRepository issueRepository;
+    private final IssueDetailRepository issueDetailRepository;
     private final ProjectRepository projectRepository;
     private final N8NWebhookClient n8NWebhookClient;
     private final ScanRepository scanRepository;
@@ -36,11 +40,15 @@ public class WebhookScanService {
             ProjectRepository projectRepository,
             ScanRepository scanRepository,
             N8NWebhookClient n8NWebhookClient,
-            ScanStatusPublisher scanStatusPublisher) {
+            ScanStatusPublisher scanStatusPublisher,
+            IssueRepository issueRepository,
+            IssueDetailRepository issueDetailRepository) {
         this.projectRepository = projectRepository;
         this.n8NWebhookClient = n8NWebhookClient;
         this.scanRepository = scanRepository;
         this.scanStatusPublisher = scanStatusPublisher;
+        this.issueRepository = issueRepository;
+        this.issueDetailRepository = issueDetailRepository;
     }
 
     @Transactional
@@ -99,6 +107,43 @@ public class WebhookScanService {
         response.setScanId(scan.getId());
         response.setStatus(scan.getStatus());
 
+        return response;
+    }
+
+    @Transactional
+    public RecommendFixByAiResponseDTO recommendFixByAi(RecommendAiRequestDTO recommendAiRequestDTO) {
+        ProjectEntity project = projectRepository.findById(recommendAiRequestDTO.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        IssueEntity issue = issueRepository.findById(recommendAiRequestDTO.getIssueId())
+                .orElseThrow(() -> new IllegalArgumentException("issue not found"));
+
+        IssueDetailEntity issueDetail = issueDetailRepository.findById(recommendAiRequestDTO.getIssueId())
+                .orElseThrow(() -> new IllegalArgumentException("issueDetail not found"));
+
+        RecommendAiN8NRequestDTO requestDTO = new RecommendAiN8NRequestDTO();
+        requestDTO.setIssueId(issue.getId());
+        requestDTO.setProjectId(project.getId());
+        requestDTO.setRuleKey(issue.getRuleKey());
+        requestDTO.setMessage(issue.getMessage());
+        requestDTO.setDescription(issueDetail.getDescription());
+        requestDTO.setVulnerableCode(issueDetail.getVulnerableCode());
+        requestDTO.setRecommendedFix(issueDetail.getRecommendedFix());
+        requestDTO.setWebhookToken(webhookToken);
+
+        issueDetail.setStatus("PENDING");
+
+
+        try {
+            n8NWebhookClient.postIssueToN8N(requestDTO);
+        } catch (Exception e) {
+            throw new RuntimeException("Trigger n8n ai failed", e);
+        }
+
+        issueDetailRepository.save(issueDetail);
+        RecommendFixByAiResponseDTO response = new RecommendFixByAiResponseDTO();
+        response.setIssueId(recommendAiRequestDTO.getIssueId());
+        response.setMessage(issueDetail.getStatus());
         return response;
     }
 }

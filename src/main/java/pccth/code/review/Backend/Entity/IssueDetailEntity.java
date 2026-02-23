@@ -26,6 +26,28 @@ public class IssueDetailEntity {
     @Column(name = "recommended_fix")
     private String recommendedFix;
 
+    @Column(name = "recommended_fix_by_ai")
+    private String recommendedFixByAi;
+
+    @Column(name = "status")
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRecommendedFixByAi() {
+        return recommendedFixByAi;
+    }
+
+    public void setRecommendedFixByAi(String recommendedFixByAi) {
+        this.recommendedFixByAi = recommendedFixByAi;
+    }
+
     public IssueEntity getIssue() {
         return issue;
     }
