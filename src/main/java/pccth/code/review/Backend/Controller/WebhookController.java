@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+import pccth.code.review.Backend.DTO.Request.UpdateIssueDetailRecommendRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NIssueBatchResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NResponseDTO;
 import pccth.code.review.Backend.Service.*;
@@ -72,6 +73,12 @@ public class WebhookController {
     @PostMapping("/scan/issue-data")
     public ResponseEntity<N8NIssueBatchResponseDTO> receiveIssueResult(@RequestBody N8NIssueBatchResponseDTO result) {
         issueService.upsertIssuesFromN8n(result);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/scan/recommend-ai")
+    public ResponseEntity<UpdateIssueDetailRecommendRequestDTO> receiveIssueRecommend(@RequestBody UpdateIssueDetailRecommendRequestDTO result) {
+        issueService.updateRecommendFixAi(result);
         return ResponseEntity.ok(result);
     }
 }

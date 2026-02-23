@@ -4,6 +4,24 @@ public class IssueDetailResponseDTO {
     private String description;
     private String vulnerableCode;
     private String recommendedFix;
+    private String recommendedFixByAi;
+    private String status;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRecommendedFixByAi() {
+        return recommendedFixByAi;
+    }
+
+    public void setRecommendedFixByAi(String recommendedFixByAi) {
+        this.recommendedFixByAi = recommendedFixByAi;
+    }
 
     public String getDescription() {
         return description;

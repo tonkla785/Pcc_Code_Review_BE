@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.IssueUpdateRequestDTO;
 import pccth.code.review.Backend.DTO.Request.NotificationRequestDTO;
+import pccth.code.review.Backend.DTO.Request.UpdateIssueDetailRecommendRequestDTO;
 import pccth.code.review.Backend.Messaging.IssueBroadcastPublisher;
 import pccth.code.review.Backend.DTO.Response.*;
 import pccth.code.review.Backend.Entity.*;
@@ -76,60 +77,60 @@ public class IssueService {
             UUID issueId = (UUID) entityManager
                     .createNativeQuery(
                             """
-                            INSERT INTO issues (
-                                issue_key, project_id, type, severity, rule_key, component, line, message, status, created_at
-                            )
-                            VALUES (
-                                :issueKey, :projectId, :type, :severity, :ruleKey, :component, :line, :message, :status, :createdAt
-                            )
-                            ON CONFLICT (issue_key)
-                            DO UPDATE SET
-    
-                                type = CASE
-                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.type
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.type
-                                    ELSE EXCLUDED.type
-                                END,
-    
-                                severity = CASE
-                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.severity
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.severity
-                                    ELSE EXCLUDED.severity
-                                END,
-    
-                                rule_key = CASE
-                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.rule_key
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.rule_key
-                                    ELSE EXCLUDED.rule_key
-                                END,
-    
-                                component = CASE
-                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.component
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.component
-                                    ELSE EXCLUDED.component
-                                END,
-    
-                                line = CASE
-                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.line
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.line
-                                    ELSE EXCLUDED.line
-                                END,
-    
-                                message = CASE
-                                    WHEN EXCLUDED.status = 'RESOLVED' THEN issues.message
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.message
-                                    ELSE EXCLUDED.message
-                                END,
-    
-                                status = CASE
-                                    WHEN issues.status = 'CLOSED' THEN issues.status
-                                    WHEN EXCLUDED.status IN ('RESOLVED','CLOSED') THEN 'RESOLVED'
-                                    WHEN issues.status = 'IN_PROGRESS' THEN issues.status
-                                    ELSE EXCLUDED.status
-                                END
-    
-                            RETURNING id
-                            """)
+                                    INSERT INTO issues (
+                                        issue_key, project_id, type, severity, rule_key, component, line, message, status, created_at
+                                    )
+                                    VALUES (
+                                        :issueKey, :projectId, :type, :severity, :ruleKey, :component, :line, :message, :status, :createdAt
+                                    )
+                                    ON CONFLICT (issue_key)
+                                    DO UPDATE SET
+
+                                        type = CASE
+                                            WHEN EXCLUDED.status = 'RESOLVED' THEN issues.type
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.type
+                                            ELSE EXCLUDED.type
+                                        END,
+
+                                        severity = CASE
+                                            WHEN EXCLUDED.status = 'RESOLVED' THEN issues.severity
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.severity
+                                            ELSE EXCLUDED.severity
+                                        END,
+
+                                        rule_key = CASE
+                                            WHEN EXCLUDED.status = 'RESOLVED' THEN issues.rule_key
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.rule_key
+                                            ELSE EXCLUDED.rule_key
+                                        END,
+
+                                        component = CASE
+                                            WHEN EXCLUDED.status = 'RESOLVED' THEN issues.component
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.component
+                                            ELSE EXCLUDED.component
+                                        END,
+
+                                        line = CASE
+                                            WHEN EXCLUDED.status = 'RESOLVED' THEN issues.line
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.line
+                                            ELSE EXCLUDED.line
+                                        END,
+
+                                        message = CASE
+                                            WHEN EXCLUDED.status = 'RESOLVED' THEN issues.message
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.message
+                                            ELSE EXCLUDED.message
+                                        END,
+
+                                        status = CASE
+                                            WHEN issues.status = 'CLOSED' THEN issues.status
+                                            WHEN EXCLUDED.status IN ('RESOLVED','CLOSED') THEN 'RESOLVED'
+                                            WHEN issues.status = 'IN_PROGRESS' THEN issues.status
+                                            ELSE EXCLUDED.status
+                                        END
+
+                                    RETURNING id
+                                    """)
                     .setParameter("issueKey", dto.getIssueKey())
                     .setParameter("projectId", project.getId())
                     .setParameter("type", dto.getType())
@@ -179,6 +180,26 @@ public class IssueService {
         issueDetailRepository.save(detail);
     }
 
+    @Transactional
+    public void updateRecommendFixAi(UpdateIssueDetailRecommendRequestDTO requestDTO) {
+        ProjectEntity project = projectRepository.findById(requestDTO.getProjectId())
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+
+        IssueEntity issue = issueRepository.findById(requestDTO.getIssueId())
+                .orElseThrow(() -> new IllegalArgumentException("issue not found"));
+
+        IssueDetailEntity issueDetail = issueDetailRepository.findById(requestDTO.getIssueId())
+                .orElseThrow(() -> new IllegalArgumentException("issueDetail not found"));
+
+        issueDetail.setRecommendedFixByAi(requestDTO.getRecommendedFixAi());
+        issueDetail.setStatus("SUCCESS");
+        issueDetailRepository.save(issueDetail);
+
+        // Broadcast issue change to all users via WebSocket
+        issueBroadcastPublisher.broadcastIssueChange(
+                new IssueBroadcastPublisher.IssueChangeEvent("UPDATED", issue.getId()));
+    }
+
     @Transactional(readOnly = true)
     public List<IssuesResponseDTO> getAllIssues() {
 
@@ -202,6 +223,8 @@ public class IssueService {
         dto.setDescription(issueDetail.getDescription());
         dto.setVulnerableCode(issueDetail.getVulnerableCode());
         dto.setRecommendedFix(issueDetail.getRecommendedFix());
+        dto.setRecommendedFixByAi(issueDetail.getRecommendedFixByAi());
+        dto.setStatus(issueDetail.getStatus());
 
         return dto;
     }
@@ -279,8 +302,7 @@ public class IssueService {
         // มาจากหน้าบ้านด้วยนะ!!!!
         if (req.getAssignedTo() == null) {
             issue.setAssignedTo(null);
-        }else
-         {
+        } else {
             UserEntity userRef = entityManager.getReference(UserEntity.class, req.getAssignedTo());
             issue.setAssignedTo(userRef);
 
