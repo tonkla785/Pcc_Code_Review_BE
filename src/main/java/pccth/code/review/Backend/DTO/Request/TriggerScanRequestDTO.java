@@ -6,6 +6,7 @@ package pccth.code.review.Backend.DTO.Request;
  */
 public class TriggerScanRequestDTO {
     private String branch;
+    private String serverUrl;
     private String sonarToken;
     private AngularSettingsDTO angularSettings;
     private SpringSettingsDTO springSettings;
@@ -17,6 +18,13 @@ public class TriggerScanRequestDTO {
         this.qualityGateSettings = qualityGateSettings;
     }
 
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
+    }
 
     public String getBranch() {
         return branch;

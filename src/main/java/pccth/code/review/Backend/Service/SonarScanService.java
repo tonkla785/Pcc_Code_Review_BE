@@ -24,18 +24,25 @@ public class SonarScanService {
             String workDir = "/scan-workspace/" + scanId;
 
             // sonarHost จาก env
-            String sonarHost = System.getenv("SONAR_HOST_URL");
+            String sonarHost = req.getServerUrl();
             // sonarToken มาจาก n8n payload
             String sonarToken = req.getSonarToken();
 
-            if (sonarHost == null || sonarHost.isEmpty()) {
-                throw new IllegalStateException("SONAR_HOST_URL not set in environment");
+            if (sonarHost == null || sonarHost.isBlank()) {
+                throw new IllegalStateException("serverUrl not provided in request");
             }
+            sonarHost = sonarHost.stripTrailing().replaceAll("/$", "");
+
             if (sonarToken == null || sonarToken.isEmpty()) {
                 throw new IllegalStateException("sonarToken not provided in request");
             }
 
             logs.add(new AnalysisLogEntry("Installing dependencies..."));
+
+            String branch = req.getBranch();
+            String branchArg = (branch != null && !branch.isBlank())
+                    ? "-Dsonar.branch.name=" + branch
+                    : "";
 
             if (type == ProjectTypeEnum.ANGULAR) {
                 ensureNodeAvailable();
@@ -74,34 +81,35 @@ public class SonarScanService {
                     // ถ้า runTests=false → ใช้ compile -DskipTests
                     String buildCommand = isGradle
                             ? """
-                                    echo "=== BUILD SPRING BOOT (GRADLE) ==="
-                                    chmod +x gradlew || true
-                                    ./gradlew %s
-                                    """.formatted(runTests ? "build" : "build -x test")
+                            echo "=== BUILD SPRING BOOT (GRADLE) ==="
+                            chmod +x gradlew || true
+                            ./gradlew %s
+                            """.formatted(runTests ? "build" : "build -x test")
                             : """
-                                    echo "=== BUILD SPRING BOOT (MAVEN) ==="
-                                    if [ -f mvnw ]; then
-                                      chmod +x mvnw
-                                      ./mvnw -B %s
-                                    else
-                                      mvn -B %s
-                                    fi
-                                    """.formatted(
-                                    runTests ? "verify" : "compile -DskipTests",
-                                    runTests ? "verify" : "compile -DskipTests");
+                            echo "=== BUILD SPRING BOOT (MAVEN) ==="
+                            if [ -f mvnw ]; then
+                              chmod +x mvnw
+                              ./mvnw -B %s
+                            else
+                              mvn -B %s
+                            fi
+                            """.formatted(
+                            runTests ? "verify" : "compile -DskipTests",
+                            runTests ? "verify" : "compile -DskipTests");
 
                     yield """
                             set -e
                             cd %1$s
-
+                            
                             %3$s
-
+                            
                             echo "=== RUN SONAR (SPRING BOOT) ==="
                             sonar-scanner \
                               -Dsonar.projectKey=%2$s \
                               -Dsonar.sources=src/main/java \
                               -Dsonar.java.binaries=%4$s \
                               %5$s \
+                              %8$s \
                               -Dsonar.host.url=%6$s \
                               -Dsonar.login=%7$s
                             """.formatted(
@@ -111,7 +119,7 @@ public class SonarScanService {
                             isGradle ? "build/classes/java/main" : "target/classes",
                             coverageArg,
                             sonarHost,
-                            sonarToken);
+                            sonarToken, branchArg);
                 }
 
                 case ANGULAR -> {
@@ -146,31 +154,31 @@ public class SonarScanService {
                     boolean runNpm = angularSettings != null && angularSettings.isRunNpm();
                     String npmCommand = runNpm
                             ? """
-                                    echo "=== RUNNING NPM INSTALL ==="
-                                    npm install
-                                    """
+                            echo "=== RUNNING NPM INSTALL ==="
+                            npm install
+                            """
                             : "";
 
                     // ถ้า coverage=true → รัน ng test --code-coverage ก่อน sonar-scanner
                     String testCommand = useCoverage
                             ? """
-                                    echo "=== RUNNING TESTS WITH COVERAGE ==="
-                                    npx ng test --no-watch --code-coverage --browsers=ChromeHeadless || true
-                                    """
+                            echo "=== RUNNING TESTS WITH COVERAGE ==="
+                            npx ng test --no-watch --code-coverage --browsers=ChromeHeadless || true
+                            """
                             : "";
 
                     yield """
                             set -e
                             cd %1$s
-
+                            
                             %9$s
-
+                            
                             %11$s
-
+                            
                             echo "=== RUN SONAR (ANGULAR) ==="
                             echo "tsconfig: %3$s"
                             echo "coverage: %4$s"
-
+                            
                             sonar-scanner \
                               -Dsonar.projectKey=%2$s \
                               -Dsonar.sources=src \
@@ -179,6 +187,7 @@ public class SonarScanService {
                               -Dsonar.test.inclusions=**/*.spec.ts \
                               %5$s \
                               %6$s \
+                              %12$s \
                               -Dsonar.host.url=%7$s \
                               -Dsonar.login=%8$s
                             """.formatted(
@@ -192,20 +201,21 @@ public class SonarScanService {
                             sonarToken,
                             npmCommand,
                             exclusions,
-                            testCommand);
+                            testCommand, branchArg);
                 }
 
                 default -> """
                         set -e
                         cd %1$s
-
+                        
                         echo "=== RUN SONAR (GENERIC) ==="
                         sonar-scanner \
                           -Dsonar.projectKey=%2$s \
                           -Dsonar.sources=. \
+                          %5$s \
                           -Dsonar.host.url=%3$s \
                           -Dsonar.login=%4$s
-                        """.formatted(workDir, projectKey, sonarHost, sonarToken);
+                        """.formatted(workDir, projectKey, sonarHost, sonarToken, branchArg);
             };
 
             logs.add(new AnalysisLogEntry("Running sonar scanner..."));

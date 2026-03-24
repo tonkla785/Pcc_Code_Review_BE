@@ -10,10 +10,6 @@ import java.util.Map;
 @Service
 public class SonarTestConnectService {
 
-    private static final String INTERNAL_SONAR_URL = "http://localhost:9000";
-
-    private static final String PUBLIC_SONAR_DOMAIN = "code.pccth.com";
-
     public boolean validateSonarToken(String userHost, String token) {
 
         String resolvedHost = resolveSonarHost(userHost);
@@ -42,9 +38,9 @@ public class SonarTestConnectService {
             throw new IllegalArgumentException("sonarHostUrl is required");
         }
 
-        if (!userInput.startsWith("https://")) {
+        if (!userInput.startsWith("http://") && !userInput.startsWith("https://")) {
             throw new IllegalArgumentException(
-                    "sonarHostUrl must start with https://"
+                    "sonarHostUrl must start with http:// or https://"
             );
         }
 
@@ -54,12 +50,10 @@ public class SonarTestConnectService {
             throw new IllegalArgumentException("Invalid sonarHostUrl");
         }
 
-        if (!uri.getHost().equalsIgnoreCase(PUBLIC_SONAR_DOMAIN)) {
-            throw new IllegalArgumentException(
-                    "Only https://code.pccth.com is allowed"
-            );
-        }
+        String host = userInput.endsWith("/")
+                ? userInput.substring(0, userInput.length() - 1)
+                : userInput;
 
-        return INTERNAL_SONAR_URL;
+        return host;
     }
 }

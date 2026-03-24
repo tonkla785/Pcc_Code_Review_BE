@@ -56,6 +56,7 @@ public class WebhookScanService {
             UUID projectId,
             String branch,
             String sonarToken,
+            String serverUrl,
             String gitToken,
             AngularSettingsDTO angularSettings,
             SpringSettingsDTO springSettings,
@@ -75,6 +76,7 @@ public class WebhookScanService {
         N8NRequestDTO request = new N8NRequestDTO();
         request.setProjectId(project.getId());
         request.setScanId(scan.getId());
+        request.setServerUrl(serverUrl);
         request.setRepositoryUrl(project.getRepositoryUrl());
         request.setProjectType(project.getProjectType());
         request.setSonarProjectKey(project.getSonarProjectKey());

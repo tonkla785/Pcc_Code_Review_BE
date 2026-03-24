@@ -182,9 +182,6 @@ public class IssueService {
 
     @Transactional
     public void updateRecommendFixAi(UpdateIssueDetailRecommendRequestDTO requestDTO) {
-        ProjectEntity project = projectRepository.findById(requestDTO.getProjectId())
-                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
-
         IssueEntity issue = issueRepository.findById(requestDTO.getIssueId())
                 .orElseThrow(() -> new IllegalArgumentException("issue not found"));
 

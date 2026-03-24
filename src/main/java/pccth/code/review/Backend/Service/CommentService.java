@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.CommentRequestDTO;
 import pccth.code.review.Backend.DTO.Request.NotificationRequestDTO;
 import pccth.code.review.Backend.DTO.Response.CommentResponseDTO;
-import pccth.code.review.Backend.DTO.Response.NotificationResponseDTO;
 import pccth.code.review.Backend.DTO.Response.UserResponseDTO;
 import pccth.code.review.Backend.Entity.CommentEntity;
 import pccth.code.review.Backend.Entity.IssueEntity;

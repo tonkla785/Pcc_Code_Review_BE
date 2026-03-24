@@ -4,7 +4,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import pccth.code.review.Backend.DTO.Response.NotificationResponseDTO;
 import pccth.code.review.Backend.DTO.Response.UserWsEvent;
-import pccth.code.review.Backend.DTO.Response.VerifieddResponseDTO;
 
 import java.util.UUID;
 

@@ -9,11 +9,9 @@ services:
     build: .
     container_name: pccth-backend
     ports:
-      - "8090:8080"
+      - "8080:8080"
     volumes:
       - ./scan-workspace:/scan-workspace
-    env_file:
-      - .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Asia/Bangkok

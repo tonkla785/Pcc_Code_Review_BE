@@ -1,6 +1,5 @@
 package pccth.code.review.Backend.Service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +10,6 @@ import pccth.code.review.Backend.EnumType.EmailType;
 import pccth.code.review.Backend.Repository.EmailVerificationTokenRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.ResetTokenUtil;
-import pccth.code.review.Backend.Service.WebSocketNotificationService;
-
 
 import java.time.Duration;
 import java.time.Instant;

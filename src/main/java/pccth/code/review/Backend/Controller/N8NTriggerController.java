@@ -30,7 +30,8 @@ public class N8NTriggerController {
         return ResponseEntity.accepted().body(
                 webhookScanService.triggerScan(
                         projectId,
-                        requestDTO.getBranch() != null ? requestDTO.getBranch() : "main",
+                        requestDTO.getServerUrl(),
+                        requestDTO.getBranch() != null ? requestDTO.getBranch() : "dev",
                         requestDTO.getSonarToken(),
                         requestDTO.getGitToken(),        // << เพิ่ม
                         requestDTO.getAngularSettings(),

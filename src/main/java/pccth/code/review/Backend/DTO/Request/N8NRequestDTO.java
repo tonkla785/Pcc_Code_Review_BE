@@ -9,6 +9,8 @@ public class N8NRequestDTO {
     private UUID scanId;
     private String sonarToken;
 
+    private String serverUrl;
+
     private String gitToken;
 
     // Token สำหรับ n8n authen กลับมา Spring Boot
@@ -24,6 +26,14 @@ public class N8NRequestDTO {
     private AngularSettingsDTO angularSettings;
     private SpringSettingsDTO springSettings;
     private QualityGateSettingsDTO qualityGateSettings;
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
+    }
 
     public String getSonarToken() {
         return sonarToken;
