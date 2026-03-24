@@ -12,7 +12,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.*;
-import java.util.Base64;
 
 @Service
 public class GitCloneService {
@@ -28,61 +27,41 @@ public class GitCloneService {
             throw new SecurityException("Invalid workspace path");
         }
 
-        String gitToken = null;
-        boolean hasToken = false;
+        String gitToken = req.getGitToken();
+        boolean hasToken = gitToken != null && !gitToken.isBlank();
 
         try {
             String repoUrl = requireNonBlank(req.getRepositoryUrl(), "repositoryUrl");
             String branch = (req.getBranch() != null && !req.getBranch().isBlank()) ? req.getBranch() : "main";
             ProjectTypeEnum projectType = req.getProjectType();
 
-            gitToken = req.getGitToken();
-            hasToken = gitToken != null && !gitToken.isBlank();
-
             logs.add(new AnalysisLogEntry("Starting code review process..."));
 
             // recreate workspace
-            if (Files.exists(workDir)) {
-                FileSystemUtils.deleteRecursively(workDir);
-            }
-            Files.createDirectories(workDir);
+            recreateWorkspace(workDir);
 
-            String cloneUrl = normalizePublicRepoUrl(repoUrl);
+            String normalizedUrl = normalizeRepoUrl(repoUrl);
+            String provider = detectGitProvider(normalizedUrl);
 
             logs.add(new AnalysisLogEntry(
                     hasToken
-                            ? "Cloning repository from GitHub (with token)..."
-                            : "Cloning public repository from GitHub..."
+                            ? "Cloning repository (" + provider + ") with token..."
+                            : "Cloning public repository (" + provider + ")..."
             ));
 
-            List<String> cmd = new ArrayList<>();
-            cmd.add("git");
-
-            // ปิด prompt/credential helper
-            cmd.add("-c"); cmd.add("core.askPass=");
-            cmd.add("-c"); cmd.add("credential.helper=");
-
-            // ✅ GitHub: ใช้ Basic auth "x-access-token:<PAT>"
-            if (hasToken) {
-                String basic = buildGithubBasicAuthHeader(gitToken.trim()); // "basic <base64>"
-                cmd.add("-c");
-                cmd.add("http.extraheader=AUTHORIZATION: " + basic);
-            }
-
-            cmd.addAll(List.of(
-                    "clone",
-                    "--depth", "1",
-                    "--single-branch",
-                    "-b", branch,
-                    cloneUrl,
-                    workDir.toString()
-            ));
+            List<String> cmd = buildGitCloneCommand(normalizedUrl, branch, workDir);
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
 
-            // กัน prompt
+            // 🔐 security: disable prompt
             pb.environment().put("GIT_TERMINAL_PROMPT", "0");
             pb.environment().put("GIT_ASKPASS", "/bin/false");
+
+            // 🔐 inject auth via ENV (ปลอดภัยกว่า args)
+            if (hasToken) {
+                String header = buildAuthHeader(gitToken.trim(), provider);
+                pb.environment().put("GIT_HTTP_EXTRAHEADER", header);
+            }
 
             pb.redirectErrorStream(true);
 
@@ -105,10 +84,12 @@ public class GitCloneService {
             }
 
             logs.add(new AnalysisLogEntry("Repository cloned successfully"));
-            logs.add(new AnalysisLogEntry("Detecting project type: " + (projectType != null ? projectType.name() : "UNKNOWN")));
+            logs.add(new AnalysisLogEntry("Detecting project type: " +
+                    (projectType != null ? projectType.name() : "UNKNOWN")));
 
             Map<String, Object> data = new HashMap<>();
             data.put("workspace", workDir.toString());
+            data.put("provider", provider);
 
             return new ServiceExecutionResult(scanId, "GIT_CLONE_SUCCESS", data, logs);
 
@@ -121,19 +102,77 @@ public class GitCloneService {
         }
     }
 
-    private static String requireNonBlank(String v, String field) {
-        if (v == null || v.isBlank()) throw new IllegalArgumentException(field + " is required");
-        return v;
+    // ===================== CORE =====================
+
+    private void recreateWorkspace(Path workDir) throws Exception {
+        if (Files.exists(workDir)) {
+            FileSystemUtils.deleteRecursively(workDir);
+        }
+        Files.createDirectories(workDir);
     }
 
-    private static String normalizePublicRepoUrl(String repoUrl) {
+    private List<String> buildGitCloneCommand(String repoUrl, String branch, Path workDir) {
+        List<String> cmd = new ArrayList<>();
+
+        cmd.add("git");
+
+        // disable credential helper
+        cmd.add("-c"); cmd.add("core.askPass=");
+        cmd.add("-c"); cmd.add("credential.helper=");
+
+        cmd.addAll(List.of(
+                "clone",
+                "--depth", "1",
+                "--single-branch",
+                "-b", branch,
+                repoUrl,
+                workDir.toString()
+        ));
+
+        return cmd;
+    }
+
+    // ===================== PROVIDER =====================
+
+    private String detectGitProvider(String url) {
+        if (url.contains("github.com")) return "github";
+        if (url.contains("gitlab.com")) return "gitlab";
+        if (url.contains("bitbucket.org")) return "bitbucket";
+        return "unknown";
+    }
+
+    private String buildAuthHeader(String token, String provider) {
+        String raw;
+
+        switch (provider) {
+            case "github":
+                raw = "x-access-token:" + token;
+                break;
+            case "gitlab":
+                raw = "oauth2:" + token;
+                break;
+            case "bitbucket":
+                raw = "x-token-auth:" + token;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported git provider for token auth");
+        }
+
+        String b64 = Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
+        return "AUTHORIZATION: basic " + b64;
+    }
+
+    // ===================== URL =====================
+
+    private String normalizeRepoUrl(String repoUrl) {
         String url = repoUrl.trim();
 
         if (url.startsWith("git@")) {
-            throw new IllegalArgumentException("SSH url is not supported here; use https repo url");
+            throw new IllegalArgumentException("SSH url is not supported; use HTTPS");
         }
+
         if (!url.startsWith("https://")) {
-            throw new IllegalArgumentException("Only https repo url is supported");
+            throw new IllegalArgumentException("Only HTTPS repo url is supported");
         }
 
         URI uri = URI.create(url);
@@ -142,6 +181,7 @@ public class GitCloneService {
         if (path == null || path.isBlank()) {
             throw new IllegalArgumentException("Invalid repositoryUrl");
         }
+
         if (!path.endsWith(".git")) {
             path = path + ".git";
         }
@@ -149,24 +189,33 @@ public class GitCloneService {
         return uri.getScheme() + "://" + uri.getHost() + path;
     }
 
-    private static String buildGithubBasicAuthHeader(String token) {
-        // basic base64("x-access-token:<PAT>")
-        String raw = "x-access-token:" + token;
-        String b64 = Base64.getEncoder().encodeToString(raw.getBytes(StandardCharsets.UTF_8));
-        return "basic " + b64;
-    }
+    // ===================== SECURITY =====================
 
-    private static String maskToken(String text, String token) {
+    private String maskToken(String text, String token) {
         if (text == null) return null;
+
         String masked = text;
 
         if (token != null && !token.isBlank()) {
             masked = masked.replace(token, "***");
         }
 
+        // GitHub
         masked = masked.replaceAll("(github_pat_[A-Za-z0-9_]+)", "github_pat_***");
         masked = masked.replaceAll("(ghp_[A-Za-z0-9]+)", "ghp_***");
 
+        // GitLab
+        masked = masked.replaceAll("(glpat-[A-Za-z0-9\\-_]+)", "glpat-***");
+
         return masked;
+    }
+
+    // ===================== VALIDATION =====================
+
+    private String requireNonBlank(String v, String field) {
+        if (v == null || v.isBlank()) {
+            throw new IllegalArgumentException(field + " is required");
+        }
+        return v;
     }
 }
