@@ -23,7 +23,6 @@ public class SonarScanService {
 
             String workDir = "/scan-workspace/" + scanId;
 
-            // sonarHost จาก env
             String sonarHost = req.getServerUrl();
             // sonarToken มาจาก n8n payload
             String sonarToken = req.getSonarToken();

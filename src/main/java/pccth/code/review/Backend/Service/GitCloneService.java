@@ -37,7 +37,6 @@ public class GitCloneService {
 
             logs.add(new AnalysisLogEntry("Starting code review process..."));
 
-            // recreate workspace
             recreateWorkspace(workDir);
 
             String normalizedUrl = normalizeRepoUrl(repoUrl);
@@ -49,19 +48,16 @@ public class GitCloneService {
                             : "Cloning public repository (" + provider + ")..."
             ));
 
-            List<String> cmd = buildGitCloneCommand(normalizedUrl, branch, workDir);
+            //ส่ง token และ provider เข้าไปใน command
+            List<String> cmd = buildGitCloneCommand(
+                    normalizedUrl, branch, workDir,
+                    hasToken ? gitToken : null,
+                    provider
+            );
 
             ProcessBuilder pb = new ProcessBuilder(cmd);
 
-            // 🔐 security: disable prompt
             pb.environment().put("GIT_TERMINAL_PROMPT", "0");
-            pb.environment().put("GIT_ASKPASS", "/bin/false");
-
-            // 🔐 inject auth via ENV (ปลอดภัยกว่า args)
-            if (hasToken) {
-                String header = buildAuthHeader(gitToken.trim(), provider);
-                pb.environment().put("GIT_HTTP_EXTRAHEADER", header);
-            }
 
             pb.redirectErrorStream(true);
 
@@ -111,14 +107,18 @@ public class GitCloneService {
         Files.createDirectories(workDir);
     }
 
-    private List<String> buildGitCloneCommand(String repoUrl, String branch, Path workDir) {
+    private List<String> buildGitCloneCommand(String repoUrl, String branch, Path workDir, String token, String provider) {
         List<String> cmd = new ArrayList<>();
-
         cmd.add("git");
-
-        // disable credential helper
         cmd.add("-c"); cmd.add("core.askPass=");
         cmd.add("-c"); cmd.add("credential.helper=");
+
+        // inject token ผ่าน -c http.extraheader
+        if (token != null && !token.isBlank()) {
+            String header = buildAuthHeader(token.trim(), provider);
+            cmd.add("-c");
+            cmd.add("http.extraheader=" + header);
+        }
 
         cmd.addAll(List.of(
                 "clone",
@@ -138,7 +138,7 @@ public class GitCloneService {
         if (url.contains("github.com")) return "github";
         if (url.contains("gitlab.com")) return "gitlab";
         if (url.contains("bitbucket.org")) return "bitbucket";
-        return "unknown";
+        return "gitlab"; // default: self-hosted GitLab
     }
 
     private String buildAuthHeader(String token, String provider) {
@@ -200,11 +200,8 @@ public class GitCloneService {
             masked = masked.replace(token, "***");
         }
 
-        // GitHub
         masked = masked.replaceAll("(github_pat_[A-Za-z0-9_]+)", "github_pat_***");
         masked = masked.replaceAll("(ghp_[A-Za-z0-9]+)", "ghp_***");
-
-        // GitLab
         masked = masked.replaceAll("(glpat-[A-Za-z0-9\\-_]+)", "glpat-***");
 
         return masked;

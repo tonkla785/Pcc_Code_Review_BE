@@ -67,13 +67,15 @@ services:
     ports:
       - "9000:9000"
     environment:
+      SONAR_WEB_JAVAOPTS: "-javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-1.14.0.jar=web"
+      SONAR_CE_JAVAOPTS: "-javaagent:/opt/sonarqube/extensions/plugins/sonarqube-community-branch-plugin-1.14.0.jar=ce"
       SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar10
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: km@2019sd1
       SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: "true"
     volumes:
       - sonarqube_data:/opt/sonarqube/data
-      - sonarqube_extensions:/opt/sonarqube/extensions
+      - ./sonarqube-plugins:/opt/sonarqube/extensions/plugins
     depends_on:
       - sonar-db
     networks:
@@ -131,5 +133,4 @@ volumes:
   sonar_postgres_data:
   n8n_postgres_data:
   sonarqube_data:
-  sonarqube_extensions:
   n8n_data:
