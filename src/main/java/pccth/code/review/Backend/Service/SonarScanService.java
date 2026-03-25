@@ -86,7 +86,7 @@ public class SonarScanService {
                             """.formatted(runTests ? "build" : "build -x test")
                             : """
                             echo "=== BUILD SPRING BOOT (MAVEN) ==="
-                            if [ -f mvnw ]; then
+                            if [ -f .mvn/wrapper/maven-wrapper.properties ]; then
                               chmod +x mvnw
                               ./mvnw -B %s
                             else
