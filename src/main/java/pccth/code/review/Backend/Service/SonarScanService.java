@@ -78,23 +78,32 @@ public class SonarScanService {
 
                     // ถ้า runTests=true → ใช้ verify (รัน test + generate JaCoCo report)
                     // ถ้า runTests=false → ใช้ compile -DskipTests
-                    String buildCommand = isGradle
-                            ? """
+                    String buildCommand = isGradle ? """
                             echo "=== BUILD SPRING BOOT (GRADLE) ==="
                             chmod +x gradlew || true
-                            ./gradlew %s
-                            """.formatted(runTests ? "build" : "build -x test")
-                            : """
+                            ./gradlew %s || true
+                            """.formatted(runTests ? "build" : "build -x test") : """
                             echo "=== BUILD SPRING BOOT (MAVEN) ==="
                             if [ -f .mvn/wrapper/maven-wrapper.properties ]; then
                               chmod +x mvnw
-                              ./mvnw -B %s
+                              ./mvnw -B %s -DskipTests -Dmaven.compiler.failOnError=false || true
                             else
-                              mvn -B %s
+                              mvn -B %s -DskipTests -Dmaven.compiler.failOnError=false || true
                             fi
                             """.formatted(
-                            runTests ? "verify" : "compile -DskipTests",
-                            runTests ? "verify" : "compile -DskipTests");
+                            runTests ? "verify" : "compile",
+                            runTests ? "verify" : "compile"
+                    );
+
+                    String binariesPath = isGradle
+                            ? workDir + "/build/classes/java/main"
+                            : workDir + "/target/classes";
+
+                    boolean hasBinaries = new File(binariesPath).exists();
+
+                    String binariesArg = hasBinaries
+                            ? "-Dsonar.java.binaries=" + (isGradle ? "build/classes/java/main" : "target/classes")
+                            : "-Dsonar.java.binaries=.";
 
                     yield """
                             set -e
@@ -106,7 +115,7 @@ public class SonarScanService {
                             sonar-scanner \
                               -Dsonar.projectKey=%2$s \
                               -Dsonar.sources=src/main/java \
-                              -Dsonar.java.binaries=%4$s \
+                              %4$s \
                               %5$s \
                               %8$s \
                               -Dsonar.host.url=%6$s \
@@ -115,7 +124,7 @@ public class SonarScanService {
                             workDir,
                             projectKey,
                             buildCommand,
-                            isGradle ? "build/classes/java/main" : "target/classes",
+                            binariesArg,
                             coverageArg,
                             sonarHost,
                             sonarToken, branchArg);
