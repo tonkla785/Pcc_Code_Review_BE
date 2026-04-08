@@ -77,18 +77,19 @@ public class SonarScanService {
                     }
 
                     // ถ้า runTests=true → ใช้ verify (รัน test + generate JaCoCo report)
-                    // ถ้า runTests=false → ใช้ compile -DskipTests
                     String buildCommand = isGradle ? """
                             echo "=== BUILD SPRING BOOT (GRADLE) ==="
                             chmod +x gradlew || true
-                            ./gradlew %s || true
-                            """.formatted(runTests ? "build" : "build -x test") : """
+                            ./gradlew %s
+                            """.formatted(runTests ? "build" : "build -x test")
+
+                            : """
                             echo "=== BUILD SPRING BOOT (MAVEN) ==="
                             if [ -f .mvn/wrapper/maven-wrapper.properties ]; then
                               chmod +x mvnw
-                              ./mvnw -B %s -DskipTests -Dmaven.compiler.failOnError=false || true
+                              ./mvnw -B %s -DskipTests
                             else
-                              mvn -B %s -DskipTests -Dmaven.compiler.failOnError=false || true
+                              mvn -B %s -DskipTests
                             fi
                             """.formatted(
                             runTests ? "verify" : "compile",
@@ -144,13 +145,14 @@ public class SonarScanService {
                             ? "-Dsonar.typescript.tsconfigPath=" + tsconfig
                             : "";
 
-                    // กำหนด coverageArg โดยไม่เช็ค file เพราะจะถูกสร้างหลัง ng test
                     String coverageArg = useCoverage
-                            ? "-Dsonar.javascript.lcov.reportPaths=coverage/**/lcov.info"
+                            ? "-Dsonar.typescript.lcov.reportPaths=coverage/lcov.info"
                             : "";
 
+                    String cpdExclusions = "**/environment.*.ts,**/index.*.html";
+
                     // ใช้ค่า exclusions จาก settings (ถ้ามี)
-                    String exclusions = "**/node_modules/**,**/*.spec.ts";
+                    String exclusions = "**/node_modules/**,**/dist/**,**/*.spec.ts";
                     if (angularSettings != null && angularSettings.getExclusions() != null
                             && !angularSettings.getExclusions().isEmpty()) {
                         exclusions = angularSettings.getExclusions();
@@ -184,13 +186,11 @@ public class SonarScanService {
                             %11$s
                             
                             echo "=== RUN SONAR (ANGULAR) ==="
-                            echo "tsconfig: %3$s"
-                            echo "coverage: %4$s"
-                            
                             sonar-scanner \
                               -Dsonar.projectKey=%2$s \
                               -Dsonar.sources=src \
                               -Dsonar.exclusions=%10$s \
+                              -Dsonar.cpd.exclusions=%13$s \
                               -Dsonar.tests=src \
                               -Dsonar.test.inclusions=**/*.spec.ts \
                               %5$s \
@@ -209,7 +209,9 @@ public class SonarScanService {
                             sonarToken,
                             npmCommand,
                             exclusions,
-                            testCommand, branchArg);
+                            testCommand,
+                            branchArg,
+                            cpdExclusions);
                 }
 
                 default -> """
