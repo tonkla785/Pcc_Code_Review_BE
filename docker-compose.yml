@@ -12,7 +12,7 @@ services:
       - "8080:8080"
     volumes:
       - ./scan-workspace:/scan-workspace
-      - ./maven-settings.xml:/root/.m2/settings.xml
+      - ./settings.xml:/root/.m2/settings.xml
     environment:
       SPRING_PROFILES_ACTIVE: docker
       TZ: Asia/Bangkok

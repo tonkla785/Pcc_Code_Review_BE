@@ -250,6 +250,7 @@ public class SonarScanService {
 
         } catch (Exception e) {
             logs.add(new AnalysisLogEntry("Error: " + e.getMessage()));
+            e.printStackTrace();
             throw new RuntimeException("Sonar scan execution error", e);
         }
     }
@@ -302,7 +303,7 @@ public class SonarScanService {
 
     private void ensureNodeAvailable() {
         try {
-            Process p = new ProcessBuilder("node", "-v").start();
+            Process p = new ProcessBuilder("sh", "-c", "node -v").start();
             if (p.waitFor() != 0) {
                 throw new IllegalStateException("Node.js not available");
             }
