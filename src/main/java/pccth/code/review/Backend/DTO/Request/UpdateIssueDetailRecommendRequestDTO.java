@@ -6,7 +6,16 @@ public class UpdateIssueDetailRecommendRequestDTO {
     private UUID issueId;
     private UUID projectId;
     private String recommendedFixAi;
+    private String status;
     private String webhookToken;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
     public String getWebhookToken() {
         return webhookToken;

@@ -85,50 +85,50 @@ public class IssueService {
                                     )
                                     ON CONFLICT (issue_key)
                                     DO UPDATE SET
-
+                                    
                                         type = CASE
                                             WHEN EXCLUDED.status = 'RESOLVED' THEN issues.type
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.type
                                             ELSE EXCLUDED.type
                                         END,
-
+                                    
                                         severity = CASE
                                             WHEN EXCLUDED.status = 'RESOLVED' THEN issues.severity
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.severity
                                             ELSE EXCLUDED.severity
                                         END,
-
+                                    
                                         rule_key = CASE
                                             WHEN EXCLUDED.status = 'RESOLVED' THEN issues.rule_key
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.rule_key
                                             ELSE EXCLUDED.rule_key
                                         END,
-
+                                    
                                         component = CASE
                                             WHEN EXCLUDED.status = 'RESOLVED' THEN issues.component
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.component
                                             ELSE EXCLUDED.component
                                         END,
-
+                                    
                                         line = CASE
                                             WHEN EXCLUDED.status = 'RESOLVED' THEN issues.line
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.line
                                             ELSE EXCLUDED.line
                                         END,
-
+                                    
                                         message = CASE
                                             WHEN EXCLUDED.status = 'RESOLVED' THEN issues.message
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.message
                                             ELSE EXCLUDED.message
                                         END,
-
+                                    
                                         status = CASE
                                             WHEN issues.status = 'CLOSED' THEN issues.status
                                             WHEN EXCLUDED.status IN ('RESOLVED','CLOSED') THEN 'RESOLVED'
                                             WHEN issues.status = 'IN_PROGRESS' THEN issues.status
                                             ELSE EXCLUDED.status
                                         END
-
+                                    
                                     RETURNING id
                                     """)
                     .setParameter("issueKey", dto.getIssueKey())
@@ -189,10 +189,10 @@ public class IssueService {
                 .orElseThrow(() -> new IllegalArgumentException("issueDetail not found"));
 
         issueDetail.setRecommendedFixByAi(requestDTO.getRecommendedFixAi());
-        issueDetail.setStatus("SUCCESS");
+        issueDetail.setStatus(requestDTO.getStatus());
+
         issueDetailRepository.save(issueDetail);
 
-        // Broadcast issue change to all users via WebSocket
         issueBroadcastPublisher.broadcastIssueChange(
                 new IssueBroadcastPublisher.IssueChangeEvent("UPDATED", issue.getId()));
     }

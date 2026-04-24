@@ -134,6 +134,7 @@ public class WebhookScanService {
         requestDTO.setWebhookToken(webhookToken);
 
         issueDetail.setStatus("PENDING");
+        issueDetailRepository.save(issueDetail);
 
 
         try {
@@ -142,7 +143,6 @@ public class WebhookScanService {
             throw new RuntimeException("Trigger n8n ai failed", e);
         }
 
-        issueDetailRepository.save(issueDetail);
         RecommendFixByAiResponseDTO response = new RecommendFixByAiResponseDTO();
         response.setIssueId(recommendAiRequestDTO.getIssueId());
         response.setMessage(issueDetail.getStatus());
