@@ -68,6 +68,21 @@ public class PasswordResetService {
         emailService.send(dto);
     }
 
+    @Transactional(readOnly = true)
+    public String checkToken(String rawToken) {
+        if (rawToken == null || rawToken.isBlank()) return "INVALID";
+
+        String tokenHash = ResetTokenUtil.sha256Base64Url(rawToken);
+
+        var tokenOpt = tokenRepository.findTopByTokenHashOrderByCreatedAtDesc(tokenHash);
+        if (tokenOpt.isEmpty()) return "INVALID";
+
+        PasswordResetTokenEntity token = tokenOpt.get();
+        if (token.isUsed()) return "USED";
+        if (token.getExpiresAt().isBefore(Instant.now())) return "EXPIRED";
+        return "VALID";
+    }
+
     // 2) reset จริง
     @Transactional
     public void resetPassword(String rawToken, String newPassword) {

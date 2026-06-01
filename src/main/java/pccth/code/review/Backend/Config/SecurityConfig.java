@@ -55,6 +55,7 @@ public class SecurityConfig {
                                 "/user/forgot-password",
                                 "/api/email-verification/**",
                                 "/user/reset-password",
+                                "/user/reset-password/**",
                                 "/ws/**",
                                 "/error")
                         .permitAll()

@@ -38,17 +38,21 @@ public class EmailVerificationController {
 
     @GetMapping("/confirm")
     public ResponseEntity<Void> confirmByBrowser(@RequestParam("token") String token) {
+        String status;
         try {
-            service.confirm(token);
-
-            // redirect ไปหน้า FE สำเร็จ (หรือจะตอบเป็น plain text ก็ได้)
-            URI ok = URI.create(frontendBaseUrl + "/verify-success");
-            return ResponseEntity.status(302).location(ok).build();
-
+            status = service.confirm(token);
         } catch (Exception ex) {
-            URI fail = URI.create(frontendBaseUrl + "/verify-failed");
-            return ResponseEntity.status(302).location(fail).build();
+            status = "INVALID";
         }
+
+        URI target = switch (status) {
+            case "VERIFIED" -> URI.create(frontendBaseUrl + "/verify-success");
+            case "ALREADY_VERIFIED" -> URI.create(frontendBaseUrl + "/verify-success?status=already");
+            case "EXPIRED" -> URI.create(frontendBaseUrl + "/verify-failed?reason=expired");
+            default -> URI.create(frontendBaseUrl + "/verify-failed?reason=invalid");
+        };
+
+        return ResponseEntity.status(302).location(target).build();
     }
 }
 

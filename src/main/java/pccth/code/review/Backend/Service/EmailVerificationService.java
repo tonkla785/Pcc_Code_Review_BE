@@ -85,23 +85,35 @@ public class EmailVerificationService {
     }
 
     @Transactional
-    public void confirm(String rawToken) {
+    public String confirm(String rawToken) {
         if (rawToken == null || rawToken.isBlank()) {
-            throw new IllegalArgumentException("TOKEN_REQUIRED");
+            return "INVALID";
         }
 
         String tokenHash = ResetTokenUtil.sha256Base64Url(rawToken);
 
-        EmailVerificationTokenEntity t = tokenRepo.findByTokenHash(tokenHash)
-                .orElseThrow(() -> new IllegalArgumentException("INVALID_TOKEN"));
+        var tokenOpt = tokenRepo.findByTokenHash(tokenHash);
+        if (tokenOpt.isEmpty()) {
+            return "INVALID";
+        }
 
-        if (t.isUsed()) throw new IllegalArgumentException("TOKEN_ALREADY_USED");
-        if (t.isExpired()) throw new IllegalArgumentException("TOKEN_EXPIRED");
-
+        EmailVerificationTokenEntity t = tokenOpt.get();
         UserEntity user = t.getUser();
 
+        if ("VERIFIED".equalsIgnoreCase(user.getStatus())) {
+            return "ALREADY_VERIFIED";
+        }
+
+        if (t.isUsed()) {
+            return "ALREADY_VERIFIED";
+        }
+
+        if (t.isExpired()) {
+            return "EXPIRED";
+        }
+
         if (!"PENDING_VERIFICATION".equalsIgnoreCase(user.getStatus())) {
-            throw new IllegalArgumentException("USER_NOT_PENDING_VERIFICATION");
+            return "INVALID";
         }
 
         user.setStatus("VERIFIED");
@@ -112,5 +124,6 @@ public class EmailVerificationService {
 
         webSocketNotificationService.sendUserVerifyStatus(user.getId(), user.getStatus());
 
+        return "VERIFIED";
     }
 }

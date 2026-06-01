@@ -27,4 +27,10 @@ public class PasswordResetController {
         passwordResetService.resetPassword(body.get("token"), body.get("newPassword"));
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/reset-password/validate")
+    public ResponseEntity<Map<String, String>> validate(@RequestParam("token") String token) {
+        String status = passwordResetService.checkToken(token);
+        return ResponseEntity.ok(Map.of("status", status));
+    }
 }
