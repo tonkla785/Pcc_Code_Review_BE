@@ -1,6 +1,5 @@
 package pccth.code.review.Backend.Service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +24,6 @@ public class PasswordResetService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${app.frontend.reset-url:http://localhost:4200/reset-password}")
-    private String resetUrl;
-
     public PasswordResetService(
             UserRepository userRepository,
             PasswordResetTokenRepository tokenRepository,
@@ -41,7 +37,7 @@ public class PasswordResetService {
     }
 
     @Transactional
-    public void requestReset(String email) {
+    public void requestReset(String email, String frontendBaseUrl) {
         var userOpt = userRepository.findByEmail(email);
 
         if (userOpt.isEmpty()) return;
@@ -57,7 +53,8 @@ public class PasswordResetService {
         token.setExpiresAt(Instant.now().plus(Duration.ofMinutes(15)));
         tokenRepository.save(token);
 
-        String link = resetUrl + "?token=" + URLEncoder.encode(rawToken, StandardCharsets.UTF_8);
+        // สร้างลิงก์ reset โดยใช้ frontendBaseUrl จาก request แบบ Dynamic
+        String link = frontendBaseUrl + "/reset-password?token=" + URLEncoder.encode(rawToken, StandardCharsets.UTF_8);
 
         EmailRequestDTO dto = new EmailRequestDTO();
         dto.setType(EmailType.PasswordReset);

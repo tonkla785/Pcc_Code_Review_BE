@@ -1,6 +1,5 @@
 package pccth.code.review.Backend.Service;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pccth.code.review.Backend.DTO.Request.EmailRequestDTO;
@@ -11,6 +10,8 @@ import pccth.code.review.Backend.Repository.EmailVerificationTokenRepository;
 import pccth.code.review.Backend.Repository.UserRepository;
 import pccth.code.review.Backend.Util.ResetTokenUtil;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
@@ -22,12 +23,6 @@ public class EmailVerificationService {
     private final UserRepository userRepo;
     private final EmailService emailService;
     private final WebSocketNotificationService webSocketNotificationService;
-
-    @Value("${app.backend.public-url:http://localhost:8080}")
-    private String backendPublicUrl;
-
-    @Value("${app.frontend.reset-url:http://localhost:4200/}")
-    private String frontendBaseUrl;
 
     public EmailVerificationService(
             EmailVerificationTokenRepository tokenRepo,
@@ -44,7 +39,7 @@ public class EmailVerificationService {
 
 
     @Transactional
-    public void sendVerificationEmail(UUID userId) {
+    public void sendVerificationEmail(UUID userId, String backendBaseUrl, String frontendOrigin) {
         UserEntity user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
 
@@ -68,7 +63,9 @@ public class EmailVerificationService {
 
         tokenRepo.save(t);
 
-        String link = backendPublicUrl + "/api/email-verification/confirm?token=" + rawToken;
+        // สร้างลิงก์ confirm โดยใช้ backendBaseUrl จาก request + ฝัง origin ไว้สำหรับ redirect กลับ
+        String link = backendBaseUrl + "/api/email-verification/confirm?token=" + rawToken
+                + "&origin=" + URLEncoder.encode(frontendOrigin, StandardCharsets.UTF_8);
 
         EmailRequestDTO dto = new EmailRequestDTO();
         dto.setType(EmailType.EmailVerification);
