@@ -88,6 +88,14 @@ public class SonarScanService {
 
                             : """
                             echo "=== BUILD SPRING BOOT (MAVEN) ==="
+                            if grep -qE '<(maven\\.compiler\\.)?(release|source|target)>25</|<java\\.version>25</' pom.xml 2>/dev/null; then
+                              __JDK25=$(ls -d /usr/lib/jvm/temurin-25-* 2>/dev/null | head -1)
+                              if [ -n "$__JDK25" ]; then
+                                export JAVA_HOME="$__JDK25"
+                                export PATH="$JAVA_HOME/bin:$PATH"
+                                echo "Detected Java 25 project, using JAVA_HOME=$JAVA_HOME"
+                              fi
+                            fi
                             if [ -f .mvn/wrapper/maven-wrapper.properties ]; then
                               chmod +x mvnw
                               ./mvnw -B %s %s
