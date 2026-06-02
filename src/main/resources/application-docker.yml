@@ -30,9 +30,9 @@ webhook:
   token: pccth-internal-webhook-secret
   worker-url: http://pccth-n8n:5678/webhook/scan-worker
 
-#app:
-#  frontend:
-#    reset-url: https://gpt.pccth.com/reset-password
-#    base-url: https://gpt.pccth.com
-#  backend:
-#    public-url: https://gpt.pccth.com/backend
+app:
+  frontend:
+    reset-url: https://gpt.pccth.com/reset-password
+    base-url: https://gpt.pccth.com
+  backend:
+    public-url: https://gpt.pccth.com/backend
