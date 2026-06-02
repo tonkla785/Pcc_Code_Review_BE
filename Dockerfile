@@ -54,6 +54,10 @@ RUN apt-get update && apt-get install -y wget apt-transport-https gnupg \
  && apt-get update && apt-get install -y temurin-8-jdk \
  && rm -rf /var/lib/apt/lists/*
 
+# ===== install JDK 25 (สำหรับ project Java 25) =====
+RUN apt-get update && apt-get install -y temurin-25-jdk \
+ && rm -rf /var/lib/apt/lists/*
+
 # ===== install ojdbc6 เข้า local Maven repo (ทั้ง 2 groupId) =====
 COPY libs/ojdbc6.jar /tmp/ojdbc6.jar
 
