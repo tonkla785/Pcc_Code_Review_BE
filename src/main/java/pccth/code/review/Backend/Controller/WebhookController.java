@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pccth.code.review.Backend.DTO.Request.N8NRequestDTO;
+import pccth.code.review.Backend.DTO.Request.SonarRuleSyncRequestDTO;
 import pccth.code.review.Backend.DTO.Request.UpdateIssueDetailRecommendRequestDTO;
 import pccth.code.review.Backend.DTO.Response.N8NIssueBatchResponseDTO;
 import pccth.code.review.Backend.DTO.Response.N8NResponseDTO;
@@ -20,19 +21,22 @@ public class WebhookController {
     private final GitCloneService gitCloneService;
     private final SonarScanService sonarScanService;
     private final IssueService issueService;
+    private final SonarRuleSyncService sonarRuleSyncService;
 
     public WebhookController(
             ProjectService projectService,
             ScanService scanService,
             GitCloneService gitCloneService,
             SonarScanService sonarScanService,
-            IssueService issueService
+            IssueService issueService,
+            SonarRuleSyncService sonarRuleSyncService
     ) {
         this.projectService = projectService;
         this.scanService = scanService;
         this.sonarScanService = sonarScanService;
         this.gitCloneService = gitCloneService;
         this.issueService = issueService;
+        this.sonarRuleSyncService = sonarRuleSyncService;
     }
 
     @PostMapping("/scan/result")
@@ -80,5 +84,13 @@ public class WebhookController {
     public ResponseEntity<UpdateIssueDetailRecommendRequestDTO> receiveIssueRecommend(@RequestBody UpdateIssueDetailRecommendRequestDTO result) {
         issueService.updateRecommendFixAi(result);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/sonar-rule-security/sync")
+    public ResponseEntity<Map<String, Object>> syncSonarRules(@RequestBody SonarRuleSyncRequestDTO req) {
+        int count = sonarRuleSyncService.sync(req);
+        Map<String, Object> body = new HashMap<>();
+        body.put("synced", count);
+        return ResponseEntity.ok(body);
     }
 }

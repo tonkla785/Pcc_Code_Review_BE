@@ -171,6 +171,14 @@ CREATE TABLE issue_details (
         ON DELETE CASCADE
 );
 
+
+CREATE TABLE sonar_rule_security (
+    rule_key VARCHAR(150) PRIMARY KEY,
+    owasp_categories JSONB,
+    security_categories JSONB,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- COMMENTS
 CREATE TABLE comments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
