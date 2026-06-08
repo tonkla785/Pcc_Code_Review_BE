@@ -27,10 +27,14 @@ public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
     private final WebhookAuthFilter webhookAuthFilter;
+    private final ReportApiKeyAuthFilter reportApiKeyAuthFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, WebhookAuthFilter webhookAuthFilter) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter,
+                          WebhookAuthFilter webhookAuthFilter,
+                          ReportApiKeyAuthFilter reportApiKeyAuthFilter) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.webhookAuthFilter = webhookAuthFilter;
+        this.reportApiKeyAuthFilter = reportApiKeyAuthFilter;
     }
 
     @Bean
@@ -61,7 +65,8 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(webhookAuthFilter, JwtAuthFilter.class);
+                .addFilterBefore(webhookAuthFilter, JwtAuthFilter.class)
+                .addFilterBefore(reportApiKeyAuthFilter, JwtAuthFilter.class);
 
         return http.build();
     }

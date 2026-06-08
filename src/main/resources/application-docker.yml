@@ -30,6 +30,9 @@ webhook:
   token: pccth-internal-webhook-secret
   worker-url: http://pccth-n8n:5678/webhook/scan-worker
 
+report:
+  api-key: ${REPORT_API_KEY:pccth-ai-report-key-dev}
+
 app:
   frontend:
     reset-url: https://gpt.pccth.com/reset-password
