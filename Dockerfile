@@ -87,6 +87,21 @@ RUN mvn install:install-file \
 
 RUN rm /tmp/ojdbc6.jar
 
+# ===== install egp-utils (ทุกเวอร์ชัน) เข้า local Maven repo =====
+# วางทั้งโฟลเดอร์ egp-utils จาก .m2 ของ host ไว้ที่ libs/egp-utils/ ใน build context
+COPY libs/egp-utils/ /root/.m2/repository/com/pccth/egp-utils/
+
+# ลบ marker .lastUpdated และ gen .pom จาก pom ที่ฝังใน jar ให้ version ที่ pom หาย
+RUN find /root/.m2/repository/com/pccth/egp-utils -name '*.lastUpdated' -delete \
+ && for jar in $(find /root/.m2/repository/com/pccth/egp-utils -name 'egp-utils-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar'); do \
+      pom="${jar%.jar}.pom"; \
+      if [ ! -f "$pom" ]; then \
+        tmp=$(mktemp); \
+        if unzip -p "$jar" 'META-INF/maven/com.pccth/egp-utils/pom.xml' > "$tmp" 2>/dev/null && [ -s "$tmp" ]; then cp "$tmp" "$pom"; fi; \
+        rm -f "$tmp"; \
+      fi; \
+    done
+
 # ===== app =====
 WORKDIR /app
 COPY target/*.jar app.jar
