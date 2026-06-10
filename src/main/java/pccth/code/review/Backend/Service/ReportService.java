@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import pccth.code.review.Backend.DTO.Request.MarkdownReportRequestDTO;
 import pccth.code.review.Backend.DTO.Request.ReportGenerateRequestDTO;
 import pccth.code.review.Backend.DTO.Request.ReportHistoryRequestDTO;
 import pccth.code.review.Backend.DTO.Response.ProjectSummaryDTO;
@@ -29,17 +30,20 @@ public class ReportService {
     private final ReportDataAggregator aggregator;
     private final SpringTemplateEngine templateEngine;
     private final HtmlToPdfConverter pdfConverter;
+    private final ReportMarkdownRenderer markdownRenderer;
     private final ReportHistoryService reportHistoryService;
     private final ProjectRepository projectRepository;
 
     public ReportService(ReportDataAggregator aggregator,
                          SpringTemplateEngine templateEngine,
                          HtmlToPdfConverter pdfConverter,
+                         ReportMarkdownRenderer markdownRenderer,
                          ReportHistoryService reportHistoryService,
                          ProjectRepository projectRepository) {
         this.aggregator = aggregator;
         this.templateEngine = templateEngine;
         this.pdfConverter = pdfConverter;
+        this.markdownRenderer = markdownRenderer;
         this.reportHistoryService = reportHistoryService;
         this.projectRepository = projectRepository;
     }
@@ -70,15 +74,25 @@ public class ReportService {
 
         byte[] pdf = pdfConverter.convert(html);
         String base64 = Base64.getEncoder().encodeToString(pdf);
-        String fileName = buildFileName(vm);
+        String fileName = buildFileName(vm, "pdf");
 
-        maybeSaveHistory(req, vm, pdf.length);
+        maybeSaveHistory(req, vm, pdf.length, "PDF", "backend-pdf");
 
         return new ReportGenerateResponseDTO(
                 fileName, "application/pdf", base64, pdf.length, Instant.now());
     }
 
-    private void maybeSaveHistory(ReportGenerateRequestDTO req, ReportViewModel vm, int sizeBytes) {
+    public String generateMarkdown(MarkdownReportRequestDTO request) {
+        ReportGenerateRequestDTO req = new ReportGenerateRequestDTO();
+        req.setProjectId(request.getProjectId());
+        req.setSections(ReportGenerateRequestDTO.Sections.all());
+
+        ReportViewModel vm = aggregator.build(req);
+        return markdownRenderer.render(vm);
+    }
+
+    private void maybeSaveHistory(ReportGenerateRequestDTO req, ReportViewModel vm, int sizeBytes,
+                                 String format, String generatedVia) {
         if (req.getUserId() == null || req.getDateFrom() == null || req.getDateTo() == null) {
             return;
         }
@@ -88,7 +102,7 @@ public class ReportService {
             history.setProjectName(vm.getProjectName());
             history.setDateFrom(req.getDateFrom());
             history.setDateTo(req.getDateTo());
-            history.setFormat("PDF");
+            history.setFormat(format);
             history.setGeneratedBy(vm.getGeneratedBy());
             history.setIncludeQualityGate(req.getSections().isQualityGate());
             history.setIncludeIssueBreakdown(req.getSections().isIssueBreakdown());
@@ -98,7 +112,7 @@ public class ReportService {
             history.setFileSizeBytes((long) sizeBytes);
 
             Map<String, Object> snapshot = new HashMap<>();
-            snapshot.put("generatedVia", "backend-pdf");
+            snapshot.put("generatedVia", generatedVia);
             snapshot.put("fileSizeBytes", sizeBytes);
             history.setSnapshotData(snapshot);
 
@@ -108,9 +122,9 @@ public class ReportService {
         }
     }
 
-    private String buildFileName(ReportViewModel vm) {
+    private String buildFileName(ReportViewModel vm, String ext) {
         String safeProject = vm.getProjectName() == null ? "report"
                 : vm.getProjectName().replaceAll("[^a-zA-Z0-9-_ก-๙]+", "_");
-        return "Report_" + safeProject + "_" + vm.getDateFrom() + "_to_" + vm.getDateTo() + ".pdf";
+        return "Report_" + safeProject + "_" + vm.getDateFrom() + "_to_" + vm.getDateTo() + "." + ext;
     }
 }

@@ -91,16 +91,25 @@ RUN rm /tmp/ojdbc6.jar
 # วางทั้งโฟลเดอร์ egp-utils จาก .m2 ของ host ไว้ที่ libs/egp-utils/ ใน build context
 COPY libs/egp-utils/ /root/.m2/repository/com/pccth/egp-utils/
 
-# ลบ marker .lastUpdated และ gen .pom จาก pom ที่ฝังใน jar ให้ version ที่ pom หาย
-RUN find /root/.m2/repository/com/pccth/egp-utils -name '*.lastUpdated' -delete \
- && for jar in $(find /root/.m2/repository/com/pccth/egp-utils -name 'egp-utils-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar'); do \
+# ทำความสะอาด + gen .pom ให้ deterministic (จัดการเฉพาะใน image ไม่แตะ source บน host)
+RUN set -eu; \
+    REPO=/root/.m2/repository/com/pccth/egp-utils; \
+    find "$REPO" -type f \( -name '*.lastUpdated' -o -name '_remote.repositories' \
+        -o -name 'm2e-lastUpdated.properties' -o -name '*.sha1' \) -delete; \
+    for d in "$REPO"/*/; do \
+      v=$(basename "$d"); \
+      case "$v" in *" "*) echo "drop malformed egp-utils version: [$v]"; rm -rf "$d"; continue;; esac; \
+      ls "$d"egp-utils-*.jar >/dev/null 2>&1 || { echo "drop egp-utils version w/o jar: [$v]"; rm -rf "$d"; continue; }; \
+    done; \
+    for jar in $(find "$REPO" -name 'egp-utils-*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar'); do \
       pom="${jar%.jar}.pom"; \
       if [ ! -f "$pom" ]; then \
         tmp=$(mktemp); \
         if unzip -p "$jar" 'META-INF/maven/com.pccth/egp-utils/pom.xml' > "$tmp" 2>/dev/null && [ -s "$tmp" ]; then cp "$tmp" "$pom"; fi; \
         rm -f "$tmp"; \
       fi; \
-    done
+    done; \
+    echo "=== egp-utils versions baked into image ==="; ls -1 "$REPO"
 
 # ===== app =====
 WORKDIR /app
