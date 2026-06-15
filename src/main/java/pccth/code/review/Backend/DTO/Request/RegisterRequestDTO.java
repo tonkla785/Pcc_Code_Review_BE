@@ -10,7 +10,7 @@ public class RegisterRequestDTO {
     @Pattern(
             regexp = "^[^@\\s]+@(pccth\\.com|wisesoft\\.co\\.th)$",
             flags = Pattern.Flag.CASE_INSENSITIVE,
-            message = "Email must be a @pccth.com or @wisesoft.co.th address"
+            message = "Email must be a pccth or wisesoft address"
     )
     private String email;
     @NotBlank(message = "Password is required")
