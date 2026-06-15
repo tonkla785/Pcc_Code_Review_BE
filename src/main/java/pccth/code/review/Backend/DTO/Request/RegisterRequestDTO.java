@@ -1,11 +1,17 @@
 package pccth.code.review.Backend.DTO.Request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 public class RegisterRequestDTO {
     @NotBlank(message = "Username is required")
     private String username;
     @NotBlank(message = "Email is required")
+    @Pattern(
+            regexp = "^[^@\\s]+@(pccth\\.com|wisesoft\\.co\\.th)$",
+            flags = Pattern.Flag.CASE_INSENSITIVE,
+            message = "Email must be a @pccth.com or @wisesoft.co.th address"
+    )
     private String email;
     @NotBlank(message = "Password is required")
     private String password;
